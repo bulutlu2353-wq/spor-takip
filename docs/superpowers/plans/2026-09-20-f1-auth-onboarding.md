@@ -729,8 +729,10 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 });
 
 /// Şu anda giriş yapılmış bir kullanıcı var mı.
+/// Not: Riverpod 3.x'te `AsyncValue.valueOrNull` kaldırıldı, `.value` artık
+/// aynı işi görüyor (error/loading durumunda null döner, throw etmez).
 final isLoggedInProvider = Provider<bool>((ref) {
-  final session = ref.watch(authStateProvider).valueOrNull?.session;
+  final session = ref.watch(authStateProvider).value?.session;
   return session != null;
 });
 
@@ -1057,7 +1059,9 @@ import 'redirect_logic.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final isLoggedIn = ref.watch(isLoggedInProvider);
-  final hasProfile = ref.watch(profileProvider).valueOrNull != null;
+  // Riverpod 3.x: `.value` (not the removed `valueOrNull`) returns null on
+  // error/loading — see the same note in Task 6's `isLoggedInProvider`.
+  final hasProfile = ref.watch(profileProvider).value != null;
 
   return GoRouter(
     initialLocation: '/login',
