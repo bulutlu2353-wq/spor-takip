@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/router.dart';
 import 'core/supabase_client.dart';
 
 Future<void> main() async {
@@ -24,21 +26,23 @@ Future<void> main() async {
       supportedLocales: const [Locale('tr'), Locale('en')],
       path: 'assets/translations',
       fallbackLocale: const Locale('tr'),
-      child: const SporTakipApp(),
+      child: const ProviderScope(child: SporTakipApp()),
     ),
   );
 }
 
-class SporTakipApp extends StatelessWidget {
+class SporTakipApp extends ConsumerWidget {
   const SporTakipApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
       title: 'Spor Takip',
-      home: const Scaffold(
-        body: Center(child: Text('F0 iskeleti hazır')),
-      ),
+      routerConfig: router,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
     );
   }
 }
