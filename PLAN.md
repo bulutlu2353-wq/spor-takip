@@ -143,3 +143,4 @@ Tüm tablolarda **Supabase RLS (Row Level Security)** aktif — herkes yalnızca
 | Tarih | Değişiklik |
 |-------|------------|
 | (ilk plan) | Plan oluşturuldu. |
+| 2026-09-20 | F0 tamamlandı: Flutter+Supabase ortamı (kod iskeleti), feature-first klasör yapısı, bağımlılıklar, .env config, CI kuruldu. Gerçek Supabase proje bağlantısı (Task 8) kullanıcının proje oluşturup kimlik bilgilerini paylaşmasını bekliyor — ayrı olarak tamamlanacak. |
