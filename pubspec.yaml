@@ -38,6 +38,7 @@ dependencies:
   supabase_flutter: ^2.17.2
   go_router: ^18.0.1
   flutter_dotenv: ^6.0.1
+  easy_localization: ^3.0.8
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,7 @@ flutter:
 
   assets:
     - .env
+    - assets/translations/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
