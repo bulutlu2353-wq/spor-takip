@@ -1,5 +1,17 @@
 {
   "app": {
     "title": "Spor Takip"
+  },
+  "auth": {
+    "login_title": "Giriş Yap",
+    "email_label": "E-posta",
+    "password_label": "Şifre",
+    "login_button": "Giriş Yap",
+    "forgot_password": "Şifremi unuttum",
+    "go_to_register": "Hesabın yok mu? Kayıt ol",
+    "enter_email_first": "Önce e-posta adresini gir",
+    "reset_email_sent": "Şifre sıfırlama e-postası gönderildi",
+    "invalid_credentials": "E-posta veya şifre hatalı",
+    "unknown_error": "Bir hata oluştu, tekrar dene"
   }
 }
