@@ -5,8 +5,18 @@ import 'core/supabase_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
-  await AppSupabase.init();
+  try {
+    await dotenv.load(fileName: '.env');
+    await AppSupabase.init();
+  } catch (error, stackTrace) {
+    debugPrint(
+      'Failed to load app config from .env. Check that .env exists and '
+      'matches the keys in .env.example (SUPABASE_URL, SUPABASE_ANON_KEY): '
+      '$error',
+    );
+    debugPrint('$stackTrace');
+    rethrow;
+  }
   runApp(const SporTakipApp());
 }
 
