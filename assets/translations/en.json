@@ -12,6 +12,13 @@
     "enter_email_first": "Önce e-posta adresini gir",
     "reset_email_sent": "Şifre sıfırlama e-postası gönderildi",
     "invalid_credentials": "E-posta veya şifre hatalı",
-    "unknown_error": "Bir hata oluştu, tekrar dene"
+    "unknown_error": "Bir hata oluştu, tekrar dene",
+    "register_title": "Kayıt Ol",
+    "confirm_password_label": "Şifre (tekrar)",
+    "register_button": "Kayıt Ol",
+    "go_to_login": "Zaten hesabın var mı? Giriş yap",
+    "passwords_dont_match": "Şifreler eşleşmiyor",
+    "email_already_registered": "Bu e-posta zaten kayıtlı",
+    "weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç"
   }
 }
