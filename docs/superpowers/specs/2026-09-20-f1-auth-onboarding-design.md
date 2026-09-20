@@ -4,7 +4,7 @@
 
 ## 1. Bağlam
 
-F0 (repo/ortam kurulumu) tamamlandı: Flutter+Supabase iskeleti, feature-first klasör yapısı, Riverpod/go_router/dotenv bağımlılıkları, CI pipeline'ı kuruldu ve GitHub'a push edildi (CI ilk çalıştırmasında yeşil geçti). Supabase projesi kullanıcı tarafından oluşturuldu ve gerçek kimlik bilgileri paylaşıldı (F0 Task 8 tamamlandı).
+F0 (repo/ortam kurulumu) tamamlandı: Flutter+Supabase iskeleti, feature-first klasör yapısı, Riverpod/go_router/dotenv bağımlılıkları, CI pipeline'ı kuruldu ve GitHub'a push edildi (CI ilk çalıştırmasında yeşil geçti). **F0 Task 8 (gerçek Supabase projesi + kimlik bilgileri) hâlâ AÇIK** — kullanıcı henüz bir Supabase projesi oluşturup URL/anon key paylaşmadı. F1'in implementasyon planı bu bağımlılığı açıkça ele almalı: kod/migration/test yazımı gerçek kimlik bilgisi olmadan ilerleyebilir (F1 §9'daki test stratejisi zaten gerçek Supabase'e bağlanmıyor), ancak uygulamanın gerçek cihazda/emülatörde uçtan uca çalıştığının doğrulanması (auth akışı, profil kaydı) gerçek bir Supabase projesi + `profiles` tablosunun migration'ının o projede çalıştırılmış olmasını gerektirir.
 
 F1, uygulamanın ilk gerçek kullanıcı akışını kurar: kayıt/giriş → onboarding anketi → günlük kalori/protein hedefinin hesaplanıp kaydedilmesi → basit bir özet ekranı.
 
