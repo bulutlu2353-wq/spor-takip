@@ -1147,8 +1147,10 @@ F0'ın "F0 iskeleti hazır" testi artık geçersiz (o ekran kalkıyor). Yerine, 
 `test/widget_test.dart`:
 ```dart
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
@@ -1156,6 +1158,10 @@ import 'package:spor_takip/main.dart';
 
 void main() {
   setUpAll(() async {
+    // easy_localization persists the selected locale via shared_preferences
+    // internally; without this mock, ensureInitialized() throws
+    // MissingPluginException in a test environment.
+    SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
   });
 
@@ -2051,10 +2057,14 @@ EOF
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/presentation/steps/step_scaffolds.dart';
 
 void main() {
   setUpAll(() async {
+    // easy_localization needs shared_preferences mocked in tests — see
+    // Task 8's widget_test.dart for why (MissingPluginException otherwise).
+    SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
   });
 
