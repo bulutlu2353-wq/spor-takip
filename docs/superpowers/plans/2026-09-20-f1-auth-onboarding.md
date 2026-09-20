@@ -3386,8 +3386,8 @@ EOF
 - Modify: `lib/features/onboarding/presentation/login_screen.dart`
 - Modify: `assets/translations/tr.json`
 - Modify: `assets/translations/en.json`
-- Modify: `android/app/build.gradle.kts` (paket adı/SHA-1 doğrulaması gerekebilir)
-- Modify: `ios/Runner/Info.plist` (URL scheme)
+
+Not: `android/app/build.gradle.kts` (SHA-1 doğrulaması) ve `ios/Runner/Info.plist` (URL scheme) bu task'ta DEĞİŞTİRİLMEZ — bu dosyalar kullanıcının paylaşacağı gerçek Client ID/SHA-1 değerlerine bağlı, task'ın sonundaki Not'ta ayrı bir takip maddesi olarak bırakıldı.
 
 **Interfaces:**
 - Consumes: `AuthRepository` (Task 6), kullanıcının sağlayacağı Google OAuth Client ID'leri (Web, Android, iOS)
@@ -3417,12 +3417,14 @@ Kullanıcıya şunu ilet: "Google girişi için Google Cloud Console'dan bir Web
 
 - [ ] **Step 3: tr.json/en.json'a Google giriş metnini ekle**
 
-`assets/translations/tr.json`'daki `auth` bloğuna ekle:
+`assets/translations/tr.json`'daki `auth` bloğunun İÇİNDE, son alan olan `"weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç"` satırından hemen sonra, o satırın sonuna virgül ekleyip yeni satırı ekle:
 ```json
+    "weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç",
     "google_sign_in": "Google ile giriş yap"
 ```
+(`auth` bloğunun kapanış `}`'ı bu yeni satırdan hemen sonra gelir — JSON söz dizimini bozmadığından emin ol.)
 
-`assets/translations/en.json`'a da aynı satırı ekle.
+`assets/translations/en.json`'da da `auth` bloğuna aynı iki satırı aynı şekilde ekle.
 
 - [ ] **Step 4: Login ekranına Google butonunu ekle**
 
