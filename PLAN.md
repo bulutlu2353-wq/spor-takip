@@ -144,3 +144,4 @@ Tüm tablolarda **Supabase RLS (Row Level Security)** aktif — herkes yalnızca
 |-------|------------|
 | (ilk plan) | Plan oluşturuldu. |
 | 2026-09-20 | F0 tamamlandı: Flutter+Supabase ortamı (kod iskeleti), feature-first klasör yapısı, bağımlılıklar, .env config, CI kuruldu. Gerçek Supabase proje bağlantısı (Task 8) kullanıcının proje oluşturup kimlik bilgilerini paylaşmasını bekliyor — ayrı olarak tamamlanacak. |
+| 2026-09-20 | F1 (email/şifre bölümü) tamamlandı: kayıt/giriş/şifre sıfırlama, 10 soruluk onboarding sihirbazı, Mifflin-St Jeor TDEE + protein hedefi hesabı, auth/profil durumuna göre otomatik yönlendirme, TR/EN i18n altyapısı. Google Sign-In (F1'in bir parçası) ayrı bir görev olarak kullanıcının Google Cloud Console kurulumunu bekliyor. Gerçek Supabase projesi bağlantısı (F0 Task 8) hâlâ açık — uçtan uca manuel doğrulama bunu bekliyor. |
