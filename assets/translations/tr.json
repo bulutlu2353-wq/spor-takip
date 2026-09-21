@@ -19,7 +19,8 @@
     "go_to_login": "Zaten hesabın var mı? Giriş yap",
     "passwords_dont_match": "Şifreler eşleşmiyor",
     "email_already_registered": "Bu e-posta zaten kayıtlı",
-    "weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç"
+    "weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç",
+    "google_sign_in": "Google ile giriş yap"
   },
   "onboarding": {
     "step_of": "Adım {current}/{total}",

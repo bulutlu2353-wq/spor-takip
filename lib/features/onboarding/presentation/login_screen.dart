@@ -120,6 +120,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               onPressed: _isSubmitting ? null : _forgotPassword,
               child: Text('auth.forgot_password'.tr()),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const Key('login_google_button'),
+              onPressed: _isSubmitting
+                  ? null
+                  : () => ref.read(authRepositoryProvider).signInWithGoogle(),
+              icon: const Icon(Icons.login),
+              label: Text('auth.google_sign_in'.tr()),
+            ),
             TextButton(
               key: const Key('login_go_to_register_button'),
               onPressed: () => context.push('/register'),

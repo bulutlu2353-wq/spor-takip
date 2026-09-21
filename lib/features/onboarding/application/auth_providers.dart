@@ -41,6 +41,10 @@ class AuthRepository {
   Future<void> resetPassword(String email) {
     return _client.auth.resetPasswordForEmail(email);
   }
+
+  Future<bool> signInWithGoogle() {
+    return _client.auth.signInWithOAuth(OAuthProvider.google);
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
