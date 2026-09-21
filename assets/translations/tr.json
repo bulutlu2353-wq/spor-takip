@@ -20,5 +20,11 @@
     "passwords_dont_match": "Şifreler eşleşmiyor",
     "email_already_registered": "Bu e-posta zaten kayıtlı",
     "weak_password": "Şifre çok zayıf, daha güçlü bir şifre seç"
+  },
+  "onboarding": {
+    "step_of": "Adım {current}/{total}",
+    "next": "İleri",
+    "finish": "Bitir",
+    "retry": "Tekrar dene"
   }
 }
