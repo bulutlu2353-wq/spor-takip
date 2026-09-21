@@ -56,5 +56,12 @@
     "goal_maintain": "Formda kalmak",
     "health_notes_question": "Belirtmek istediğiniz bir sağlık durumu var mı? (opsiyonel)",
     "health_notes_hint": "Varsa yaz, yoksa boş bırakıp devam edebilirsin"
+  },
+  "home": {
+    "title": "Spor Takip",
+    "no_profile": "Profil bulunamadı",
+    "calorie_target": "Günlük hedef: {value} kcal",
+    "protein_target": "Protein hedefi: {value} g",
+    "load_error": "Profil yüklenemedi"
   }
 }
