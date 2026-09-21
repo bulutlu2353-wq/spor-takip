@@ -28,7 +28,7 @@ class AuthRepository {
     return user.id;
   }
 
-  Future<void> signUp({required String email, required String password}) {
+  Future<AuthResponse> signUp({required String email, required String password}) {
     return _client.auth.signUp(email: email, password: password);
   }
 

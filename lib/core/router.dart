@@ -11,16 +11,22 @@ import 'redirect_logic.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final isLoggedIn = ref.watch(isLoggedInProvider);
-  // Riverpod 3.x: `.value` (not the removed `valueOrNull`) returns null on
-  // error/loading — see the same note in Task 6's `isLoggedInProvider`.
-  final hasProfile = ref.watch(profileProvider).value != null;
+  final profileAsync = ref.watch(profileProvider);
+  // AsyncValue.when correctly avoids re-triggering `loading` during a
+  // background refresh that already has data, via Riverpod's default
+  // skipLoadingOnRefresh.
+  final profileState = profileAsync.when(
+    data: (profile) => profile == null ? ProfileState.absent : ProfileState.present,
+    loading: () => ProfileState.loading,
+    error: (_, _) => ProfileState.error,
+  );
 
   return GoRouter(
     initialLocation: '/login',
     redirect: (context, state) {
       return computeRedirect(
         isLoggedIn: isLoggedIn,
-        hasProfile: hasProfile,
+        profileState: profileState,
         location: state.uri.path,
       );
     },

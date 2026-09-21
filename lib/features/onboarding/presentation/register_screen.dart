@@ -38,10 +38,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _errorMessage = null;
     });
     try {
-      await ref.read(authRepositoryProvider).signUp(
+      final response = await ref.read(authRepositoryProvider).signUp(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
+      if (response.session == null && mounted) {
+        setState(() => _errorMessage = 'auth.confirm_email_sent'.tr());
+      }
     } on AuthException catch (error) {
       setState(() => _errorMessage = _messageForAuthError(error));
     } catch (_) {

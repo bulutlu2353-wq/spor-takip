@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/auth_providers.dart';
+import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -19,7 +20,10 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             key: const Key('home_sign_out_button'),
             icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            onPressed: () {
+              ref.invalidate(onboardingWizardProvider);
+              ref.read(authRepositoryProvider).signOut();
+            },
           ),
         ],
       ),

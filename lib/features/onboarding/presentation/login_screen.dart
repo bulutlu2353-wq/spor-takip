@@ -63,6 +63,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).signInWithGoogle();
+    } on AuthException catch (error) {
+      setState(() => _errorMessage = _messageForAuthError(error));
+    } catch (_) {
+      setState(() => _errorMessage = 'auth.unknown_error'.tr());
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   String _messageForAuthError(AuthException error) {
     switch (error.code) {
       case 'invalid_credentials':
@@ -123,9 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 12),
             OutlinedButton.icon(
               key: const Key('login_google_button'),
-              onPressed: _isSubmitting
-                  ? null
-                  : () => ref.read(authRepositoryProvider).signInWithGoogle(),
+              onPressed: _isSubmitting ? null : _signInWithGoogle,
               icon: const Icon(Icons.login),
               label: Text('auth.google_sign_in'.tr()),
             ),

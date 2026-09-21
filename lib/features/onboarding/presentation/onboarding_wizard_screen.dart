@@ -46,6 +46,7 @@ class _OnboardingWizardScreenState extends ConsumerState<OnboardingWizardScreen>
       );
       await ref.read(profileRepositoryProvider).saveProfile(profile);
       ref.invalidate(profileProvider);
+      ref.invalidate(onboardingWizardProvider);
     } catch (_) {
       setState(() => _saveError = 'onboarding.save_error'.tr());
     } finally {
