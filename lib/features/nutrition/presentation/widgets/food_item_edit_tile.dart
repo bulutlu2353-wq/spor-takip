@@ -63,7 +63,7 @@ class FoodItemEditTile extends StatelessWidget {
                 key: Key('food_item_calories_field_$index'),
                 initialValue: item.calories == 0 ? '' : item.calories.toString(),
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Kalori'),
+                decoration: InputDecoration(labelText: 'nutrition.item_calories_label'.tr()),
                 onChanged: (value) {
                   final calories = double.tryParse(value) ?? 0;
                   onChanged(item.copyWith(calories: calories, needsReview: false));
@@ -73,7 +73,7 @@ class FoodItemEditTile extends StatelessWidget {
                 key: Key('food_item_protein_field_$index'),
                 initialValue: item.proteinG == 0 ? '' : item.proteinG.toString(),
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Protein (g)'),
+                decoration: InputDecoration(labelText: 'nutrition.item_protein_label'.tr()),
                 onChanged: (value) {
                   final protein = double.tryParse(value) ?? 0;
                   onChanged(item.copyWith(proteinG: protein, needsReview: false));
@@ -83,7 +83,7 @@ class FoodItemEditTile extends StatelessWidget {
                 key: Key('food_item_carbs_field_$index'),
                 initialValue: item.carbsG == 0 ? '' : item.carbsG.toString(),
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Karbonhidrat (g)'),
+                decoration: InputDecoration(labelText: 'nutrition.item_carbs_label'.tr()),
                 onChanged: (value) {
                   final carbs = double.tryParse(value) ?? 0;
                   onChanged(item.copyWith(carbsG: carbs, needsReview: false));
@@ -93,7 +93,7 @@ class FoodItemEditTile extends StatelessWidget {
                 key: Key('food_item_fat_field_$index'),
                 initialValue: item.fatG == 0 ? '' : item.fatG.toString(),
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Yağ (g)'),
+                decoration: InputDecoration(labelText: 'nutrition.item_fat_label'.tr()),
                 onChanged: (value) {
                   final fat = double.tryParse(value) ?? 0;
                   onChanged(item.copyWith(fatG: fat, needsReview: false));

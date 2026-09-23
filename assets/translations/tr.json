@@ -70,6 +70,10 @@
     "item_name_label": "Yiyecek adı",
     "item_grams_label": "Gram",
     "item_needs_review": "Elle onay gerekiyor",
-    "item_remove": "Kaldır"
+    "item_remove": "Kaldır",
+    "item_calories_label": "Kalori",
+    "item_protein_label": "Protein (g)",
+    "item_carbs_label": "Karbonhidrat (g)",
+    "item_fat_label": "Yağ (g)"
   }
 }

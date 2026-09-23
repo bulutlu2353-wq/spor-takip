@@ -70,6 +70,10 @@
     "item_name_label": "Food name",
     "item_grams_label": "Grams",
     "item_needs_review": "Needs manual review",
-    "item_remove": "Remove"
+    "item_remove": "Remove",
+    "item_calories_label": "Calories",
+    "item_protein_label": "Protein (g)",
+    "item_carbs_label": "Carbs (g)",
+    "item_fat_label": "Fat (g)"
   }
 }
