@@ -74,6 +74,23 @@
     "item_calories_label": "Calories",
     "item_protein_label": "Protein (g)",
     "item_carbs_label": "Carbs (g)",
-    "item_fat_label": "Fat (g)"
+    "item_fat_label": "Fat (g)",
+    "capture_title": "Add Meal",
+    "select_meal_type": "Select meal type",
+    "meal_type_breakfast": "Breakfast",
+    "meal_type_lunch": "Lunch",
+    "meal_type_dinner": "Dinner",
+    "meal_type_snack": "Snack",
+    "take_photo": "Take photo",
+    "pick_from_gallery": "Pick from gallery",
+    "uploading": "Uploading...",
+    "analyzing": "Analyzing...",
+    "saving": "Saving...",
+    "upload_error": "Photo upload failed, try again",
+    "retry": "Retry",
+    "ai_unavailable": "AI is unavailable right now, you can add the meal manually",
+    "ai_quota_exceeded": "Daily AI analysis limit reached, you can add the meal manually",
+    "add_item_manually": "Add food item",
+    "save": "Save"
   }
 }

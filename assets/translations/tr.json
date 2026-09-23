@@ -74,6 +74,23 @@
     "item_calories_label": "Kalori",
     "item_protein_label": "Protein (g)",
     "item_carbs_label": "Karbonhidrat (g)",
-    "item_fat_label": "Yağ (g)"
+    "item_fat_label": "Yağ (g)",
+    "capture_title": "Öğün Ekle",
+    "select_meal_type": "Öğün türünü seç",
+    "meal_type_breakfast": "Kahvaltı",
+    "meal_type_lunch": "Öğle",
+    "meal_type_dinner": "Akşam",
+    "meal_type_snack": "Atıştırmalık",
+    "take_photo": "Fotoğraf çek",
+    "pick_from_gallery": "Galeriden seç",
+    "uploading": "Yükleniyor...",
+    "analyzing": "Analiz ediliyor...",
+    "saving": "Kaydediliyor...",
+    "upload_error": "Fotoğraf yüklenemedi, tekrar dene",
+    "retry": "Tekrar dene",
+    "ai_unavailable": "AI şu an kullanılamıyor, öğünü elle ekleyebilirsin",
+    "ai_quota_exceeded": "Günlük AI analiz limiti doldu, öğünü elle ekleyebilirsin",
+    "add_item_manually": "Yiyecek ekle",
+    "save": "Kaydet"
   }
 }
