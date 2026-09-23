@@ -65,5 +65,11 @@
     "calorie_target": "Günlük hedef: {value} kcal",
     "protein_target": "Protein hedefi: {value} g",
     "load_error": "Profil yüklenemedi"
+  },
+  "nutrition": {
+    "item_name_label": "Food name",
+    "item_grams_label": "Grams",
+    "item_needs_review": "Needs manual review",
+    "item_remove": "Remove"
   }
 }
