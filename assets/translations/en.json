@@ -98,5 +98,9 @@
     "load_error": "Couldn't load meals",
     "add_meal_fab": "Add meal",
     "item_summary": "{grams} g · {calories} kcal"
+  },
+  "nav": {
+    "home": "Home",
+    "nutrition": "Nutrition"
   }
 }

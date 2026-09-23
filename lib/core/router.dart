@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/nutrition/presentation/meal_capture_screen.dart';
+import '../features/nutrition/presentation/nutrition_screen.dart';
 import '../features/onboarding/application/auth_providers.dart';
 import '../features/onboarding/application/profile_providers.dart';
 import '../features/onboarding/presentation/home_screen.dart';
 import '../features/onboarding/presentation/login_screen.dart';
 import '../features/onboarding/presentation/onboarding_wizard_screen.dart';
 import '../features/onboarding/presentation/register_screen.dart';
+import 'app_shell.dart';
 import 'redirect_logic.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -37,7 +40,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingWizardScreen(),
       ),
-      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/home', builder: (context, state) => const HomeScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/nutrition',
+                builder: (context, state) => const NutritionScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'capture',
+                    builder: (context, state) => const MealCaptureScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
   );
 });
