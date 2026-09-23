@@ -77,6 +77,8 @@ class SupabaseMealRepository implements MealRepository {
         return const MealAnalysisResult(items: [], failureReason: AiFailureReason.quotaExceeded);
       }
       return const MealAnalysisResult(items: [], failureReason: AiFailureReason.unavailable);
+    } catch (_) {
+      return const MealAnalysisResult(items: [], failureReason: AiFailureReason.unavailable);
     }
   }
 
