@@ -7,6 +7,7 @@ import '../../onboarding/application/auth_providers.dart';
 import '../domain/food_item.dart';
 import '../domain/meal_type.dart';
 import 'meal_capture_state.dart';
+import 'today_meals_provider.dart';
 import 'meal_providers.dart';
 
 final mealCaptureProvider = NotifierProvider<MealCaptureNotifier, MealCaptureState>(
@@ -90,6 +91,7 @@ class MealCaptureNotifier extends Notifier<MealCaptureState> {
         items: current.items,
       );
       state = const MealCaptureSaved();
+      ref.invalidate(todayMealsProvider);
     } catch (_) {
       state = current;
     }
