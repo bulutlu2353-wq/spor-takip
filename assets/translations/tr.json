@@ -91,6 +91,11 @@
     "ai_unavailable": "AI şu an kullanılamıyor, öğünü elle ekleyebilirsin",
     "ai_quota_exceeded": "Günlük AI analiz limiti doldu, öğünü elle ekleyebilirsin",
     "add_item_manually": "Yiyecek ekle",
-    "save": "Kaydet"
+    "save": "Kaydet",
+    "screen_title": "Beslenme",
+    "daily_totals_with_target": "Bugün: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein",
+    "no_meals_today": "Bugün henüz öğün eklenmedi",
+    "load_error": "Öğünler yüklenemedi",
+    "add_meal_fab": "Öğün ekle"
   }
 }

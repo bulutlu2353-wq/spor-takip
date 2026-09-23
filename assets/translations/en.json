@@ -91,6 +91,11 @@
     "ai_unavailable": "AI is unavailable right now, you can add the meal manually",
     "ai_quota_exceeded": "Daily AI analysis limit reached, you can add the meal manually",
     "add_item_manually": "Add food item",
-    "save": "Save"
+    "save": "Save",
+    "screen_title": "Nutrition",
+    "daily_totals_with_target": "Today: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein",
+    "no_meals_today": "No meals logged today yet",
+    "load_error": "Couldn't load meals",
+    "add_meal_fab": "Add meal"
   }
 }
