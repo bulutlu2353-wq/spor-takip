@@ -96,6 +96,7 @@
     "daily_totals_with_target": "Bugün: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein",
     "no_meals_today": "Bugün henüz öğün eklenmedi",
     "load_error": "Öğünler yüklenemedi",
-    "add_meal_fab": "Öğün ekle"
+    "add_meal_fab": "Öğün ekle",
+    "item_summary": "{grams} g · {calories} kcal"
   }
 }

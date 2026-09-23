@@ -91,7 +91,12 @@ class NutritionScreen extends ConsumerWidget {
         for (final item in meal.items)
           ListTile(
             title: Text(item.name),
-            subtitle: Text('${item.grams.round()} g · ${item.calories.round()} kcal'),
+            subtitle: Text(
+              'nutrition.item_summary'.tr(namedArgs: {
+                'grams': item.grams.round().toString(),
+                'calories': item.calories.round().toString(),
+              }),
+            ),
           ),
     ];
   }
