@@ -1,6 +1,7 @@
 export interface FoodPrediction {
   name: string;
   estimatedGrams: number;
+  usdaQuery: string;
 }
 
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
@@ -11,7 +12,11 @@ export class GeminiQuotaExceededError extends Error {}
 const PROMPT =
   'Bu fotoğraftaki her yiyeceği ve tahmini gram cinsinden porsiyonunu belirle. ' +
   'Sadece JSON döndür, başka açıklama ekleme. ' +
-  'Format: {"items": [{"name": string, "estimated_grams": number}]}. ' +
+  'Format: {"items": [{"name": string, "estimated_grams": number, "usda_query": string}]}. ' +
+  '"name" alanı Türkçe yiyecek adı olsun (kullanıcıya gösterilecek). ' +
+  '"usda_query" alanı aynı yiyeceğin USDA FoodData Central veritabanında arama yapmak için ' +
+  'kullanılacak, jenerik İngilizce adı olsun (örn. "grilled chicken breast", "white rice", ' +
+  '"olive oil"), marka veya hazırlama detayı olmadan. ' +
   'Makro veya kalori hesabı yapma, sadece tanıma ve porsiyon tahmini yap.';
 
 function bytesToBase64(bytes: Uint8Array): string {
@@ -59,6 +64,12 @@ export async function identifyFoodItems(
     throw new GeminiUnavailableError('Gemini response missing text content');
   }
 
-  const parsed = JSON.parse(text) as { items: Array<{ name: string; estimated_grams: number }> };
-  return parsed.items.map((item) => ({ name: item.name, estimatedGrams: item.estimated_grams }));
+  const parsed = JSON.parse(text) as {
+    items: Array<{ name: string; estimated_grams: number; usda_query: string }>;
+  };
+  return parsed.items.map((item) => ({
+    name: item.name,
+    estimatedGrams: item.estimated_grams,
+    usdaQuery: item.usda_query,
+  }));
 }

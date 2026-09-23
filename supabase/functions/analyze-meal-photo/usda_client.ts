@@ -77,10 +77,19 @@ export async function fetchMacrosPer100g(
     throw new Error(`USDA food detail request failed: ${response.status}`);
   }
   const data = await response.json();
-  const nutrients: Array<{ nutrientName: string; value: number }> = data.foodNutrients ?? [];
-  const find = (name: string) => nutrients.find((n) => n.nutrientName === name)?.value ?? 0;
+  const nutrients: Array<{ nutrientName: string; value: number; unitName?: string }> =
+    data.foodNutrients ?? [];
+  const find = (name: string, preferredUnit?: string) => {
+    if (preferredUnit) {
+      const preferred = nutrients.find(
+        (n) => n.nutrientName === name && n.unitName?.toUpperCase() === preferredUnit,
+      );
+      if (preferred) return preferred.value;
+    }
+    return nutrients.find((n) => n.nutrientName === name)?.value ?? 0;
+  };
   return {
-    calories: find('Energy'),
+    calories: find('Energy', 'KCAL'),
     proteinG: find('Protein'),
     carbsG: find('Carbohydrate, by difference'),
     fatG: find('Total lipid (fat)'),

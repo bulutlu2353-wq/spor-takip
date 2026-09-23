@@ -91,12 +91,12 @@ class SupabaseMealRepository implements MealRepository {
     required DateTime loggedAt,
     required List<FoodItem> items,
   }) async {
-    await _client.from(_mealsTable).insert({
+    await _client.from(_mealsTable).upsert({
       'id': mealId,
       'user_id': userId,
       'meal_type': mealTypeToDb(mealType),
       'photo_path': photoPath,
-      'logged_at': loggedAt.toIso8601String(),
+      'logged_at': loggedAt.toUtc().toIso8601String(),
     });
     await _client.from(_mealItemsTable).insert(
           items.map((item) => {...item.toJson(), 'meal_id': mealId}).toList(),
@@ -111,8 +111,8 @@ class SupabaseMealRepository implements MealRepository {
         .from(_mealsTable)
         .select('*, meal_items(*)')
         .eq('user_id', userId)
-        .gte('logged_at', start.toIso8601String())
-        .lt('logged_at', end.toIso8601String())
+        .gte('logged_at', start.toUtc().toIso8601String())
+        .lt('logged_at', end.toUtc().toIso8601String())
         .order('logged_at');
     return (rows as List).map((row) => Meal.fromJson(row as Map<String, dynamic>)).toList();
   }

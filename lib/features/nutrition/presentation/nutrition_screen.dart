@@ -60,6 +60,8 @@ class NutritionScreen extends ConsumerWidget {
               'calorieTarget': calorieTarget.round().toString(),
               'protein': totals.proteinG.round().toString(),
               'proteinTarget': proteinTarget.round().toString(),
+              'carbs': totals.carbsG.round().toString(),
+              'fat': totals.fatG.round().toString(),
             }),
             key: const Key('nutrition_daily_totals'),
             style: Theme.of(context).textTheme.titleMedium,

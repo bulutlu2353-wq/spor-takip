@@ -24,6 +24,15 @@ class MealCaptureScreen extends ConsumerStatefulWidget {
 class _MealCaptureScreenState extends ConsumerState<MealCaptureScreen> {
   MealType? _selectedType;
 
+  @override
+  void initState() {
+    super.initState();
+    // Bir önceki, tamamlanmamış çekimden kalan Reviewing/Error durumunu
+    // temizle — kullanıcı geri gidip yeniden girdiğinde her zaman temiz
+    // (Idle) bir ekranla karşılaşsın.
+    Future.microtask(() => ref.read(mealCaptureProvider.notifier).reset());
+  }
+
   Future<Uint8List?> _pickImage(ImageSource source) async {
     if (widget.pickImageOverride != null) return widget.pickImageOverride!(source);
     final file = await ImagePicker().pickImage(source: source);
@@ -151,6 +160,7 @@ class _MealCaptureScreenState extends ConsumerState<MealCaptureScreen> {
             itemCount: state.items.length,
             itemBuilder: (context, index) {
               return FoodItemEditTile(
+                key: state.itemKeys[index],
                 item: state.items[index],
                 index: index,
                 onChanged: (updated) => notifier.updateItem(index, updated),

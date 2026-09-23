@@ -1,5 +1,6 @@
-import 'dart:typed_data';
-
+// `Uint8List` ve `UniqueKey` ikisi de foundation'dan geliyor; ayrıca
+// `dart:typed_data` içe aktarmak gereksiz (unnecessary_import).
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -46,6 +47,7 @@ class MealCaptureNotifier extends Notifier<MealCaptureState> {
       mealId: mealId,
       photoPath: photoPath,
       items: result.items,
+      itemKeys: [for (final _ in result.items) UniqueKey()],
       aiFailureReason: result.failureReason,
     );
   }
@@ -62,16 +64,17 @@ class MealCaptureNotifier extends Notifier<MealCaptureState> {
     final current = state;
     if (current is! MealCaptureReviewing) return;
     final items = [...current.items]..removeAt(index);
-    state = current.copyWith(items: items);
+    final itemKeys = [...current.itemKeys]..removeAt(index);
+    state = current.copyWith(items: items, itemKeys: itemKeys);
   }
 
   void addManualItem() {
     final current = state;
     if (current is! MealCaptureReviewing) return;
-    state = current.copyWith(items: [
-      ...current.items,
-      const FoodItem(name: '', grams: 0, needsReview: true),
-    ]);
+    state = current.copyWith(
+      items: [...current.items, const FoodItem(name: '', grams: 0, needsReview: true)],
+      itemKeys: [...current.itemKeys, UniqueKey()],
+    );
   }
 
   Future<void> confirmSave() async {

@@ -93,7 +93,7 @@
     "add_item_manually": "Yiyecek ekle",
     "save": "Kaydet",
     "screen_title": "Beslenme",
-    "daily_totals_with_target": "Bugün: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein",
+    "daily_totals_with_target": "Bugün: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein · {carbs} g karbonhidrat · {fat} g yağ",
     "no_meals_today": "Bugün henüz öğün eklenmedi",
     "load_error": "Öğünler yüklenemedi",
     "add_meal_fab": "Öğün ekle",

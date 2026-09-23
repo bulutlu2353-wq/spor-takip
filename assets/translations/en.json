@@ -93,7 +93,7 @@
     "add_item_manually": "Add food item",
     "save": "Save",
     "screen_title": "Nutrition",
-    "daily_totals_with_target": "Today: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein",
+    "daily_totals_with_target": "Today: {calories} / {calorieTarget} kcal · {protein} / {proteinTarget} g protein · {carbs} g carbs · {fat} g fat",
     "no_meals_today": "No meals logged today yet",
     "load_error": "Couldn't load meals",
     "add_meal_fab": "Add meal",

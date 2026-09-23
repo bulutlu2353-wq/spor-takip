@@ -3,6 +3,26 @@ import type { FoodPrediction } from './gemini_client.ts';
 import { fetchMacrosPer100g, findBestMatch } from './usda_client.ts';
 import type { UsdaFood, Macros } from './usda_client.ts';
 
+export function getUserIdFromAuthHeader(req: Request): string | null {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice('Bearer '.length);
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return typeof payload.sub === 'string' ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 export interface AnalyzeDeps {
   downloadPhoto: (photoPath: string) => Promise<Uint8Array>;
   identifyFoodItems: (photoBytes: Uint8Array) => Promise<FoodPrediction[]>;
@@ -54,7 +74,7 @@ export async function handleAnalyzeRequest(
 
   const items: ResponseItem[] = [];
   for (const prediction of predictions) {
-    const match = await deps.findBestMatch(prediction.name);
+    const match = await deps.findBestMatch(prediction.usdaQuery);
     if (match === null) {
       items.push({
         name: prediction.name,
@@ -85,44 +105,58 @@ export async function handleAnalyzeRequest(
   return { status: 200, body: { items } };
 }
 
-Deno.serve(async (req: Request) => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const geminiApiKey = Deno.env.get('GEMINI_API_KEY')!;
-  const usdaApiKey = Deno.env.get('USDA_FDC_API_KEY')!;
-
-  try {
-    const { photo_path } = await req.json();
-    if (!photo_path || typeof photo_path !== 'string') {
-      return new Response(
-        JSON.stringify({ code: 'PHOTO_NOT_FOUND', message: 'photo_path eksik' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } },
-      );
+if (import.meta.main) {
+  Deno.serve(async (req: Request) => {
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', { headers: corsHeaders });
     }
 
-    const deps: AnalyzeDeps = {
-      downloadPhoto: async (path) => {
-        const response = await fetch(`${supabaseUrl}/storage/v1/object/meal-photos/${path}`, {
-          headers: { Authorization: `Bearer ${serviceRoleKey}` },
-        });
-        if (!response.ok) throw new Error(`Storage download failed: ${response.status}`);
-        return new Uint8Array(await response.arrayBuffer());
-      },
-      identifyFoodItems: (bytes) => identifyFoodItems(bytes, geminiApiKey),
-      findBestMatch: (name) => findBestMatch(name, usdaApiKey),
-      fetchMacrosPer100g: (fdcId) => fetchMacrosPer100g(fdcId, usdaApiKey),
-    };
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY')!;
+    const usdaApiKey = Deno.env.get('USDA_FDC_API_KEY')!;
 
-    const result = await handleAnalyzeRequest(photo_path, deps);
-    return new Response(JSON.stringify(result.body), {
-      status: result.status,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error(error);
-    return new Response(
-      JSON.stringify({ code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
-    );
-  }
-});
+    try {
+      const { photo_path } = await req.json();
+      if (!photo_path || typeof photo_path !== 'string') {
+        return new Response(
+          JSON.stringify({ code: 'PHOTO_NOT_FOUND', message: 'photo_path eksik' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
+      const userId = getUserIdFromAuthHeader(req);
+      if (!userId || !photo_path.startsWith(`${userId}/`)) {
+        return new Response(
+          JSON.stringify({ code: 'FORBIDDEN', message: 'Bu fotoğrafa erişim izniniz yok' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
+      const deps: AnalyzeDeps = {
+        downloadPhoto: async (path) => {
+          const response = await fetch(`${supabaseUrl}/storage/v1/object/meal-photos/${path}`, {
+            headers: { Authorization: `Bearer ${serviceRoleKey}` },
+          });
+          if (!response.ok) throw new Error(`Storage download failed: ${response.status}`);
+          return new Uint8Array(await response.arrayBuffer());
+        },
+        identifyFoodItems: (bytes) => identifyFoodItems(bytes, geminiApiKey),
+        findBestMatch: (name) => findBestMatch(name, usdaApiKey),
+        fetchMacrosPer100g: (fdcId) => fetchMacrosPer100g(fdcId, usdaApiKey),
+      };
+
+      const result = await handleAnalyzeRequest(photo_path, deps);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (error) {
+      console.error(error);
+      return new Response(
+        JSON.stringify({ code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+  });
+}

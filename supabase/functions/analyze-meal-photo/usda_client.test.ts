@@ -51,10 +51,11 @@ Deno.test('fetchMacrosPer100g extracts the four tracked nutrients', async () => 
     new Response(
       JSON.stringify({
         foodNutrients: [
-          { nutrientName: 'Energy', value: 165 },
-          { nutrientName: 'Protein', value: 31 },
-          { nutrientName: 'Carbohydrate, by difference', value: 0 },
-          { nutrientName: 'Total lipid (fat)', value: 3.6 },
+          { nutrientName: 'Energy', value: 690, unitName: 'KJ' },
+          { nutrientName: 'Energy', value: 165, unitName: 'KCAL' },
+          { nutrientName: 'Protein', value: 31, unitName: 'G' },
+          { nutrientName: 'Carbohydrate, by difference', value: 0, unitName: 'G' },
+          { nutrientName: 'Total lipid (fat)', value: 3.6, unitName: 'G' },
         ],
       }),
       { status: 200 },

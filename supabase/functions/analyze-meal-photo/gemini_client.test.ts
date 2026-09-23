@@ -1,7 +1,9 @@
 import { assertEquals, assertRejects } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { GeminiQuotaExceededError, GeminiUnavailableError, identifyFoodItems } from './gemini_client.ts';
 
-function jsonTextResponse(items: Array<{ name: string; estimated_grams: number }>): Response {
+function jsonTextResponse(
+  items: Array<{ name: string; estimated_grams: number; usda_query: string }>,
+): Response {
   return new Response(
     JSON.stringify({
       candidates: [{ content: { parts: [{ text: JSON.stringify({ items }) }] } }],
@@ -13,8 +15,8 @@ function jsonTextResponse(items: Array<{ name: string; estimated_grams: number }
 Deno.test('identifyFoodItems parses the model JSON response into predictions', async () => {
   const fakeFetch: typeof fetch = async () =>
     jsonTextResponse([
-      { name: 'Izgara tavuk göğsü', estimated_grams: 150 },
-      { name: 'Pilav', estimated_grams: 100 },
+      { name: 'Izgara tavuk göğsü', estimated_grams: 150, usda_query: 'grilled chicken breast' },
+      { name: 'Pilav', estimated_grams: 100, usda_query: 'white rice' },
     ]);
 
   const predictions = await identifyFoodItems(new Uint8Array([1, 2, 3]), 'fake-key', fakeFetch);
@@ -22,6 +24,7 @@ Deno.test('identifyFoodItems parses the model JSON response into predictions', a
   assertEquals(predictions.length, 2);
   assertEquals(predictions[0].name, 'Izgara tavuk göğsü');
   assertEquals(predictions[0].estimatedGrams, 150);
+  assertEquals(predictions[0].usdaQuery, 'grilled chicken breast');
 });
 
 Deno.test('identifyFoodItems throws GeminiQuotaExceededError on HTTP 429', async () => {

@@ -49,7 +49,10 @@ void main() {
     expect(find.byKey(const Key('food_item_needs_review_badge_0')), findsOneWidget);
   });
 
-  testWidgets('editing grams calls onChanged with updated value and needsReview false', (tester) async {
+  // Gram düzenlemesi tek başına "incelendi" sinyali değildir: eksik olan veri
+  // makrolardır, gram değil. Bu yüzden sadece gram değişince needsReview
+  // bayrağı korunur.
+  testWidgets('editing grams calls onChanged with updated value and keeps needsReview true', (tester) async {
     FoodItem? changed;
     const item = FoodItem(name: 'Sos', grams: 0, needsReview: true);
     await tester.pumpWidget(wrap(FoodItemEditTile(
@@ -65,7 +68,7 @@ void main() {
 
     expect(changed, isNotNull);
     expect(changed!.grams, 30);
-    expect(changed!.needsReview, isFalse);
+    expect(changed!.needsReview, isTrue);
   });
 
   testWidgets('tapping remove calls onRemove', (tester) async {

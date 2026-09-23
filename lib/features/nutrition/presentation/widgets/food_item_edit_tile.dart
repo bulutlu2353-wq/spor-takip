@@ -32,7 +32,7 @@ class FoodItemEditTile extends StatelessWidget {
                     key: Key('food_item_name_field_$index'),
                     initialValue: item.name,
                     decoration: InputDecoration(labelText: 'nutrition.item_name_label'.tr()),
-                    onChanged: (value) => onChanged(item.copyWith(name: value, needsReview: false)),
+                    onChanged: (value) => onChanged(item.copyWith(name: value)),
                   ),
                 ),
                 IconButton(
@@ -50,7 +50,7 @@ class FoodItemEditTile extends StatelessWidget {
               decoration: InputDecoration(labelText: 'nutrition.item_grams_label'.tr()),
               onChanged: (value) {
                 final grams = double.tryParse(value) ?? 0;
-                onChanged(item.copyWith(grams: grams, needsReview: false));
+                onChanged(item.copyWith(grams: grams));
               },
             ),
             if (item.needsReview) ...[

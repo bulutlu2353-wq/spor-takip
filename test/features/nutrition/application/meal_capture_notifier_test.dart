@@ -1,5 +1,6 @@
-import 'dart:typed_data';
-
+// `Uint8List` ve `ValueKey` ikisi de foundation'dan geliyor; ayrıca
+// `dart:typed_data` içe aktarmak gereksiz (unnecessary_import).
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/nutrition/application/meal_capture_notifier.dart';
@@ -33,6 +34,7 @@ void main() {
         mealId: 'm',
         photoPath: 'p',
         items: [],
+        itemKeys: [],
       );
       expect(state.canSave, isFalse);
     });
@@ -46,6 +48,7 @@ void main() {
           FoodItem(name: 'A', grams: 100, needsReview: false),
           FoodItem(name: 'B', grams: 50, needsReview: true),
         ],
+        itemKeys: [ValueKey('a'), ValueKey('b')],
       );
       expect(state.canSave, isFalse);
     });
@@ -56,6 +59,7 @@ void main() {
         mealId: 'm',
         photoPath: 'p',
         items: [FoodItem(name: 'A', grams: 0, needsReview: false)],
+        itemKeys: [ValueKey('a')],
       );
       expect(state.canSave, isFalse);
     });
@@ -66,6 +70,7 @@ void main() {
         mealId: 'm',
         photoPath: 'p',
         items: [FoodItem(name: 'A', grams: 100, needsReview: false)],
+        itemKeys: [ValueKey('a')],
       );
       expect(state.canSave, isTrue);
     });
