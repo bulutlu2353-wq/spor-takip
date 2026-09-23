@@ -23,6 +23,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+export const PHOTO_PATH_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/i;
+
 export interface AnalyzeDeps {
   downloadPhoto: (photoPath: string) => Promise<Uint8Array>;
   identifyFoodItems: (photoBytes: Uint8Array) => Promise<FoodPrediction[]>;
@@ -126,7 +129,7 @@ if (import.meta.main) {
       }
 
       const userId = getUserIdFromAuthHeader(req);
-      if (!userId || !photo_path.startsWith(`${userId}/`)) {
+      if (!userId || !PHOTO_PATH_PATTERN.test(photo_path) || !photo_path.startsWith(`${userId}/`)) {
         return new Response(
           JSON.stringify({ code: 'FORBIDDEN', message: 'Bu fotoğrafa erişim izniniz yok' }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
