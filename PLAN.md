@@ -90,10 +90,17 @@ Tüm tablolarda **Supabase RLS (Row Level Security)** aktif — herkes yalnızca
 ## 6. AI Entegrasyonu — Kritik Tasarım
 
 ### Fotoğraf Tanıma
+
+**Sağlayıcı kararı (2026-09-22 araştırması):** **Gemini 2.5 Flash-Lite** — kalıcı ücretsiz katman (1000 istek/gün, 15 RPM, kredi kartı gerekmez), kredi/deneme süresi olan NVIDIA NIM'e tercih edildi. Gemini 3.x Flash serisi API üzerinden ücretsiz değil (yalnızca AI Studio arayüzünde), bu yüzden 2.5 Flash-Lite seçildi.
+
+**Mimari (macroscanner açık kaynak projesinden öğrenilen iki aşamalı yaklaşım):**
 1. Fotoğraf çekilir → Supabase Storage'a yüklenir.
-2. Edge Function → Vision modeli → `{yemek, porsiyon, makro önerisi}` döner.
-3. Kullanıcı tahmini düzenler / onaylar.
-4. Kaydedilir; yanlış tahminler yeni örnek olarak token etiketlenir (ileride ince ayar için).
+2. Edge Function → **Gemini 2.5 Flash-Lite** → yalnızca `{yemek_adı, tahmini_porsiyon_g}` JSON listesi döner (LLM'e ham makro hesaplattırılmaz).
+3. Edge Function bu isimleri **USDA FoodData Central** (ücretsiz API) üzerinden aratır, gerçek makro değerlerini (kalori/protein/karbonhidrat/yağ, 100g başına) oradan çeker ve porsiyonla çarpar.
+4. Kullanıcı tahmini düzenler / onaylar.
+5. Kaydedilir; yanlış tahminler yeni örnek olarak token etiketlenir (ileride ince ayar için).
+
+Bu yaklaşım hem doğruluğu artırıyor (LLM sayısal beslenme hesabı yapmak yerine sadece tanıma yapıyor) hem de maliyeti düşürüyor. Benzer bir projede (macroscanner, GPT-4o + doğrudan LLM makro tahmini) fotoğraf başına 20-30 cent maliyet oluşmuş; iki aşamalı yaklaşım bunu önlüyor.
 
 ### Chat (AI Antrenör)
 - Mesajlara kullanıcının güncel verisi eklenir: hedef, son antrenmanlar, günlük makrolar.
@@ -146,3 +153,4 @@ Tüm tablolarda **Supabase RLS (Row Level Security)** aktif — herkes yalnızca
 | 2026-09-20 | F0 tamamlandı: Flutter+Supabase ortamı (kod iskeleti), feature-first klasör yapısı, bağımlılıklar, .env config, CI kuruldu. Gerçek Supabase proje bağlantısı (Task 8) kullanıcının proje oluşturup kimlik bilgilerini paylaşmasını bekliyor — ayrı olarak tamamlanacak. |
 | 2026-09-20 | F1 (email/şifre bölümü) tamamlandı: kayıt/giriş/şifre sıfırlama, 10 soruluk onboarding sihirbazı, Mifflin-St Jeor TDEE + protein hedefi hesabı, auth/profil durumuna göre otomatik yönlendirme, TR/EN i18n altyapısı. Google Sign-In (F1'in bir parçası) ayrı bir görev olarak kullanıcının Google Cloud Console kurulumunu bekliyor. Gerçek Supabase projesi bağlantısı (F0 Task 8) hâlâ açık — uçtan uca manuel doğrulama bunu bekliyor. |
 | 2026-09-21 | F1 uçtan uca manuel doğrulama tamamlandı: gerçek Supabase projesine bağlanıp kayıt, onboarding anketi, ana ekranda hedef gösterimi ve Google Sign-In tarayıcıda test edildi, hata görülmedi. Profil düzenleme ekranı F1 kapsamı dışında bırakıldı, F2+ için değerlendirilecek. |
+| 2026-09-22 | F2 Vision API sağlayıcı kararı verildi: **Gemini 2.5 Flash-Lite** (kalıcı ücretsiz katman) + **USDA FoodData Central** ile iki aşamalı mimari (LLM sadece tanıma yapar, makro değerleri veritabanından çekilir). NVIDIA NIM (deneme kredili, kalıcı ücretsiz değil) ve Gemini 3.x Flash (API'de ücretsiz değil) elendi. Karar, açık kaynak `macroscanner` projesinin mimari dersleri ve akademik bir vision-LLM beslenme tahmini benchmark'ı ışığında verildi. |
