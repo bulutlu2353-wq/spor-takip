@@ -48,7 +48,10 @@ export async function findBestMatch(
     `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}` +
     `&query=${encodeURIComponent(foodName)}&pageSize=10`;
   const response = await fetchFn(url);
-  if (!response.ok) return null;
+  if (!response.ok) {
+    console.error(`USDA search failed for "${foodName}": ${response.status} ${await response.text()}`);
+    return null;
+  }
 
   const data = await response.json();
   const foods = (data.foods ?? []) as UsdaFood[];
@@ -77,16 +80,16 @@ export async function fetchMacrosPer100g(
     throw new Error(`USDA food detail request failed: ${response.status}`);
   }
   const data = await response.json();
-  const nutrients: Array<{ nutrientName: string; value: number; unitName?: string }> =
+  const nutrients: Array<{ nutrient?: { name?: string; unitName?: string }; amount?: number }> =
     data.foodNutrients ?? [];
   const find = (name: string, preferredUnit?: string) => {
     if (preferredUnit) {
       const preferred = nutrients.find(
-        (n) => n.nutrientName === name && n.unitName?.toUpperCase() === preferredUnit,
+        (n) => n.nutrient?.name === name && n.nutrient?.unitName?.toUpperCase() === preferredUnit,
       );
-      if (preferred) return preferred.value;
+      if (preferred) return preferred.amount ?? 0;
     }
-    return nutrients.find((n) => n.nutrientName === name)?.value ?? 0;
+    return nutrients.find((n) => n.nutrient?.name === name)?.amount ?? 0;
   };
   return {
     calories: find('Energy', 'KCAL'),

@@ -55,7 +55,8 @@ export async function handleAnalyzeRequest(
   let photoBytes: Uint8Array;
   try {
     photoBytes = await deps.downloadPhoto(photoPath);
-  } catch {
+  } catch (error) {
+    console.error('Photo download failed:', error);
     return { status: 404, body: { code: 'PHOTO_NOT_FOUND', message: 'Fotoğraf bulunamadı' } };
   }
 
@@ -63,6 +64,7 @@ export async function handleAnalyzeRequest(
   try {
     predictions = await deps.identifyFoodItems(photoBytes);
   } catch (error) {
+    console.error('Food identification failed:', error);
     if (error instanceof GeminiQuotaExceededError) {
       return {
         status: 429,
@@ -79,6 +81,7 @@ export async function handleAnalyzeRequest(
   for (const prediction of predictions) {
     const match = await deps.findBestMatch(prediction.usdaQuery);
     if (match === null) {
+      console.warn(`No USDA match for "${prediction.name}" (query: "${prediction.usdaQuery}")`);
       items.push({
         name: prediction.name,
         grams: prediction.estimatedGrams,
@@ -139,9 +142,13 @@ if (import.meta.main) {
       const deps: AnalyzeDeps = {
         downloadPhoto: async (path) => {
           const response = await fetch(`${supabaseUrl}/storage/v1/object/meal-photos/${path}`, {
-            headers: { Authorization: `Bearer ${serviceRoleKey}` },
+            // New-style sb_secret_ keys aren't JWTs; the gateway only maps them to
+            // the service_role when they're also sent as `apikey`.
+            headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}` },
           });
-          if (!response.ok) throw new Error(`Storage download failed: ${response.status}`);
+          if (!response.ok) {
+            throw new Error(`Storage download failed: ${response.status} ${await response.text()}`);
+          }
           return new Uint8Array(await response.arrayBuffer());
         },
         identifyFoodItems: (bytes) => identifyFoodItems(bytes, geminiApiKey),

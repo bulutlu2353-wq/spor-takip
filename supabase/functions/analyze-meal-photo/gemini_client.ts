@@ -4,7 +4,7 @@ export interface FoodPrediction {
   usdaQuery: string;
 }
 
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
 export class GeminiUnavailableError extends Error {}
 export class GeminiQuotaExceededError extends Error {}
@@ -55,7 +55,9 @@ export async function identifyFoodItems(
     throw new GeminiQuotaExceededError('Gemini rate limit exceeded');
   }
   if (!response.ok) {
-    throw new GeminiUnavailableError(`Gemini request failed: ${response.status}`);
+    throw new GeminiUnavailableError(
+      `Gemini request failed: ${response.status} ${await response.text()}`,
+    );
   }
 
   const data = await response.json();
