@@ -63,9 +63,13 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
     try {
       await ref.read(exerciseRepositoryProvider).deleteCustomExercise(exercise.id);
       ref.invalidate(exercisesProvider);
-    } on ExerciseInUseException {
+    } on ExerciseInUseException catch (e, st) {
+      debugPrint('ExercisePickerScreen.deleteCustom failed (in use): $e\n$st');
+      if (!mounted) return;
       _snack('workout.exercise_in_use'.tr());
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('ExercisePickerScreen.deleteCustom failed: $e\n$st');
+      if (!mounted) return;
       _snack('workout.action_error'.tr());
     }
   }
@@ -192,6 +196,7 @@ class _CustomExerciseDialogState extends ConsumerState<_CustomExerciseDialog> {
   String? _muscle;
   String? _equipment;
   bool _saving = false;
+  bool _saveFailed = false;
 
   @override
   void dispose() {
@@ -202,14 +207,23 @@ class _CustomExerciseDialogState extends ConsumerState<_CustomExerciseDialog> {
   Future<void> _save() async {
     final name = _name.text.trim();
     if (name.isEmpty || _saving) return;
-    setState(() => _saving = true);
+    setState(() {
+      _saving = true;
+      _saveFailed = false;
+    });
     try {
       final created = await ref
           .read(exerciseRepositoryProvider)
           .createCustomExercise(name: name, primaryMuscle: _muscle, equipment: _equipment);
       if (mounted) Navigator.of(context).pop(created);
-    } catch (_) {
-      if (mounted) setState(() => _saving = false);
+    } catch (e, st) {
+      debugPrint('CustomExerciseDialog.save failed: $e\n$st');
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _saveFailed = true;
+        });
+      }
     }
   }
 
@@ -245,6 +259,14 @@ class _CustomExerciseDialogState extends ConsumerState<_CustomExerciseDialog> {
             ],
             onChanged: (e) => setState(() => _equipment = e),
           ),
+          if (_saveFailed) ...[
+            const SizedBox(height: 8),
+            Text(
+              'workout.action_error'.tr(),
+              key: const Key('custom_exercise_save_error'),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
         ],
       ),
       actions: [
