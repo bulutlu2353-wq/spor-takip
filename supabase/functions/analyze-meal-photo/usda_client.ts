@@ -15,6 +15,16 @@ const PREFERRED_DATA_TYPES = new Set(['Foundation', 'SR Legacy']);
 const MATCH_THRESHOLD = 0.3;
 const SEARCH_DATA_TYPES = ['Foundation', 'SR Legacy', 'Survey (FNDDS)'];
 
+// Crude English singularization so "tomato" matches "Tomatoes, raw". Applied to
+// both sides, so it only needs to be consistent, not linguistically correct.
+function singularize(token: string): string {
+  if (token.length <= 3) return token;
+  if (token.endsWith('ies')) return `${token.slice(0, -3)}y`;
+  if (/(o|ch|sh|x|ss)es$/.test(token)) return token.slice(0, -2);
+  if (token.endsWith('s') && !token.endsWith('ss')) return token.slice(0, -1);
+  return token;
+}
+
 function normalize(text: string): string[] {
   return text
     .toLowerCase()
@@ -22,7 +32,8 @@ function normalize(text: string): string[] {
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
-    .filter((token) => token.length > 0);
+    .filter((token) => token.length > 0)
+    .map(singularize);
 }
 
 export function scoreMatch(query: string, candidate: UsdaFood): number {

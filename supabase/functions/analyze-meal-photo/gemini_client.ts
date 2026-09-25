@@ -16,7 +16,8 @@ const PROMPT =
   '"name" alanı Türkçe yiyecek adı olsun (kullanıcıya gösterilecek). ' +
   '"usda_query" alanı aynı yiyeceğin USDA FoodData Central veritabanında arama yapmak için ' +
   'kullanılacak, jenerik İngilizce adı olsun (örn. "grilled chicken breast", "white rice", ' +
-  '"olive oil"), marka veya hazırlama detayı olmadan. ' +
+  '"olive oil"), marka olmadan. Çiğ mi pişmiş mi olduğunu belirt (örn. "raw tomato", ' +
+  '"boiled egg", "cooked white rice"), aksi halde toz veya konserve gibi yanlış bir form eşleşebilir. ' +
   'Makro veya kalori hesabı yapma, sadece tanıma ve porsiyon tahmini yap.';
 
 function bytesToBase64(bytes: Uint8Array): string {

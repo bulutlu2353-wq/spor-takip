@@ -14,6 +14,21 @@ Deno.test('scoreMatch gives a low score for unrelated descriptions', () => {
   assertEquals(score < 0.2, true);
 });
 
+Deno.test('scoreMatch treats singular and plural forms as the same word', () => {
+  const raw: UsdaFood = { fdcId: 1, description: 'Tomatoes, raw', dataType: 'Survey (FNDDS)' };
+  const powder: UsdaFood = { fdcId: 2, description: 'Tomato powder', dataType: 'SR Legacy' };
+  assertAlmostEquals(scoreMatch('raw tomato', raw), 1);
+  assertEquals(scoreMatch('raw tomato', raw) > scoreMatch('raw tomato', powder), true);
+  assertAlmostEquals(
+    scoreMatch('peach', { fdcId: 3, description: 'Peaches', dataType: 'Foundation' }),
+    1.1,
+  );
+  assertAlmostEquals(
+    scoreMatch('cheese', { fdcId: 4, description: 'Cheeses', dataType: 'Foundation' }),
+    1.1,
+  );
+});
+
 Deno.test('findBestMatch returns the highest-scoring food above the threshold', async () => {
   const fakeFetch: typeof fetch = async () =>
     new Response(
