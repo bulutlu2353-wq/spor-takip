@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/exercise.dart';
@@ -101,7 +102,8 @@ class ProgramEditorNotifier extends Notifier<ProgramEditorState> {
       ref.invalidate(programsProvider);
       ref.invalidate(programDetailProvider(id));
       return id;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('ProgramEditorNotifier.save failed: $e\n$st');
       state = state.copyWith(saving: false, saveFailed: true);
       return null;
     }

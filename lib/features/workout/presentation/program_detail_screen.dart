@@ -25,7 +25,8 @@ class ProgramDetailScreen extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await action();
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('ProgramDetailScreen action failed: $e\n$st');
       messenger.showSnackBar(SnackBar(content: Text('workout.action_error'.tr())));
     }
   }
