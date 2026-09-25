@@ -54,3 +54,6 @@ app.*.map.json
 
 # Supabase CLI local cache
 supabase/.temp/
+
+# Seed parçaları (tool/generate_exercise_seed.ts --chunks)
+tool/.out/

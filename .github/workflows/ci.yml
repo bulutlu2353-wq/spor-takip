@@ -36,3 +36,6 @@ jobs:
 
       - name: Run Edge Function tests
         run: deno test supabase/functions/analyze-meal-photo/
+
+      - name: Run seed generator tests
+        run: deno test --allow-read tool/
