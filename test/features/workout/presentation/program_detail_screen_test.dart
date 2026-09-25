@@ -38,12 +38,21 @@ const _builtIn = Program(
   scheduleMode: ScheduleMode.rotation,
   workouts: [ProgramWorkout(name: 'Hafta 1 · Squat', exercises: [_squat5, _squat5plus])],
 );
+// Task 12 (1RM paneli): activate testinin yüzdesiz kalması gerektiğinden
+// (panel devreye girmemeli), _mine kendi (yüzdesiz) bloğunu kullanır.
+const _squat5NoPercent = WorkoutExercise(
+  exerciseId: 'Barbell_Squat',
+  exerciseName: 'Barbell Squat',
+  sets: 1,
+  repsMin: 5,
+  repsMax: 5,
+);
 const _mine = Program(
   id: 'mine',
   userId: 'user-1',
   name: 'Benim programım',
   scheduleMode: ScheduleMode.weekdays,
-  workouts: [ProgramWorkout(name: 'Bacak', weekday: 1, exercises: [_squat5])],
+  workouts: [ProgramWorkout(name: 'Bacak', weekday: 1, exercises: [_squat5NoPercent])],
 );
 
 void main() {

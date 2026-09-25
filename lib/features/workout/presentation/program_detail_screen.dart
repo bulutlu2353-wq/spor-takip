@@ -7,11 +7,15 @@ import '../application/workout_providers.dart';
 import '../domain/block_grouping.dart';
 import '../domain/program.dart';
 import '../domain/schedule_mode.dart';
+import 'one_rep_max_sheet.dart';
 import 'widgets/exercise_group_tile.dart';
 
-/// Programı aktif yapar. Task 12, yüzdelik programlar için önce 1RM panelini
-/// gösterecek şekilde bu fonksiyonu genişletir.
+/// Programı aktif yapar; yüzdelik programlarda önce 1RM panelini gösterir
+/// (panel atlanabilir, aktivasyon her durumda yapılır).
 Future<void> activateProgram(BuildContext context, WidgetRef ref, Program program) async {
+  if (program.usesPercentages) {
+    await showOneRepMaxSheet(context, program);
+  }
   await ref.read(programRepositoryProvider).setActiveProgram(program.id);
   ref.invalidate(activeProgramStateProvider);
 }
@@ -132,6 +136,12 @@ class ProgramDetailScreen extends ConsumerWidget {
                       child: Text('workout.delete'.tr()),
                     ),
                   ],
+                  if (program.usesPercentages)
+                    OutlinedButton(
+                      key: const Key('program_one_rep_max_button'),
+                      onPressed: () => showOneRepMaxSheet(context, program),
+                      child: Text('workout.one_rep_max_button'.tr()),
+                    ),
                 ],
               ),
               const SizedBox(height: 16),

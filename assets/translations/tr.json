@@ -216,6 +216,12 @@
       "machine": "Makine",
       "medicine_ball": "Sağlık topu",
       "other": "Diğer"
-    }
+    },
+    "one_rep_max_title": "1RM değerlerin",
+    "one_rep_max_body": "Bu program ağırlıkları 1 tekrar maksimumuna (1RM) göre hesaplar. Bilmiyorsan atlayabilirsin; ağırlık yerine yüzde gösterilir.",
+    "one_rep_max_kg": "{name} (kg)",
+    "one_rep_max_save": "Kaydet",
+    "one_rep_max_skip": "Atla",
+    "one_rep_max_button": "1RM değerlerim"
   }
 }

@@ -216,6 +216,12 @@
       "machine": "Machine",
       "medicine_ball": "Medicine ball",
       "other": "Other"
-    }
+    },
+    "one_rep_max_title": "Your 1RMs",
+    "one_rep_max_body": "This program calculates weights from your one-rep max (1RM). If you don't know it, skip; percentages are shown instead of weights.",
+    "one_rep_max_kg": "{name} (kg)",
+    "one_rep_max_save": "Save",
+    "one_rep_max_skip": "Skip",
+    "one_rep_max_button": "My 1RMs"
   }
 }
