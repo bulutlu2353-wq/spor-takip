@@ -101,6 +101,25 @@
   },
   "nav": {
     "home": "Ana Sayfa",
-    "nutrition": "Beslenme"
+    "nutrition": "Beslenme",
+    "workout": "Antrenman"
+  },
+  "workout": {
+    "programs_title": "Programlar",
+    "active_program": "Aktif program",
+    "my_programs": "Programlarım",
+    "built_in_programs": "Hazır programlar",
+    "no_my_programs": "Henüz kendi programın yok. Hazır bir programı özelleştir veya boş program oluştur.",
+    "create_program": "Boş program oluştur",
+    "load_error": "Programlar yüklenemedi",
+    "retry": "Tekrar dene",
+    "filter_all": "Tümü",
+    "days_per_week": "Haftada {count} gün",
+    "level_beginner": "Başlangıç",
+    "level_intermediate": "Orta",
+    "level_advanced": "İleri",
+    "mode_weekdays": "Sabit günler",
+    "mode_rotation": "Sıralı döngü",
+    "no_filter_results": "Bu filtrelere uyan program yok"
   }
 }

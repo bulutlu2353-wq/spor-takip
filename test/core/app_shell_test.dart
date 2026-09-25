@@ -24,6 +24,9 @@ void main() {
             StatefulShellBranch(routes: [
               GoRoute(path: '/nutrition', builder: (context, state) => const Text('NUTRITION_SCREEN')),
             ]),
+            StatefulShellBranch(routes: [
+              GoRoute(path: '/workout', builder: (context, state) => const Text('WORKOUT_SCREEN')),
+            ]),
           ],
         ),
       ],
@@ -36,7 +39,7 @@ void main() {
     );
   }
 
-  testWidgets('shows both nav destinations and starts on the home branch', (tester) async {
+  testWidgets('shows all nav destinations and starts on the home branch', (tester) async {
     await tester.pumpWidget(buildTestRouter());
     await tester.pumpAndSettle();
 
@@ -59,6 +62,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('NUTRITION_SCREEN'), findsOneWidget);
+    expect(find.text('HOME_SCREEN'), findsNothing);
+  });
+
+  testWidgets('tapping the workout destination switches branch', (tester) async {
+    await tester.pumpWidget(buildTestRouter());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.fitness_center_outlined));
+    await tester.pumpAndSettle();
+
+    expect(find.text('WORKOUT_SCREEN'), findsOneWidget);
     expect(find.text('HOME_SCREEN'), findsNothing);
   });
 }

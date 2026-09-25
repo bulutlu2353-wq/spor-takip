@@ -9,6 +9,7 @@ import '../features/onboarding/presentation/home_screen.dart';
 import '../features/onboarding/presentation/login_screen.dart';
 import '../features/onboarding/presentation/onboarding_wizard_screen.dart';
 import '../features/onboarding/presentation/register_screen.dart';
+import '../features/workout/presentation/programs_screen.dart';
 import 'app_shell.dart';
 import 'redirect_logic.dart';
 
@@ -57,6 +58,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => const MealCaptureScreen(),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/workout',
+                builder: (context, state) => const ProgramsScreen(),
+                routes: const [],
               ),
             ],
           ),

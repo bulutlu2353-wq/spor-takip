@@ -101,6 +101,25 @@
   },
   "nav": {
     "home": "Home",
-    "nutrition": "Nutrition"
+    "nutrition": "Nutrition",
+    "workout": "Workout"
+  },
+  "workout": {
+    "programs_title": "Programs",
+    "active_program": "Active program",
+    "my_programs": "My programs",
+    "built_in_programs": "Built-in programs",
+    "no_my_programs": "You have no programs yet. Customize a built-in program or create an empty one.",
+    "create_program": "Create empty program",
+    "load_error": "Could not load programs",
+    "retry": "Try again",
+    "filter_all": "All",
+    "days_per_week": "{count} days per week",
+    "level_beginner": "Beginner",
+    "level_intermediate": "Intermediate",
+    "level_advanced": "Advanced",
+    "mode_weekdays": "Fixed weekdays",
+    "mode_rotation": "Rotation",
+    "no_filter_results": "No programs match these filters"
   }
 }
