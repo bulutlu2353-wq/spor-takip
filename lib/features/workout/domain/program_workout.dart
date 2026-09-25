@@ -1,5 +1,11 @@
 import 'workout_exercise.dart';
 
+/// Sorts embedded PostgREST rows by their `position` column; null → empty list.
+List<Map<String, dynamic>> sortedByPosition(Object? rows) {
+  return [...(rows as List? ?? const [])].cast<Map<String, dynamic>>()
+    ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int));
+}
+
 class ProgramWorkout {
   const ProgramWorkout({required this.name, required this.exercises, this.weekday});
 
@@ -10,9 +16,7 @@ class ProgramWorkout {
   final List<WorkoutExercise> exercises;
 
   factory ProgramWorkout.fromJson(Map<String, dynamic> json) {
-    final rows = [...(json['workout_exercises'] as List? ?? const [])]
-        .cast<Map<String, dynamic>>()
-      ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int));
+    final rows = sortedByPosition(json['workout_exercises']);
     return ProgramWorkout(
       name: json['name'] as String,
       weekday: json['weekday'] as int?,

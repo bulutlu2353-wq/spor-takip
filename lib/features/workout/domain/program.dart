@@ -44,9 +44,7 @@ class Program {
       };
 
   factory Program.fromJson(Map<String, dynamic> json) {
-    final rows = [...(json['program_workouts'] as List? ?? const [])]
-        .cast<Map<String, dynamic>>()
-      ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int));
+    final rows = sortedByPosition(json['program_workouts']);
     return Program(
       id: json['id'] as String?,
       userId: json['user_id'] as String?,
