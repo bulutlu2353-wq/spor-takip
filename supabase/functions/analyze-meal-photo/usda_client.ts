@@ -13,6 +13,7 @@ export interface Macros {
 
 const PREFERRED_DATA_TYPES = new Set(['Foundation', 'SR Legacy']);
 const MATCH_THRESHOLD = 0.3;
+const SEARCH_DATA_TYPES = ['Foundation', 'SR Legacy', 'Survey (FNDDS)'];
 
 function normalize(text: string): string[] {
   return text
@@ -44,10 +45,13 @@ export async function findBestMatch(
   apiKey: string,
   fetchFn: typeof fetch = fetch,
 ): Promise<UsdaFood | null> {
-  const url =
-    `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}` +
-    `&query=${encodeURIComponent(foodName)}&pageSize=10`;
-  const response = await fetchFn(url);
+  // POST because the GET endpoint rejects "Survey (FNDDS)" in the query string.
+  // Branded foods are excluded: their label-derived records often lack energy/macros.
+  const response = await fetchFn(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: foodName, pageSize: 10, dataType: SEARCH_DATA_TYPES }),
+  });
   if (!response.ok) {
     console.error(`USDA search failed for "${foodName}": ${response.status} ${await response.text()}`);
     return null;
@@ -92,7 +96,11 @@ export async function fetchMacrosPer100g(
     return nutrients.find((n) => n.nutrient?.name === name)?.amount ?? 0;
   };
   return {
-    calories: find('Energy', 'KCAL'),
+    // Foundation foods report energy only under the Atwater names.
+    calories:
+      find('Energy', 'KCAL') ||
+      find('Energy (Atwater General Factors)', 'KCAL') ||
+      find('Energy (Atwater Specific Factors)', 'KCAL'),
     proteinG: find('Protein'),
     carbsG: find('Carbohydrate, by difference'),
     fatG: find('Total lipid (fat)'),

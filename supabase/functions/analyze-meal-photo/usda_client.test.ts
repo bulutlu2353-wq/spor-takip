@@ -69,6 +69,39 @@ Deno.test('fetchMacrosPer100g extracts the four tracked nutrients', async () => 
   assertAlmostEquals(macros.fatG, 3.6);
 });
 
+Deno.test('findBestMatch searches only generic (non-branded) data types', async () => {
+  let captured: Request | null = null;
+  const fakeFetch: typeof fetch = async (input, init) => {
+    captured = new Request(input, init);
+    return new Response(JSON.stringify({ foods: [] }), { status: 200 });
+  };
+
+  await findBestMatch('tomato', 'fake-key', fakeFetch);
+  // Branded records are label-derived and often lack energy/macros entirely.
+  const body = await captured!.json();
+  assertEquals(captured!.method, 'POST');
+  assertEquals(body.query, 'tomato');
+  assertEquals(body.dataType, ['Foundation', 'SR Legacy', 'Survey (FNDDS)']);
+});
+
+Deno.test('fetchMacrosPer100g falls back to Atwater energy for Foundation foods', async () => {
+  const fakeFetch: typeof fetch = async () =>
+    new Response(
+      JSON.stringify({
+        foodNutrients: [
+          // Foundation foods have no plain "Energy" nutrient (e.g. fdcId 1999634, "Tomato, roma").
+          { nutrient: { name: 'Energy (Atwater General Factors)', unitName: 'kcal' }, amount: 21.96 },
+          { nutrient: { name: 'Energy (Atwater Specific Factors)', unitName: 'kcal' }, amount: 18.95 },
+          { nutrient: { name: 'Protein', unitName: 'g' }, amount: 0.7 },
+        ],
+      }),
+      { status: 200 },
+    );
+
+  const macros = await fetchMacrosPer100g(1999634, 'fake-key', fakeFetch);
+  assertAlmostEquals(macros.calories, 21.96);
+});
+
 Deno.test('fetchMacrosPer100g throws when the detail request fails', async () => {
   const fakeFetch: typeof fetch = async () => new Response('error', { status: 404 });
   let threw = false;
