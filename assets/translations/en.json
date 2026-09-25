@@ -120,6 +120,26 @@
     "level_advanced": "Advanced",
     "mode_weekdays": "Fixed weekdays",
     "mode_rotation": "Rotation",
-    "no_filter_results": "No programs match these filters"
+    "no_filter_results": "No programs match these filters",
+    "detail_load_error": "Could not load program",
+    "active_badge": "Active",
+    "activate": "Activate",
+    "customize": "Customize",
+    "edit": "Edit",
+    "delete": "Delete",
+    "delete_confirm_title": "Delete this program?",
+    "delete_confirm_body": "This cannot be undone.",
+    "cancel": "Cancel",
+    "action_error": "Action failed, try again",
+    "activated": "Program activated",
+    "rest_seconds": "Rest: {seconds} s",
+    "no_workouts": "This program has no workouts",
+    "weekday_1": "Monday",
+    "weekday_2": "Tuesday",
+    "weekday_3": "Wednesday",
+    "weekday_4": "Thursday",
+    "weekday_5": "Friday",
+    "weekday_6": "Saturday",
+    "weekday_7": "Sunday"
   }
 }

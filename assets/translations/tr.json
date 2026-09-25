@@ -120,6 +120,26 @@
     "level_advanced": "İleri",
     "mode_weekdays": "Sabit günler",
     "mode_rotation": "Sıralı döngü",
-    "no_filter_results": "Bu filtrelere uyan program yok"
+    "no_filter_results": "Bu filtrelere uyan program yok",
+    "detail_load_error": "Program yüklenemedi",
+    "active_badge": "Aktif",
+    "activate": "Aktif yap",
+    "customize": "Özelleştir",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "delete_confirm_title": "Program silinsin mi?",
+    "delete_confirm_body": "Bu işlem geri alınamaz.",
+    "cancel": "Vazgeç",
+    "action_error": "İşlem başarısız, tekrar dene",
+    "activated": "Program aktif edildi",
+    "rest_seconds": "Dinlenme: {seconds} sn",
+    "no_workouts": "Bu programda antrenman yok",
+    "weekday_1": "Pazartesi",
+    "weekday_2": "Salı",
+    "weekday_3": "Çarşamba",
+    "weekday_4": "Perşembe",
+    "weekday_5": "Cuma",
+    "weekday_6": "Cumartesi",
+    "weekday_7": "Pazar"
   }
 }
