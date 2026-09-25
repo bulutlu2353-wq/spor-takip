@@ -10,6 +10,7 @@ import '../features/onboarding/presentation/login_screen.dart';
 import '../features/onboarding/presentation/onboarding_wizard_screen.dart';
 import '../features/onboarding/presentation/register_screen.dart';
 import '../features/workout/presentation/program_detail_screen.dart';
+import '../features/workout/presentation/program_editor_screen.dart';
 import '../features/workout/presentation/programs_screen.dart';
 import 'app_shell.dart';
 import 'redirect_logic.dart';
@@ -68,10 +69,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/workout',
                 builder: (context, state) => const ProgramsScreen(),
                 routes: [
+                  GoRoute(path: 'new', builder: (context, state) => const ProgramEditorScreen()),
                   GoRoute(
                     path: 'program/:id',
                     builder: (context, state) =>
                         ProgramDetailScreen(programId: state.pathParameters['id']!),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) =>
+                            ProgramEditorScreen(programId: state.pathParameters['id']),
+                      ),
+                    ],
                   ),
                 ],
               ),
