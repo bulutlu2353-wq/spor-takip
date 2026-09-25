@@ -25,6 +25,9 @@ Future<void> main() async {
     EasyLocalization(
       supportedLocales: const [Locale('tr'), Locale('en')],
       path: 'assets/translations',
+      // Turkish by default regardless of device/browser language; a locale
+      // picked later via setLocale is saved and takes precedence.
+      startLocale: const Locale('tr'),
       fallbackLocale: const Locale('tr'),
       child: const ProviderScope(child: SporTakipApp()),
     ),
