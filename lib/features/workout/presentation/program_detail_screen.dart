@@ -8,6 +8,7 @@ import '../domain/block_grouping.dart';
 import '../domain/program.dart';
 import '../domain/schedule_mode.dart';
 import 'one_rep_max_sheet.dart';
+import 'start_workout.dart';
 import 'widgets/exercise_group_tile.dart';
 
 /// Programı aktif yapar; yüzdelik programlarda önce 1RM panelini gösterir
@@ -157,6 +158,13 @@ class ProgramDetailScreen extends ConsumerWidget {
                         subtitle: program.scheduleMode == ScheduleMode.weekdays && workout.weekday != null
                             ? Text('workout.weekday_${workout.weekday}'.tr())
                             : null,
+                        trailing: workout.exercises.isEmpty
+                            ? null
+                            : TextButton(
+                                key: Key('workout_start_$index'),
+                                onPressed: () => _run(context, () => startWorkout(context, ref, program, index)),
+                                child: Text('workout.session.start'.tr()),
+                              ),
                       ),
                       for (final group in groupBlocks(workout.exercises))
                         ExerciseGroupTile(group: group, oneRepMaxes: oneRepMaxes),

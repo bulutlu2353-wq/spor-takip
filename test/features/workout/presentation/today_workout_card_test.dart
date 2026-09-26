@@ -5,12 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/data/program_repository.dart';
 import 'package:spor_takip/features/workout/domain/program.dart';
 import 'package:spor_takip/features/workout/domain/program_workout.dart';
 import 'package:spor_takip/features/workout/domain/schedule_mode.dart';
 import 'package:spor_takip/features/workout/domain/today_workout.dart';
+import 'package:spor_takip/features/workout/domain/workout_session.dart';
 import 'package:spor_takip/features/workout/presentation/widgets/today_workout_card.dart';
 
 import '../fakes.dart';
@@ -32,6 +34,10 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
+  late FakeSessionRepository sessionRepo;
+
+  setUp(() => sessionRepo = FakeSessionRepository());
+
   Widget wrap(List overrides) {
     final router = GoRouter(routes: [
       GoRoute(path: '/', builder: (context, state) => const Scaffold(body: TodayWorkoutCard())),
@@ -40,13 +46,23 @@ void main() {
         path: '/workout/program/:id',
         builder: (context, state) => Text('DETAIL_${state.pathParameters['id']}'),
       ),
+      GoRoute(
+        path: '/session/:id',
+        builder: (context, state) => Text('SESSION_${state.pathParameters['id']}'),
+      ),
     ]);
     return EasyLocalization(
       supportedLocales: const [Locale('tr'), Locale('en')],
       path: 'assets/translations',
       fallbackLocale: const Locale('tr'),
       child: ProviderScope(
-        overrides: [isLoggedInProvider.overrideWithValue(true), ...overrides.cast()],
+        overrides: [
+          isLoggedInProvider.overrideWithValue(true),
+          sessionRepositoryProvider.overrideWithValue(sessionRepo),
+          exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository()),
+          oneRepMaxRepositoryProvider.overrideWithValue(FakeOneRepMaxRepository()),
+          ...overrides.cast(),
+        ],
         child: MaterialApp.router(routerConfig: router),
       ),
     );
@@ -70,23 +86,53 @@ void main() {
     expect(find.byKey(const Key('today_rest_day')), findsOneWidget);
   });
 
-  testWidgets('rotation: shows the next workout, Done advances it, tap opens detail', (tester) async {
+  testWidgets('scheduled workout: Start opens a new session, tap opens detail', (tester) async {
     final repo = FakeProgramRepository(
       programs: [_rotation],
-      active: const ActiveProgramState(programId: 'rot'),
+      active: const ActiveProgramState(programId: 'rot', nextRotationPosition: 1),
     );
     await tester.pumpWidget(wrap([programRepositoryProvider.overrideWithValue(repo)]));
     await tester.pumpAndSettle();
 
-    expect(find.text('Antrenman A'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('today_done_button')));
+    expect(find.text('Antrenman B'), findsOneWidget);
+    expect(find.byKey(const Key('today_done_button')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('today_start_button')));
     await tester.pumpAndSettle();
 
-    expect(repo.active.nextRotationPosition, 1);
-    expect(find.text('Antrenman B'), findsOneWidget);
+    expect(find.text('SESSION_session-0'), findsOneWidget);
+    final session = sessionRepo.sessions['session-0']!;
+    expect(session.workoutName, 'Antrenman B');
+    expect(session.workoutPosition, 1);
+  });
+
+  testWidgets('scheduled workout tile opens the program detail', (tester) async {
+    final repo = FakeProgramRepository(programs: [_rotation], active: const ActiveProgramState(programId: 'rot'));
+    await tester.pumpWidget(wrap([programRepositoryProvider.overrideWithValue(repo)]));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('today_scheduled')));
     await tester.pumpAndSettle();
     expect(find.text('DETAIL_rot'), findsOneWidget);
+  });
+
+  testWidgets('an in-progress session shows Resume', (tester) async {
+    sessionRepo.sessions['cur'] = WorkoutSession(
+      id: 'cur',
+      programId: 'rot',
+      programName: 'Rotasyon',
+      workoutName: 'Antrenman A',
+      workoutPosition: 0,
+      startedAt: DateTime.now(),
+    );
+    await tester.pumpWidget(wrap([todayWorkoutProvider.overrideWith((ref) async => const NoActiveProgram())]));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('today_in_progress')), findsOneWidget);
+    expect(find.text('Antrenman A'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('today_resume_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('SESSION_cur'), findsOneWidget);
   });
 }

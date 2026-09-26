@@ -183,7 +183,7 @@
     "custom_exercise_equipment": "Ekipman",
     "custom_exercise_badge": "Senin hareketin",
     "custom_delete_title": "Hareket silinsin mi?",
-    "exercise_in_use": "Bu hareket bir programında kullanılıyor, önce programdan çıkar.",
+    "exercise_in_use": "Bu hareket bir programında veya antrenman kayıtlarında kullanılıyor.",
     "muscle": {
       "abdominals": "Karın",
       "abductors": "Kalça dışı (abduktör)",
@@ -229,7 +229,6 @@
     "today_rest_day": "Bugün dinlenme günü",
     "today_label": "Bugün",
     "next_label": "Sıradaki",
-    "today_done": "Tamamladım",
     "today_load_error": "Antrenman bilgisi yüklenemedi",
     "session": {
       "start": "Başla",

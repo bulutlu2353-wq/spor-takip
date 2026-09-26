@@ -183,7 +183,7 @@
     "custom_exercise_equipment": "Equipment",
     "custom_exercise_badge": "Your exercise",
     "custom_delete_title": "Delete this exercise?",
-    "exercise_in_use": "This exercise is used in one of your programs; remove it there first.",
+    "exercise_in_use": "This exercise is used in one of your programs or workout logs.",
     "muscle": {
       "abdominals": "Abdominals",
       "abductors": "Abductors",
@@ -229,7 +229,6 @@
     "today_rest_day": "Rest day today",
     "today_label": "Today",
     "next_label": "Up next",
-    "today_done": "Done",
     "today_load_error": "Could not load today's workout",
     "session": {
       "start": "Start",

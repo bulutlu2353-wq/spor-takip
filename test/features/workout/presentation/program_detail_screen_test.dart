@@ -5,11 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/program.dart';
 import 'package:spor_takip/features/workout/domain/program_workout.dart';
 import 'package:spor_takip/features/workout/domain/schedule_mode.dart';
 import 'package:spor_takip/features/workout/domain/workout_exercise.dart';
+import 'package:spor_takip/features/workout/domain/workout_session.dart';
 import 'package:spor_takip/features/workout/presentation/program_detail_screen.dart';
 
 import '../fakes.dart';
@@ -63,6 +65,7 @@ void main() {
 
   late FakeProgramRepository repo;
   late FakeOneRepMaxRepository oneRepMaxRepo;
+  late FakeSessionRepository sessionRepo;
 
   Widget wrap(String programId) {
     final router = GoRouter(initialLocation: '/workout', routes: [
@@ -82,6 +85,10 @@ void main() {
           ),
         ],
       ),
+      GoRoute(
+        path: '/session/:id',
+        builder: (context, state) => Text('SESSION_${state.pathParameters['id']}'),
+      ),
     ]);
     return EasyLocalization(
       supportedLocales: const [Locale('tr'), Locale('en')],
@@ -92,6 +99,8 @@ void main() {
           isLoggedInProvider.overrideWithValue(true),
           programRepositoryProvider.overrideWithValue(repo),
           oneRepMaxRepositoryProvider.overrideWithValue(oneRepMaxRepo),
+          sessionRepositoryProvider.overrideWithValue(sessionRepo),
+          exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository()),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -108,6 +117,7 @@ void main() {
   setUp(() {
     repo = FakeProgramRepository(programs: [_builtIn, _mine]);
     oneRepMaxRepo = FakeOneRepMaxRepository();
+    sessionRepo = FakeSessionRepository();
   });
 
   testWidgets('groups consecutive blocks and shows percentages without a 1RM', (tester) async {
@@ -160,5 +170,50 @@ void main() {
 
     expect(repo.deletedIds, ['mine']);
     expect(find.text('PROGRAMS'), findsOneWidget);
+  });
+
+  testWidgets('start opens a new session for that workout', (tester) async {
+    await open(tester, 'mine');
+
+    await tester.tap(find.byKey(const Key('workout_start_0')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SESSION_session-0'), findsOneWidget);
+    expect(sessionRepo.sessions['session-0']!.workoutName, 'Bacak');
+    expect(sessionRepo.sessions['session-0']!.sets.length, 1);
+  });
+
+  WorkoutSession inProgress() => WorkoutSession(
+        id: 'cur',
+        programName: 'Başka',
+        workoutName: 'Eski antrenman',
+        workoutPosition: 0,
+        startedAt: DateTime(2026, 9, 26, 9),
+      );
+
+  testWidgets('with a session in progress, Resume opens it', (tester) async {
+    sessionRepo.sessions['cur'] = inProgress();
+    await open(tester, 'mine');
+
+    await tester.tap(find.byKey(const Key('workout_start_0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('session_conflict_resume')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SESSION_cur'), findsOneWidget);
+    expect(sessionRepo.sessions.length, 1);
+  });
+
+  testWidgets('with a session in progress, Replace cancels it and starts a new one', (tester) async {
+    sessionRepo.sessions['cur'] = inProgress();
+    await open(tester, 'mine');
+
+    await tester.tap(find.byKey(const Key('workout_start_0')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('session_conflict_replace')));
+    await tester.pumpAndSettle();
+
+    expect(sessionRepo.sessions.containsKey('cur'), isFalse);
+    expect(find.text('SESSION_session-0'), findsOneWidget);
   });
 }
