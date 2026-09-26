@@ -2003,8 +2003,8 @@ void main() {
     expect(sets.length, 3);
     expect(sets.first.exercisePosition, 3);
     expect(sets.first.targetRepsMax, 12);
-    // son oturum 5 tekrarla bitti, 8–12 hedefinin üstüne ulaşmadı → aynı kilo
-    expect(sets.first.suggestedWeightKg, 60);
+    // başarı, geçmiş setlerin kendi hedefine (5) göre ölçülür → 60 + 5
+    expect(sets.first.suggestedWeightKg, 65);
   });
 }
 ```
