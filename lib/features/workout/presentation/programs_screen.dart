@@ -28,7 +28,17 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
 
     return Scaffold(
       key: const Key('programs_screen'),
-      appBar: AppBar(title: Text('workout.programs_title'.tr())),
+      appBar: AppBar(
+        title: Text('workout.programs_title'.tr()),
+        actions: [
+          IconButton(
+            key: const Key('programs_history_button'),
+            icon: const Icon(Icons.history),
+            tooltip: 'workout.history.title'.tr(),
+            onPressed: () => context.push('/workout/history'),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('programs_create_fab'),
         onPressed: () => context.push('/workout/new'),

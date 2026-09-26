@@ -10,6 +10,8 @@ import '../features/onboarding/presentation/login_screen.dart';
 import '../features/onboarding/presentation/onboarding_wizard_screen.dart';
 import '../features/onboarding/presentation/register_screen.dart';
 import '../features/workout/presentation/exercise_picker_screen.dart';
+import '../features/workout/presentation/history_detail_screen.dart';
+import '../features/workout/presentation/history_screen.dart';
 import '../features/workout/presentation/program_detail_screen.dart';
 import '../features/workout/presentation/program_editor_screen.dart';
 import '../features/workout/presentation/programs_screen.dart';
@@ -86,6 +88,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(path: 'new', builder: (context, state) => const ProgramEditorScreen()),
                   GoRoute(path: 'exercises', builder: (context, state) => const ExercisePickerScreen()),
+                  GoRoute(
+                    path: 'history',
+                    builder: (context, state) => const HistoryScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (context, state) =>
+                            HistoryDetailScreen(sessionId: state.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
                   GoRoute(
                     path: 'program/:id',
                     builder: (context, state) =>

@@ -260,6 +260,13 @@
       "summary_volume": "Total volume",
       "summary_one_rep_max": "1RM suggestions",
       "save": "Save"
+    },
+    "history": {
+      "title": "History",
+      "empty": "No completed workouts yet",
+      "load_error": "Could not load history",
+      "not_done": "not done",
+      "delete_title": "Delete this workout log?"
     }
   }
 }

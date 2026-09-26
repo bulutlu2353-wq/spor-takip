@@ -260,6 +260,13 @@
       "summary_volume": "Toplam hacim",
       "summary_one_rep_max": "1RM önerileri",
       "save": "Kaydet"
+    },
+    "history": {
+      "title": "Geçmiş",
+      "empty": "Henüz tamamlanmış antrenman yok",
+      "load_error": "Geçmiş yüklenemedi",
+      "not_done": "yapılmadı",
+      "delete_title": "Antrenman kaydı silinsin mi?"
     }
   }
 }
