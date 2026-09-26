@@ -14,6 +14,7 @@ import '../features/workout/presentation/program_detail_screen.dart';
 import '../features/workout/presentation/program_editor_screen.dart';
 import '../features/workout/presentation/programs_screen.dart';
 import '../features/workout/presentation/session_screen.dart';
+import '../features/workout/presentation/session_summary_screen.dart';
 import 'app_shell.dart';
 import 'redirect_logic.dart';
 
@@ -51,6 +52,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => SessionScreen(sessionId: state.pathParameters['id']!),
         routes: [
           GoRoute(path: 'exercises', builder: (context, state) => const ExercisePickerScreen()),
+          GoRoute(
+            path: 'summary',
+            builder: (context, state) => SessionSummaryScreen(sessionId: state.pathParameters['id']!),
+          ),
         ],
       ),
       StatefulShellRoute.indexedStack(
