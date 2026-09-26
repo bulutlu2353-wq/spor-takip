@@ -13,6 +13,7 @@ import '../features/workout/presentation/exercise_picker_screen.dart';
 import '../features/workout/presentation/program_detail_screen.dart';
 import '../features/workout/presentation/program_editor_screen.dart';
 import '../features/workout/presentation/programs_screen.dart';
+import '../features/workout/presentation/session_screen.dart';
 import 'app_shell.dart';
 import 'redirect_logic.dart';
 
@@ -43,6 +44,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingWizardScreen(),
+      ),
+      // Antrenman: alt menü dışında tam ekran.
+      GoRoute(
+        path: '/session/:id',
+        builder: (context, state) => SessionScreen(sessionId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(path: 'exercises', builder: (context, state) => const ExercisePickerScreen()),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),

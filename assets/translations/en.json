@@ -230,6 +230,36 @@
     "today_label": "Today",
     "next_label": "Up next",
     "today_done": "Done",
-    "today_load_error": "Could not load today's workout"
+    "today_load_error": "Could not load today's workout",
+    "session": {
+      "start": "Start",
+      "resume": "Resume",
+      "started_at": "Started {time}",
+      "finish": "Finish",
+      "cancel": "Cancel workout",
+      "cancel_confirm_title": "Cancel this workout?",
+      "cancel_confirm_body": "All sets of this workout will be deleted.",
+      "cancel_confirm": "Cancel workout",
+      "no_sets_title": "No sets completed",
+      "no_sets_body": "Do you want to cancel the workout?",
+      "add_exercise": "Add exercise",
+      "remove_exercise": "Remove exercise",
+      "set_label": "Set {n}",
+      "deloaded": "Failed 3 times, weight reduced",
+      "save_error": "Could not save, try again",
+      "reps_required": "Enter the reps first",
+      "load_error": "Could not load the workout",
+      "rest": "Rest",
+      "rest_add": "+30 s",
+      "rest_skip": "Skip",
+      "conflict_title": "You have a workout in progress",
+      "conflict_replace": "Cancel it and start new",
+      "summary_title": "Workout summary",
+      "summary_duration": "Duration",
+      "summary_sets": "Completed sets",
+      "summary_volume": "Total volume",
+      "summary_one_rep_max": "1RM suggestions",
+      "save": "Save"
+    }
   }
 }
