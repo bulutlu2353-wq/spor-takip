@@ -222,6 +222,14 @@
     "one_rep_max_kg": "{name} (kg)",
     "one_rep_max_save": "Save",
     "one_rep_max_skip": "Skip",
-    "one_rep_max_button": "My 1RMs"
+    "one_rep_max_button": "My 1RMs",
+    "today_title": "Today's workout",
+    "today_no_program": "You have no active program",
+    "today_choose": "Choose a program",
+    "today_rest_day": "Rest day today",
+    "today_label": "Today",
+    "next_label": "Up next",
+    "today_done": "Done",
+    "today_load_error": "Could not load today's workout"
   }
 }

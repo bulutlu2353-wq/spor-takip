@@ -222,6 +222,14 @@
     "one_rep_max_kg": "{name} (kg)",
     "one_rep_max_save": "Kaydet",
     "one_rep_max_skip": "Atla",
-    "one_rep_max_button": "1RM değerlerim"
+    "one_rep_max_button": "1RM değerlerim",
+    "today_title": "Bugünün antrenmanı",
+    "today_no_program": "Aktif programın yok",
+    "today_choose": "Program seç",
+    "today_rest_day": "Bugün dinlenme günü",
+    "today_label": "Bugün",
+    "next_label": "Sıradaki",
+    "today_done": "Tamamladım",
+    "today_load_error": "Antrenman bilgisi yüklenemedi"
   }
 }

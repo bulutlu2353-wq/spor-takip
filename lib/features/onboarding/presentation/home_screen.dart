@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/auth_providers.dart';
 import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
+import '../../workout/presentation/widgets/today_workout_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -48,6 +49,11 @@ class HomeScreen extends ConsumerWidget {
                     namedArgs: {'value': profile.dailyProteinTargetG.round().toString()},
                   ),
                   style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: TodayWorkoutCard(),
                 ),
               ],
             ),
