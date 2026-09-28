@@ -267,5 +267,79 @@
       "not_done": "yapılmadı",
       "delete_title": "Antrenman kaydı silinsin mi?"
     }
+  },
+  "progress": {
+    "retry": "Tekrar dene",
+    "load_error": "Yüklenemedi",
+    "save_error": "Kaydedilemedi, tekrar dene",
+    "delete_error": "Silinemedi, tekrar dene",
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "delete_confirm": "Bu kayıt silinsin mi?",
+    "change_30d": "30 gün: {value}",
+    "date": "Tarih: {date}",
+    "range": {
+      "month": "1 ay",
+      "three_months": "3 ay",
+      "year": "1 yıl",
+      "all": "Tümü"
+    },
+    "targets": {
+      "title": "Günlük hedefler"
+    },
+    "weekly": {
+      "title": "Haftalık özet",
+      "so_far": "Bu hafta (şu ana kadar) ve geçen hafta",
+      "this_week": "Bu hafta",
+      "last_week": "Geçen hafta",
+      "change": "Fark",
+      "workouts": "Antrenman",
+      "sets": "Set",
+      "volume": "Hacim (kg)",
+      "calories": "Ort. kalori",
+      "protein": "Ort. protein (g)",
+      "nutrition_days": "Öğün kaydı (gün)",
+      "weight": "Kilo (kg)",
+      "empty": "Bu hafta ve geçen hafta henüz kayıt yok. Antrenman, öğün ya da kilo kaydettikçe özetin burada görünecek."
+    },
+    "weight": {
+      "title": "Vücut ağırlığı",
+      "add": "Kilo ekle",
+      "edit": "Kiloyu düzenle",
+      "input_label": "Kilo (kg)",
+      "invalid": "0 ile 500 arasında bir değer gir",
+      "saved": "Kilo kaydedildi",
+      "saved_target": "Kilo kaydedildi. Yeni kalori hedefin: {value} kcal",
+      "empty": "Henüz kilo kaydın yok. İlk kaydını ekle.",
+      "last_log_hint": "Son kalan kilo kaydı silinemez",
+      "stale": "Liste güncellendi, tekrar dene"
+    },
+    "strength": {
+      "title": "Güç ilerlemesi",
+      "empty": "İlk antrenmanını bitirince burada güç grafiğin görünecek.",
+      "exercise": "Hareket",
+      "estimated_note": "Tahmini 1RM (Epley): her oturumun en iyi seti; 10 tekrardan fazla ve kilosuz setler sayılmaz."
+    },
+    "measurements": {
+      "title": "Beden ölçüleri",
+      "add": "Ölçüm ekle",
+      "form_title": "Ölçüm (cm)",
+      "empty": "Henüz ölçüm yok. İlk ölçümünü ekle.",
+      "last": "Son ölçüm: {date}",
+      "need_one": "En az bir ölçü gir",
+      "invalid": "0 ile 300 arasında"
+    },
+    "sites": {
+      "neck": "Boyun",
+      "shoulders": "Omuz",
+      "chest": "Göğüs",
+      "waist": "Bel",
+      "hips": "Kalça",
+      "arm": "Kol",
+      "forearm": "Ön kol",
+      "thigh": "Uyluk",
+      "calf": "Baldır"
+    }
   }
 }

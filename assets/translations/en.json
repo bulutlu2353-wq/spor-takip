@@ -267,5 +267,79 @@
       "not_done": "not done",
       "delete_title": "Delete this workout log?"
     }
+  },
+  "progress": {
+    "retry": "Retry",
+    "load_error": "Could not load",
+    "save_error": "Could not save, try again",
+    "delete_error": "Could not delete, try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "delete_confirm": "Delete this entry?",
+    "change_30d": "30 days: {value}",
+    "date": "Date: {date}",
+    "range": {
+      "month": "1 mo",
+      "three_months": "3 mo",
+      "year": "1 yr",
+      "all": "All"
+    },
+    "targets": {
+      "title": "Daily targets"
+    },
+    "weekly": {
+      "title": "Weekly summary",
+      "so_far": "This week (so far) and last week",
+      "this_week": "This week",
+      "last_week": "Last week",
+      "change": "Change",
+      "workouts": "Workouts",
+      "sets": "Sets",
+      "volume": "Volume (kg)",
+      "calories": "Avg. calories",
+      "protein": "Avg. protein (g)",
+      "nutrition_days": "Logged days",
+      "weight": "Weight (kg)",
+      "empty": "Nothing logged this week or last week yet. Your summary appears here as you log workouts, meals or weight."
+    },
+    "weight": {
+      "title": "Body weight",
+      "add": "Log weight",
+      "edit": "Edit weight",
+      "input_label": "Weight (kg)",
+      "invalid": "Enter a value between 0 and 500",
+      "saved": "Weight saved",
+      "saved_target": "Weight saved. Your new calorie target: {value} kcal",
+      "empty": "No weight entries yet. Add your first one.",
+      "last_log_hint": "The last remaining weight entry cannot be deleted",
+      "stale": "The list was updated, try again"
+    },
+    "strength": {
+      "title": "Strength progress",
+      "empty": "Finish your first workout to see your strength chart here.",
+      "exercise": "Exercise",
+      "estimated_note": "Estimated 1RM (Epley): best set of each session; sets above 10 reps and without weight are not counted."
+    },
+    "measurements": {
+      "title": "Body measurements",
+      "add": "Add measurement",
+      "form_title": "Measurement (cm)",
+      "empty": "No measurements yet. Add your first one.",
+      "last": "Last measured: {date}",
+      "need_one": "Enter at least one measurement",
+      "invalid": "Between 0 and 300"
+    },
+    "sites": {
+      "neck": "Neck",
+      "shoulders": "Shoulders",
+      "chest": "Chest",
+      "waist": "Waist",
+      "hips": "Hips",
+      "arm": "Arm",
+      "forearm": "Forearm",
+      "thigh": "Thigh",
+      "calf": "Calf"
+    }
   }
 }
