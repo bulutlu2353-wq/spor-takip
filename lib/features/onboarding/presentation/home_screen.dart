@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/auth_providers.dart';
 import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
+import '../../progress/presentation/widgets/targets_card.dart';
+import '../../progress/presentation/widgets/weekly_summary_card.dart';
 import '../../workout/presentation/widgets/today_workout_card.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -33,30 +35,16 @@ class HomeScreen extends ConsumerWidget {
           if (profile == null) {
             return Center(child: Text('home.no_profile'.tr()));
           }
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'home.calorie_target'.tr(
-                    namedArgs: {'value': profile.dailyCalorieTarget.round().toString()},
-                  ),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'home.protein_target'.tr(
-                    namedArgs: {'value': profile.dailyProteinTargetG.round().toString()},
-                  ),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: TodayWorkoutCard(),
-                ),
-              ],
-            ),
+          return ListView(
+            key: const Key('home_list'),
+            padding: const EdgeInsets.all(16),
+            children: [
+              TargetsCard(profile: profile),
+              const SizedBox(height: 12),
+              const TodayWorkoutCard(),
+              const SizedBox(height: 12),
+              const WeeklySummaryCard(),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
