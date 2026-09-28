@@ -22,15 +22,15 @@ import 'redirect_logic.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final isLoggedIn = ref.watch(isLoggedInProvider);
-  final profileAsync = ref.watch(profileProvider);
-  // AsyncValue.when correctly avoids re-triggering `loading` during a
-  // background refresh that already has data, via Riverpod's default
-  // skipLoadingOnRefresh.
-  final profileState = profileAsync.when(
-    data: (profile) => profile == null ? ProfileState.absent : ProfileState.present,
-    loading: () => ProfileState.loading,
-    error: (_, _) => ProfileState.error,
-  );
+  // Yalnızca profilin durumu izlenir: kilo kaydı profili yenilediğinde (F4b)
+  // yeni bir GoRouter kurulup gezinme yığını sıfırlanmasın. AsyncValue.when,
+  // Riverpod'un varsayılan skipLoadingOnRefresh'i sayesinde veri varken
+  // yapılan arka plan yenilemesinde `loading`'e düşmez.
+  final profileState = ref.watch(profileProvider.select((profileAsync) => profileAsync.when(
+        data: (profile) => profile == null ? ProfileState.absent : ProfileState.present,
+        loading: () => ProfileState.loading,
+        error: (_, _) => ProfileState.error,
+      )));
 
   return GoRouter(
     initialLocation: '/login',
