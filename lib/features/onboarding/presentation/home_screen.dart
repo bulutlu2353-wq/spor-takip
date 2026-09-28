@@ -6,6 +6,7 @@ import '../application/auth_providers.dart';
 import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
 import '../../progress/presentation/widgets/body_weight_card.dart';
+import '../../progress/presentation/widgets/strength_card.dart';
 import '../../progress/presentation/widgets/targets_card.dart';
 import '../../progress/presentation/widgets/weekly_summary_card.dart';
 import '../../workout/presentation/widgets/today_workout_card.dart';
@@ -47,6 +48,8 @@ class HomeScreen extends ConsumerWidget {
               const WeeklySummaryCard(),
               const SizedBox(height: 12),
               const BodyWeightCard(),
+              const SizedBox(height: 12),
+              const StrengthCard(),
             ],
           );
         },
