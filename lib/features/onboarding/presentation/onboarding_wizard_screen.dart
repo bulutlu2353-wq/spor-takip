@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../progress/application/body_weight_service.dart';
+import '../../progress/application/progress_providers.dart';
 import '../application/auth_providers.dart';
 import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
@@ -45,6 +47,13 @@ class _OnboardingWizardScreenState extends ConsumerState<OnboardingWizardScreen>
         currentYear: DateTime.now().year,
       );
       await ref.read(profileRepositoryProvider).saveProfile(profile);
+      try {
+        await recordInitialWeight(ref.read(bodyWeightRepositoryProvider), profile, DateTime.now());
+      } catch (e, st) {
+        // Profil kaydedildi; ilk kilo kaydı eksik kalırsa kilo kartı boş
+        // durumunu gösterir, onboarding'i bunun için durdurmayız.
+        debugPrint('Initial weight log failed: $e\n$st');
+      }
       ref.invalidate(profileProvider);
       ref.invalidate(onboardingWizardProvider);
     } catch (_) {

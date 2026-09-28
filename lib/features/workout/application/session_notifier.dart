@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../progress/application/progress_providers.dart';
 import '../data/session_repository.dart';
 import '../domain/exercise.dart';
 import '../domain/workout_session.dart';
@@ -117,6 +118,9 @@ class SessionNotifier extends AsyncNotifier<WorkoutSession> {
       ..invalidate(inProgressSessionProvider)
       ..invalidate(sessionHistoryProvider)
       ..invalidate(activeProgramStateProvider)
-      ..invalidate(oneRepMaxesProvider);
+      ..invalidate(oneRepMaxesProvider)
+      // F4b: güç grafikleri ve haftalık özet
+      ..invalidate(recentSessionsProvider)
+      ..invalidate(allSessionsProvider);
   }
 }

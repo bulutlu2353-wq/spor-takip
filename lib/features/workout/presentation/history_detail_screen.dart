@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../progress/application/progress_providers.dart';
 import '../application/session_providers.dart';
 import '../domain/block_format.dart';
 import '../domain/workout_session.dart';
@@ -37,7 +38,10 @@ class HistoryDetailScreen extends ConsumerWidget {
     if (confirmed != true) return;
     try {
       await ref.read(sessionRepositoryProvider).deleteSession(sessionId);
-      ref.invalidate(sessionHistoryProvider);
+      ref
+        ..invalidate(sessionHistoryProvider)
+        ..invalidate(recentSessionsProvider)
+        ..invalidate(allSessionsProvider);
       if (context.mounted) context.pop();
     } catch (e, st) {
       debugPrint('HistoryDetailScreen.delete failed: $e\n$st');

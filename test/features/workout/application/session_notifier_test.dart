@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/workout/application/session_notifier.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
 import 'package:spor_takip/features/workout/domain/workout_session.dart';
 
+import '../../progress/fakes.dart';
 import '../fakes.dart';
 
 const _bench = Exercise(id: 'Bench', name: 'Bench Press', equipment: 'barbell', primaryMuscles: ['chest']);
@@ -56,10 +58,13 @@ WorkoutSession _session(String id, List<SessionSet> sets, {DateTime? finishedAt}
 void main() {
   late FakeSessionRepository repo;
   late ProviderContainer container;
+  late FakeProgressDataRepository progressRepo;
 
   void setUpWith(List<SessionSet> sets, {List<WorkoutSession> history = const []}) {
     repo = FakeSessionRepository(sessions: [_session('sess', sets), ...history]);
+    progressRepo = FakeProgressDataRepository();
     container = ProviderContainer(overrides: [
+      progressDataRepositoryProvider.overrideWithValue(progressRepo),
       isLoggedInProvider.overrideWithValue(true),
       sessionRepositoryProvider.overrideWithValue(repo),
       exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository([_bench])),
@@ -206,5 +211,18 @@ void main() {
     repo.finishError = Exception('offline');
 
     expect(() => notifier().finish(const {}), throwsException);
+  });
+
+  test('finish refreshes the progress data', () async {
+    setUpWith([_s('a', done: true, weight: 60, reps: 5)]);
+    await load();
+    container.listen(recentSessionsProvider, (_, _) {});
+    await container.read(recentSessionsProvider.future);
+    expect(progressRepo.sessionFetches, 1);
+
+    await notifier().finish(const {});
+    await container.read(recentSessionsProvider.future);
+
+    expect(progressRepo.sessionFetches, 2);
   });
 }

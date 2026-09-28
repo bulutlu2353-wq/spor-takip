@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../onboarding/application/auth_providers.dart';
+import '../../progress/application/progress_providers.dart';
 import '../domain/food_item.dart';
 import '../domain/meal_type.dart';
 import 'meal_capture_state.dart';
@@ -95,6 +96,7 @@ class MealCaptureNotifier extends Notifier<MealCaptureState> {
       );
       state = const MealCaptureSaved();
       ref.invalidate(todayMealsProvider);
+      ref.invalidate(weeklyMealsProvider); // F4b haftalık özet
     } catch (_) {
       state = current;
     }
