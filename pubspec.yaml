@@ -41,6 +41,7 @@ dependencies:
   easy_localization: ^3.0.8
   image_picker: ^1.2.3
   uuid: ^4.6.0
+  fl_chart: 1.2.0
 
 dev_dependencies:
   flutter_test:
