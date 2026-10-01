@@ -42,11 +42,11 @@ class Profile {
       heightCm: (json['height_cm'] as num).toDouble(),
       birthYear: json['birth_year'] as int,
       gender: Gender.values.byName(json['gender'] as String),
-      activityLevel: _activityLevelFromDb(json['activity_level'] as String),
+      activityLevel: activityLevelFromDb(json['activity_level'] as String),
       doesExercise: json['does_exercise'] as bool,
       sportType: json['sport_type'] as String?,
       exerciseDaysPerWeek: json['exercise_days_per_week'] as int,
-      goal: _goalFromDb(json['goal'] as String),
+      goal: goalFromDb(json['goal'] as String),
       healthNotes: json['health_notes'] as String?,
       dailyCalorieTarget: (json['daily_calorie_target'] as num).toDouble(),
       dailyProteinTargetG: (json['daily_protein_target_g'] as num).toDouble(),
@@ -60,19 +60,45 @@ class Profile {
       'height_cm': heightCm,
       'birth_year': birthYear,
       'gender': gender.name,
-      'activity_level': _activityLevelToDb(activityLevel),
+      'activity_level': activityLevelToDb(activityLevel),
       'does_exercise': doesExercise,
       'sport_type': sportType,
       'exercise_days_per_week': exerciseDaysPerWeek,
-      'goal': _goalToDb(goal),
+      'goal': goalToDb(goal),
       'health_notes': healthNotes,
       'daily_calorie_target': dailyCalorieTarget,
       'daily_protein_target_g': dailyProteinTargetG,
     };
   }
+
+  /// Hedef hesabı gibi "ya böyle olsaydı" durumları için kopya.
+  Profile copyWith({
+    double? weightKg,
+    double? heightCm,
+    ActivityLevel? activityLevel,
+    bool? doesExercise,
+    int? exerciseDaysPerWeek,
+    Goal? goal,
+  }) {
+    return Profile(
+      userId: userId,
+      weightKg: weightKg ?? this.weightKg,
+      heightCm: heightCm ?? this.heightCm,
+      birthYear: birthYear,
+      gender: gender,
+      activityLevel: activityLevel ?? this.activityLevel,
+      doesExercise: doesExercise ?? this.doesExercise,
+      sportType: sportType,
+      exerciseDaysPerWeek: exerciseDaysPerWeek ?? this.exerciseDaysPerWeek,
+      goal: goal ?? this.goal,
+      healthNotes: healthNotes,
+      dailyCalorieTarget: dailyCalorieTarget,
+      dailyProteinTargetG: dailyProteinTargetG,
+    );
+  }
 }
 
-String _activityLevelToDb(ActivityLevel level) {
+String activityLevelToDb(ActivityLevel level) {
   switch (level) {
     case ActivityLevel.sedentary:
       return 'sedentary';
@@ -87,7 +113,7 @@ String _activityLevelToDb(ActivityLevel level) {
   }
 }
 
-ActivityLevel _activityLevelFromDb(String value) {
+ActivityLevel activityLevelFromDb(String value) {
   switch (value) {
     case 'sedentary':
       return ActivityLevel.sedentary;
@@ -104,7 +130,7 @@ ActivityLevel _activityLevelFromDb(String value) {
   }
 }
 
-String _goalToDb(Goal goal) {
+String goalToDb(Goal goal) {
   switch (goal) {
     case Goal.loseWeight:
       return 'lose_weight';
@@ -115,7 +141,7 @@ String _goalToDb(Goal goal) {
   }
 }
 
-Goal _goalFromDb(String value) {
+Goal goalFromDb(String value) {
   switch (value) {
     case 'lose_weight':
       return Goal.loseWeight;
