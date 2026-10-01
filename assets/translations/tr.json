@@ -341,5 +341,31 @@
       "thigh": "Uyluk",
       "calf": "Baldır"
     }
+  },
+  "coach": {
+    "card": {
+      "apply": "Onayla",
+      "cancel": "Vazgeç",
+      "undo": "Geri al",
+      "applied": "Uygulandı",
+      "cancelled": "Vazgeçildi",
+      "undone": "Geri alındı",
+      "stale": "Veri bu arada değişti, tekrar iste",
+      "modified": "Sonradan değişti, geri alınamaz",
+      "error": "İşlem yapılamadı, tekrar dene",
+      "new_targets": "Yeni hedefin: {kcal} kcal, {protein} g protein",
+      "needs_review": "Besin değeri bulunamadı (0 kcal sayılır)",
+      "set_number": "{n}. set",
+      "total": "Toplam"
+    },
+    "field": {
+      "height_cm": "Boy (cm)",
+      "activity_level": "Aktivite",
+      "does_exercise": "Spor yapıyor",
+      "sport_type": "Spor türü",
+      "exercise_days_per_week": "Haftalık spor günü",
+      "health_notes": "Sağlık notları",
+      "goal": "Amaç"
+    }
   }
 }

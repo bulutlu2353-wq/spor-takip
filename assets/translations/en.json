@@ -341,5 +341,31 @@
       "thigh": "Thigh",
       "calf": "Calf"
     }
+  },
+  "coach": {
+    "card": {
+      "apply": "Confirm",
+      "cancel": "Cancel",
+      "undo": "Undo",
+      "applied": "Applied",
+      "cancelled": "Cancelled",
+      "undone": "Undone",
+      "stale": "Your data changed meanwhile, ask again",
+      "modified": "Changed since, can't be undone",
+      "error": "Couldn't complete that, try again",
+      "new_targets": "New target: {kcal} kcal, {protein} g protein",
+      "needs_review": "No nutrition data found (counted as 0 kcal)",
+      "set_number": "Set {n}",
+      "total": "Total"
+    },
+    "field": {
+      "height_cm": "Height (cm)",
+      "activity_level": "Activity",
+      "does_exercise": "Exercises",
+      "sport_type": "Sport",
+      "exercise_days_per_week": "Training days per week",
+      "health_notes": "Health notes",
+      "goal": "Goal"
+    }
   }
 }
