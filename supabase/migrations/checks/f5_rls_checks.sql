@@ -138,7 +138,7 @@ begin
   pid := public.save_program(jsonb_build_object(
     'name', 'F5 Test', 'schedule_mode', 'rotation',
     'workouts', jsonb_build_array(jsonb_build_object('name', 'A',
-      'exercises', jsonb_build_array(jsonb_build_object('exercise_id', ex1, 'sets', 3, 'reps_min', 5, 'reps_max', 5)))))));
+      'exercises', jsonb_build_array(jsonb_build_object('exercise_id', ex1, 'sets', 3, 'reps_min', 5, 'reps_max', 5))))));
   snap := public.program_snapshot(pid);
   snap := jsonb_set(snap, '{workouts,0,exercises}',
     (snap->'workouts'->0->'exercises') || jsonb_build_array(
