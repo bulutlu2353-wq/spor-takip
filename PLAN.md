@@ -118,6 +118,7 @@ Bu yaklaşım hem doğruluğu artırıyor (LLM sayısal beslenme hesabı yapmak 
 | F3 | 3 hafta | Programlama: hazır + özel programlar, haftalık plan |
 | F4 | 3 hafta | Antrenman & set takibi, ilerleme grafikleri |
 | F5 | 4 hafta | AI Chat antrenör + tool calling + geri alma |
+| F5+ | — | Görsel tasarım yenileme + oyunlaştırma (seviye, kazanılan unvanlar); kapsamı F5 sonrası ayrıca belirlenecek |
 | F6 | 2 hafta | Bildirimler, dil desteği, koyu tema, son testler |
 | F7 | 1–2 hafta | Store yayını (Play Console / App Store başvuruları) |
 
