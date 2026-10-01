@@ -273,3 +273,224 @@ set search_path = public
 as $$
   delete from chat_messages where user_id = auth.uid();
 $$;
+
+-- p_fields'ta bulunan profil kolonlarını yazar (uygulama ve geri alma ortak).
+create or replace function public.chat_write_profile(p_fields jsonb)
+returns void
+language plpgsql
+security invoker
+set search_path = public
+as $$
+begin
+  update profiles set
+    height_cm = case when p_fields ? 'height_cm' then (p_fields->>'height_cm')::numeric else height_cm end,
+    activity_level = case when p_fields ? 'activity_level' then p_fields->>'activity_level' else activity_level end,
+    does_exercise = case when p_fields ? 'does_exercise' then (p_fields->>'does_exercise')::boolean else does_exercise end,
+    sport_type = case when p_fields ? 'sport_type' then p_fields->>'sport_type' else sport_type end,
+    exercise_days_per_week = case when p_fields ? 'exercise_days_per_week'
+                                  then (p_fields->>'exercise_days_per_week')::int else exercise_days_per_week end,
+    health_notes = case when p_fields ? 'health_notes' then p_fields->>'health_notes' else health_notes end,
+    goal = case when p_fields ? 'goal' then p_fields->>'goal' else goal end,
+    weight_kg = case when p_fields ? 'weight_kg' then (p_fields->>'weight_kg')::numeric else weight_kg end,
+    daily_calorie_target = case when p_fields ? 'daily_calorie_target'
+                                then (p_fields->>'daily_calorie_target')::numeric else daily_calorie_target end,
+    daily_protein_target_g = case when p_fields ? 'daily_protein_target_g'
+                                  then (p_fields->>'daily_protein_target_g')::numeric else daily_protein_target_g end,
+    updated_at = now()
+  where user_id = auth.uid();
+end;
+$$;
+
+-- Bekleyen öneriyi uygular. Veri öneriden beri değiştiyse 'stale' (hiçbir şey değişmez).
+create or replace function public.apply_chat_action(p_event_id uuid, p_extras jsonb)
+returns text
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  ev chat_events%rowtype;
+  cur jsonb;
+  p jsonb;
+  targets jsonb;
+  item jsonb;
+  grams numeric;
+  idx int := 0;
+begin
+  if uid is null then
+    raise exception 'not authenticated';
+  end if;
+
+  select * into ev from chat_events where id = p_event_id and user_id = uid for update;
+  if not found then
+    raise exception 'event_not_found';
+  end if;
+  if ev.status <> 'pending' then
+    raise exception 'event_not_pending';
+  end if;
+
+  cur := chat_target_snapshot(ev.tool, ev.payload);
+  if cur is distinct from ev.base then
+    update chat_events set status = 'stale', resolved_at = now() where id = ev.id;
+    return 'stale';
+  end if;
+
+  p := ev.payload;
+
+  if ev.tool in ('log_body_weight', 'update_profile', 'set_goal') then
+    if coalesce((p_extras->>'calorie_target')::numeric, 0) <= 0
+       or coalesce((p_extras->>'protein_target')::numeric, 0) <= 0 then
+      raise exception 'invalid_targets';
+    end if;
+    targets := jsonb_build_object(
+      'daily_calorie_target', (p_extras->>'calorie_target')::numeric,
+      'daily_protein_target_g', (p_extras->>'protein_target')::numeric);
+  end if;
+
+  case ev.tool
+  when 'log_body_weight' then
+    if (p->>'kg')::numeric not between 20 and 400 or (p->>'date') is null then
+      raise exception 'invalid_payload';
+    end if;
+    perform log_body_weight((p->>'date')::date, (p->>'kg')::numeric,
+                            (targets->>'daily_calorie_target')::numeric,
+                            (targets->>'daily_protein_target_g')::numeric);
+  when 'update_profile' then
+    if jsonb_typeof(p->'changes') is distinct from 'object'
+       or exists (select 1 from jsonb_object_keys(p->'changes') k
+                  where k not in ('height_cm', 'activity_level', 'does_exercise', 'sport_type',
+                                  'exercise_days_per_week', 'health_notes')) then
+      raise exception 'invalid_payload';
+    end if;
+    perform chat_write_profile((p->'changes') || targets);
+  when 'set_goal' then
+    perform chat_write_profile(jsonb_build_object('goal', p->>'goal') || targets);
+  when 'create_meal' then
+    if p_extras ? 'item_grams'
+       and jsonb_array_length(p_extras->'item_grams') <> jsonb_array_length(p->'items') then
+      raise exception 'invalid_extras';
+    end if;
+    insert into meals (id, user_id, meal_type, logged_at)
+      values ((p->>'meal_id')::uuid, uid, p->>'meal_type', (p->>'logged_at')::timestamptz);
+    for item in select value from jsonb_array_elements(p->'items') loop
+      grams := coalesce((p_extras->'item_grams'->>idx)::numeric, (item->>'grams')::numeric);
+      if grams is null or grams <= 0 then
+        raise exception 'invalid_extras';
+      end if;
+      insert into meal_items (meal_id, name, grams, calories, protein_g, carbs_g, fat_g,
+                              usda_fdc_id, needs_review)
+      values (
+        (p->>'meal_id')::uuid, item->>'name', grams,
+        round(grams * (item->'per100'->>'calories')::numeric / 100, 1),
+        round(grams * (item->'per100'->>'protein_g')::numeric / 100, 1),
+        round(grams * (item->'per100'->>'carbs_g')::numeric / 100, 1),
+        round(grams * (item->'per100'->>'fat_g')::numeric / 100, 1),
+        item->>'usda_fdc_id',
+        coalesce((item->>'needs_review')::boolean, false));
+      idx := idx + 1;
+    end loop;
+  when 'log_set' then
+    if jsonb_typeof(cur->'set') is distinct from 'object' or (cur->'set'->>'finished_at') is not null then
+      raise exception 'set_not_available';
+    end if;
+    update session_sets
+      set weight_kg = (p->>'weight_kg')::numeric,
+          reps = (p->>'reps')::int,
+          completed_at = coalesce(completed_at, now())
+      where session_id = (p->>'session_id')::uuid
+        and exercise_position = (p->>'exercise_position')::int
+        and set_index = (p->>'set_index')::int;
+  when 'edit_program' then
+    if jsonb_typeof(cur->'program') is distinct from 'object' then
+      raise exception 'program_not_found';
+    end if;
+    perform save_program((p->'program') || jsonb_build_object('id', p->>'program_id'));
+  end case;
+
+  update chat_events
+    set status = 'applied',
+        before = cur,
+        after = chat_target_snapshot(ev.tool, ev.payload),
+        applied_at = now()
+    where id = ev.id;
+  return 'applied';
+end;
+$$;
+
+create or replace function public.cancel_chat_action(p_event_id uuid)
+returns void
+language plpgsql
+security invoker
+set search_path = public
+as $$
+begin
+  update chat_events set status = 'cancelled', resolved_at = now()
+    where id = p_event_id and user_id = auth.uid() and status = 'pending';
+  if not found then
+    raise exception 'event_not_pending';
+  end if;
+end;
+$$;
+
+-- Uygulanmış öneriyi geri alır. Veri uygulamadan sonra değiştiyse 'modified'
+-- (hiçbir şey değişmez).
+create or replace function public.undo_chat_action(p_event_id uuid)
+returns text
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  ev chat_events%rowtype;
+  b jsonb;
+  p jsonb;
+begin
+  if uid is null then
+    raise exception 'not authenticated';
+  end if;
+
+  select * into ev from chat_events where id = p_event_id and user_id = uid for update;
+  if not found then
+    raise exception 'event_not_found';
+  end if;
+  if ev.status <> 'applied' then
+    raise exception 'event_not_applied';
+  end if;
+  if chat_target_snapshot(ev.tool, ev.payload) is distinct from ev.after then
+    return 'modified';
+  end if;
+
+  b := ev.before;
+  p := ev.payload;
+
+  case ev.tool
+  when 'log_body_weight' then
+    if jsonb_typeof(b->'log') = 'number' then
+      update body_weight_logs set weight_kg = (b->>'log')::numeric
+        where user_id = uid and logged_on = (p->>'date')::date;
+    else
+      delete from body_weight_logs where user_id = uid and logged_on = (p->>'date')::date;
+    end if;
+    perform chat_write_profile(b->'profile');
+  when 'update_profile', 'set_goal' then
+    perform chat_write_profile(b);
+  when 'create_meal' then
+    delete from meals where id = (p->>'meal_id')::uuid and user_id = uid;
+  when 'log_set' then
+    update session_sets
+      set weight_kg = (b->'set'->>'weight_kg')::numeric,
+          reps = (b->'set'->>'reps')::int,
+          completed_at = (b->'set'->>'completed_at')::timestamptz
+      where session_id = (p->>'session_id')::uuid
+        and exercise_position = (p->>'exercise_position')::int
+        and set_index = (p->>'set_index')::int;
+  when 'edit_program' then
+    perform save_program(b->'program');
+  end case;
+
+  update chat_events set status = 'undone', resolved_at = now() where id = ev.id;
+  return 'undone';
+end;
+$$;
