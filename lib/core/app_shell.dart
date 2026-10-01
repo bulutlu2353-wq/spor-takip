@@ -34,6 +34,11 @@ class AppShell extends StatelessWidget {
             selectedIcon: const Icon(Icons.fitness_center),
             label: 'nav.workout'.tr(),
           ),
+          NavigationDestination(
+            icon: const Icon(Icons.forum_outlined),
+            selectedIcon: const Icon(Icons.forum),
+            label: 'nav.coach'.tr(),
+          ),
         ],
       ),
     );

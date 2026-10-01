@@ -102,7 +102,8 @@
   "nav": {
     "home": "Home",
     "nutrition": "Nutrition",
-    "workout": "Workout"
+    "workout": "Workout",
+    "coach": "Coach"
   },
   "workout": {
     "programs_title": "Programs",
@@ -366,6 +367,23 @@
       "exercise_days_per_week": "Training days per week",
       "health_notes": "Health notes",
       "goal": "Goal"
-    }
+    },
+    "title": "AI Coach",
+    "empty": "Ask your coach anything about nutrition, training or your progress.",
+    "suggestion_1": "What should I eat today?",
+    "suggestion_2": "Review my program",
+    "suggestion_3": "Log my weight",
+    "input_hint": "Type a message…",
+    "typing": "Coach is typing…",
+    "remaining": "{count} messages left",
+    "retry": "Retry",
+    "load_error": "Couldn't load the chat",
+    "error_daily_limit": "You've used all your messages, try again later",
+    "error_busy": "The coach is very busy right now, try again soon",
+    "error_unavailable": "Not sent, the coach can't be reached right now",
+    "clear": "Clear chat",
+    "clear_title": "Clear the chat?",
+    "clear_body": "Messages are deleted. Changes made from the chat can no longer be undone.",
+    "cancel": "Cancel"
   }
 }

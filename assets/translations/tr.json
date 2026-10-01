@@ -102,7 +102,8 @@
   "nav": {
     "home": "Ana Sayfa",
     "nutrition": "Beslenme",
-    "workout": "Antrenman"
+    "workout": "Antrenman",
+    "coach": "Antrenör"
   },
   "workout": {
     "programs_title": "Programlar",
@@ -366,6 +367,23 @@
       "exercise_days_per_week": "Haftalık spor günü",
       "health_notes": "Sağlık notları",
       "goal": "Amaç"
-    }
+    },
+    "title": "AI Antrenör",
+    "empty": "Antrenörüne beslenme, antrenman ya da ilerlemenle ilgili her şeyi sorabilirsin.",
+    "suggestion_1": "Bugün ne yemeliyim?",
+    "suggestion_2": "Programımı değerlendir",
+    "suggestion_3": "Kilomu kaydet",
+    "input_hint": "Mesaj yaz…",
+    "typing": "Antrenör yazıyor…",
+    "remaining": "{count} mesaj hakkın kaldı",
+    "retry": "Tekrar dene",
+    "load_error": "Sohbet yüklenemedi",
+    "error_daily_limit": "Mesaj hakkın doldu, biraz sonra tekrar dene",
+    "error_busy": "Antrenör şu an çok yoğun, biraz sonra tekrar dene",
+    "error_unavailable": "Gönderilemedi, antrenöre şu an ulaşılamıyor",
+    "clear": "Sohbeti temizle",
+    "clear_title": "Sohbet temizlensin mi?",
+    "clear_body": "Mesajlar silinir. Sohbetten yapılan değişiklikler artık geri alınamaz.",
+    "cancel": "Vazgeç"
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/chat/presentation/coach_screen.dart';
 import '../features/nutrition/presentation/meal_capture_screen.dart';
 import '../features/nutrition/presentation/nutrition_screen.dart';
 import '../features/onboarding/application/auth_providers.dart';
@@ -126,6 +127,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                 ],
               ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/coach', builder: (context, state) => const CoachScreen()),
             ],
           ),
         ],

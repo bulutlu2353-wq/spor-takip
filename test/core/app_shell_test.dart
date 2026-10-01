@@ -27,6 +27,9 @@ void main() {
             StatefulShellBranch(routes: [
               GoRoute(path: '/workout', builder: (context, state) => const Text('WORKOUT_SCREEN')),
             ]),
+            StatefulShellBranch(routes: [
+              GoRoute(path: '/coach', builder: (context, state) => const Text('COACH_SCREEN')),
+            ]),
           ],
         ),
       ],
@@ -73,6 +76,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('WORKOUT_SCREEN'), findsOneWidget);
+    expect(find.text('HOME_SCREEN'), findsNothing);
+  });
+
+  testWidgets('tapping the coach destination switches to the coach branch', (tester) async {
+    await tester.pumpWidget(buildTestRouter());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.forum_outlined));
+    await tester.pumpAndSettle();
+
+    expect(find.text('COACH_SCREEN'), findsOneWidget);
     expect(find.text('HOME_SCREEN'), findsNothing);
   });
 }
