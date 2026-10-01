@@ -59,12 +59,16 @@ Elenen yaklaşımlar: değişikliği Flutter'ın mevcut repository'lerle uygulam
 | `status` | text: `pending` / `applied` / `cancelled` / `undone` / `stale` | |
 | `summary` | text not null | Kartta ve LLM geçmişinde kullanılan kısa özet |
 | `payload` | jsonb not null | Uygulanacak değişiklik (§3.2) |
-| `base` | jsonb null | Öneri anındaki hedef verinin görüntüsü; `create_meal`'da null |
+| `base` | jsonb not null | Öneri anındaki hedef verinin görüntüsü (`create_meal`'da `{"meal": null}`) |
 | `before` | jsonb null | Uygulamadan hemen önceki görüntü |
 | `after` | jsonb null | Uygulamadan sonraki görüntü |
 | `created_at`, `applied_at`, `resolved_at` | timestamptz | `resolved_at`: vazgeçme / geri alma / bayatlama zamanı |
 
 `chat_messages` silinince (Sohbeti temizle) `chat_events` satırları kalır; ekranda görünmedikleri için artık geri alınamazlar.
+
+### `chat_usage`
+
+`id bigserial pk`, `user_id` → auth.users cascade, `created_at timestamptz default now()`; indeks `(user_id, created_at)`. Her başarılı cevapta bir satır. RLS: yalnız kendi satırlarını **select** ve **insert**; update/delete politikası yok.
 
 ### RLS
 
@@ -78,7 +82,7 @@ Elenen yaklaşımlar: değişikliği Flutter'ın mevcut repository'lerle uygulam
 |---|---|
 | `log_body_weight` | O tarihteki `body_weight_logs` satırı (yoksa null) + `profiles.weight_kg`, `daily_calorie_target`, `daily_protein_target_g` |
 | `update_profile`, `set_goal` | Payload'daki değişen `profiles` alanları + iki hedef alanı |
-| `create_meal` | Oluşturulan `meals` satırı + `meal_items` satırları (yalnız `after`) |
+| `create_meal` | Payload'daki `meal_id`'li `meals` satırı + `meal_items` (öneri anında `{"meal": null}`) |
 | `log_set` | İlgili `session_sets` satırı + oturumun `finished_at`'i |
 | `edit_program` | Programın `save_program` formatındaki tam hali (`program_snapshot(id)` yardımcısıyla) |
 
@@ -91,13 +95,13 @@ Elenen yaklaşımlar: değişikliği Flutter'ın mevcut repository'lerle uygulam
 | `set_goal` | `{goal}` | `profiles.goal` + hedefler |
 | `create_meal` | `{meal_type, logged_at, items: [{name, grams, per100: {calories, protein_g, carbs_g, fat_g}, usda_fdc_id, needs_review}]}` | `meals` + `meal_items`; makrolar `grams × per100 / 100` |
 | `log_set` | `{session_id, exercise_position, set_index, weight_kg, reps}` | Var olan set satırına yazar, `completed_at = now()`. Oturum bitmişse uygulanmaz. Yeni set eklemez. |
-| `edit_program` | `{program_id, program: <save_program formatında tam hal>, changes: [{kind: add/remove/modify/rename, label}]}` | `save_program(program)`; `changes` yalnız kartta gösterilir |
+| `edit_program` (yalnız **aktif program**) | `{program_id, program: <save_program formatında tam hal>, changes: [{kind: add/remove/modify/rename, label}]}` | `save_program(program)`; `changes` yalnız kartta gösterilir |
 
 ### 3.3 Sunucu fonksiyonları (`security invoker`, tek transaction)
 
 - **`apply_chat_action(p_event_id uuid, p_extras jsonb) returns text`**
   - Olay kullanıcıya ait ve `pending` değilse hata.
-  - `base` null değilse ve `chat_target_snapshot(...) <> base` ise olayı `stale` yapar, değişiklik yapmadan `'stale'` döndürür.
+  - `chat_target_snapshot(...)` `base`'den farklıysa olayı `stale` yapar, değişiklik yapmadan `'stale'` döndürür.
   - Aksi halde `before` alır, değişikliği uygular, `after` alır, `applied` yapar, `'applied'` döndürür.
   - `p_extras`: `log_body_weight` / `update_profile` / `set_goal` için `{calorie_target, protein_target}` (zorunlu, > 0); `create_meal` için isteğe bağlı `{item_grams: [..]}` (kartta düzenlenen gramlar, her biri > 0, uzunluğu kalem sayısına eşit).
 - **`cancel_chat_action(p_event_id)`**: yalnız `pending` → `cancelled`.
@@ -113,9 +117,9 @@ Not: `save_program` antrenmanları silip yeniden oluşturduğu için `program_wo
 
 ### 4.1 İstek ve akış
 
-`POST {message: string, locale: 'tr' | 'en'}`; `Authorization: Bearer <kullanıcı JWT>`. Supabase istemcisi **kullanıcının JWT'siyle** oluşturulur; tüm okuma/yazma RLS'ten geçer.
+`POST {message: string, locale: 'tr' | 'en', utc_offset_minutes: number}` (cihazın saat farkı: "bugün" ve öğün saati için); `Authorization: Bearer <kullanıcı JWT>`. Supabase istemcisi **kullanıcının JWT'siyle** oluşturulur; tüm okuma/yazma RLS'ten geçer.
 
-1. **Günlük sınır:** Son 24 saatteki `role = 'assistant'` mesaj sayısı ≥ `COACH_DAILY_LIMIT` (secret, varsayılan 30) ise `429 DAILY_LIMIT`. Asistan mesajı sayıldığı için hata alan istekler sınırdan düşmez.
+1. **Günlük sınır:** Son 24 saatte verilen cevap sayısı ≥ `COACH_DAILY_LIMIT` (secret, varsayılan 30) ise `429 DAILY_LIMIT`. Cevaplar ayrı bir `chat_usage` tablosunda sayılır (kullanıcı yalnız okuyup ekleyebilir, silemez); böylece "Sohbeti temizle" sınırı sıfırlamaz. Hata alan istekler sınırdan düşmez. `{action: 'status'}` isteği LLM çağırmadan kalan hakkı döndürür (ekran açılışında).
 2. **Veri özeti** (`context.ts`), kısa metin olarak:
    - profil, amaç, kalori/protein hedefi
    - bugünkü öğünler ve toplamları
@@ -137,7 +141,7 @@ Not: `save_program` antrenmanları silip yeniden oluşturduğu için `program_wo
    - `edit_program`: LLM'in verdiği işlemler (`add_exercise`, `remove_exercise`, `modify_exercise`, `rename_workout`) `program_snapshot` üzerinde uygulanır (`program_ops.ts`); hareket adları `exercises` tablosunda aranır.
    - `log_set`: hedef setin devam eden oturumda var olduğu doğrulanır.
    - Diğerleri: aralık kontrolleri (kilo 20–400, boy 100–250, tarih gelecekte değil vb.).
-   - Doğrulama hatası veya belirsiz hareket adı → hata / aday listesi LLM'e araç yanıtı olarak döner; **en fazla 3 tur**. Sonunda geçerli çağrı yoksa LLM'den düz metin istenir (anlamadığını sorar).
+   - Doğrulama hatası veya belirsiz hareket adı → hata / aday listesi LLM'e araç yanıtı olarak döner; **en fazla 3 LLM çağrısı**. Sonunda geçerli çağrı yoksa sabit, yerelleştirilmiş bir "tam anlayamadım, biraz daha açık yazar mısın?" cevabı döner (kotayı korumak için ek çağrı yapılmaz).
    - Geçerliyse: `base` görüntüsü alınır, `chat_events` (`pending`) + kartlı asistan mesajı + kullanıcı mesajı kaydedilir, döndürülür.
 
 **Yanıt:** `{messages: [userMsg, assistantMsg], event?: {...}, remaining: number}`.
@@ -164,7 +168,7 @@ Hata durumunda hiçbir mesaj kaydedilmez; uygulama gönderilmemiş balonu yereld
 ```
 supabase/functions/
   _shared/usda_client.ts        # analyze-meal-photo'dan taşınır (import güncellenir)
-  _shared/auth.ts               # JWT'den user id, CORS başlıkları (aynı şekilde taşınır)
+  _shared/http.ts               # JWT'den user id, CORS başlıkları, jsonResponse (aynı şekilde taşınır)
   coach-chat/
     index.ts                    # HTTP, CORS, istemci oluşturma
     handler.ts                  # akış; bağımlılıklar enjekte edilir (test için)
