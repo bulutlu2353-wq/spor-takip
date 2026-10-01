@@ -1,27 +1,8 @@
+import { corsHeaders, getUserIdFromAuthHeader, jsonResponse } from '../_shared/http.ts';
+import { fetchMacrosPer100g, findBestMatch } from '../_shared/usda_client.ts';
+import type { Macros, UsdaFood } from '../_shared/usda_client.ts';
 import { GeminiQuotaExceededError, GeminiUnavailableError, identifyFoodItems } from './gemini_client.ts';
 import type { FoodPrediction } from './gemini_client.ts';
-import { fetchMacrosPer100g, findBestMatch } from './usda_client.ts';
-import type { UsdaFood, Macros } from './usda_client.ts';
-
-export function getUserIdFromAuthHeader(req: Request): string | null {
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
-  const token = authHeader.slice('Bearer '.length);
-  const parts = token.split('.');
-  if (parts.length !== 3) return null;
-  try {
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    return typeof payload.sub === 'string' ? payload.sub : null;
-  } catch {
-    return null;
-  }
-}
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 export const PHOTO_PATH_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/i;
@@ -125,18 +106,12 @@ if (import.meta.main) {
     try {
       const { photo_path } = await req.json();
       if (!photo_path || typeof photo_path !== 'string') {
-        return new Response(
-          JSON.stringify({ code: 'PHOTO_NOT_FOUND', message: 'photo_path eksik' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-        );
+        return jsonResponse(400, { code: 'PHOTO_NOT_FOUND', message: 'photo_path eksik' });
       }
 
       const userId = getUserIdFromAuthHeader(req);
       if (!userId || !PHOTO_PATH_PATTERN.test(photo_path) || !photo_path.startsWith(`${userId}/`)) {
-        return new Response(
-          JSON.stringify({ code: 'FORBIDDEN', message: 'Bu fotoğrafa erişim izniniz yok' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-        );
+        return jsonResponse(403, { code: 'FORBIDDEN', message: 'Bu fotoğrafa erişim izniniz yok' });
       }
 
       const deps: AnalyzeDeps = {
@@ -157,16 +132,10 @@ if (import.meta.main) {
       };
 
       const result = await handleAnalyzeRequest(photo_path, deps);
-      return new Response(JSON.stringify(result.body), {
-        status: result.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonResponse(result.status, result.body);
     } catch (error) {
       console.error(error);
-      return new Response(
-        JSON.stringify({ code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      );
+      return jsonResponse(500, { code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu' });
     }
   });
 }
