@@ -57,3 +57,4 @@ supabase/.temp/
 
 # Seed parçaları (tool/generate_exercise_seed.ts --chunks)
 tool/.out/
+.superpowers/
