@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/chart_style.dart';
 import '../../domain/progress_format.dart';
 import '../../domain/trend.dart';
 
@@ -65,7 +66,11 @@ class ProgressLineChart extends StatelessWidget {
               dotData: FlDotData(show: !compact && points.length <= 60),
             ),
           ],
-          gridData: FlGridData(show: !compact, drawVerticalLine: false),
+          gridData: FlGridData(
+            show: !compact,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (_) => chartGridLine(context),
+          ),
           borderData: FlBorderData(show: false),
           titlesData: compact
               ? const FlTitlesData(show: false)
@@ -95,11 +100,12 @@ class ProgressLineChart extends StatelessWidget {
               ? const LineTouchData(enabled: false)
               : LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => chartTooltipColor(context),
                     getTooltipItems: (touched) => [
                       for (final spot in touched)
                         LineTooltipItem(
                           label(spot.spotIndex),
-                          TextStyle(color: theme.colorScheme.onInverseSurface),
+                          TextStyle(color: chartTooltipTextColor(context)),
                         ),
                     ],
                   ),
