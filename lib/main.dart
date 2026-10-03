@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router.dart';
 import 'core/supabase_client.dart';
+import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,8 @@ class SporTakipApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'Spor Takip',
+      theme: AppTheme.dark(),
+      themeMode: ThemeMode.dark,
       routerConfig: router,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
