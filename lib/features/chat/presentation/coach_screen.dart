@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/chat_notifier.dart';
+import '../application/chat_providers.dart';
 import '../data/chat_repository.dart';
 import '../domain/chat_models.dart';
 import 'widgets/message_bubble.dart';
@@ -15,15 +16,70 @@ const _sendErrorKeys = {
   ChatSendError.unavailable: 'coach.error_unavailable',
 };
 
-/// Alt menüdeki "Antrenör" sekmesi (spec §5.2).
-class CoachScreen extends ConsumerStatefulWidget {
+const _lockedFeatures = [
+  (Icons.chat_bubble_outline, 'coach.locked_feature_1'),
+  (Icons.monitor_weight_outlined, 'coach.locked_feature_2'),
+  (Icons.flag_outlined, 'coach.locked_feature_3'),
+  (Icons.restaurant_outlined, 'coach.locked_feature_4'),
+  (Icons.fitness_center, 'coach.locked_feature_5'),
+  (Icons.edit_calendar_outlined, 'coach.locked_feature_6'),
+];
+
+/// Alt menüdeki "Antrenör" sekmesi (spec §5.2). [coachEnabledProvider] kapalıyken
+/// sohbet yüklenmez; yalnız tanıtım ekranı gösterilir.
+class CoachScreen extends ConsumerWidget {
   const CoachScreen({super.key});
 
   @override
-  ConsumerState<CoachScreen> createState() => _CoachScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(coachEnabledProvider) ? const _CoachChat() : const _CoachLocked();
+  }
 }
 
-class _CoachScreenState extends ConsumerState<CoachScreen> {
+class _CoachLocked extends StatelessWidget {
+  const _CoachLocked();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text('coach.title'.tr())),
+      body: Center(
+        child: SingleChildScrollView(
+          key: const Key('coach_locked'),
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.construction_outlined, size: 56, color: theme.colorScheme.primary),
+                const SizedBox(height: 12),
+                Chip(label: Text('coach.locked_badge'.tr())),
+                const SizedBox(height: 12),
+                Text('coach.locked_body'.tr(), textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
+                const SizedBox(height: 16),
+                for (final (icon, key) in _lockedFeatures)
+                  ListTile(dense: true, leading: Icon(icon), title: Text(key.tr())),
+                const SizedBox(height: 12),
+                Text('coach.locked_note'.tr(), textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CoachChat extends ConsumerStatefulWidget {
+  const _CoachChat();
+
+  @override
+  ConsumerState<_CoachChat> createState() => _CoachChatState();
+}
+
+class _CoachChatState extends ConsumerState<_CoachChat> {
   final _controller = TextEditingController();
 
   @override

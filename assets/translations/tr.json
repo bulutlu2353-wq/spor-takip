@@ -384,6 +384,15 @@
     "clear": "Sohbeti temizle",
     "clear_title": "Sohbet temizlensin mi?",
     "clear_body": "Mesajlar silinir. Sohbetten yapılan değişiklikler artık geri alınamaz.",
-    "cancel": "Vazgeç"
+    "cancel": "Vazgeç",
+    "locked_badge": "Geliştirme aşamasında",
+    "locked_body": "Yapay zekâ antrenörün yakında burada olacak. Sohbet ederek şunları yapabileceksin:",
+    "locked_feature_1": "Beslenme ve antrenman sorularına kişisel cevaplar",
+    "locked_feature_2": "Kilonu ve profilini (boy, aktivite) güncelleme",
+    "locked_feature_3": "Amacını değiştirme, hedeflerini yeniden hesaplatma",
+    "locked_feature_4": "Yediklerini yazarak öğün kaydetme",
+    "locked_feature_5": "Antrenman sırasında set kaydetme",
+    "locked_feature_6": "Programına hareket ekleme veya çıkarma",
+    "locked_note": "Her değişiklik önce onayına sunulur ve geri alınabilir."
   }
 }

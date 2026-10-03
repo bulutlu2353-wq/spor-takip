@@ -19,12 +19,13 @@ import '../fixtures.dart';
 void main() {
   setUpAll(initTestLocalization);
 
-  Future<FakeChatRepository> pumpScreen(WidgetTester tester, {List<ChatMessage>? messages, int? remaining = 30, Object? loadError}) async {
+  Future<FakeChatRepository> pumpScreen(WidgetTester tester, {List<ChatMessage>? messages, int? remaining = 30, Object? loadError, bool enabled = true}) async {
     final repo = FakeChatRepository(messages: messages, remaining: remaining)..loadError = loadError;
     await tester.pumpWidget(testApp(
       const CoachScreen(),
       scaffold: false,
       overrides: [
+        coachEnabledProvider.overrideWithValue(enabled),
         chatRepositoryProvider.overrideWithValue(repo),
         profileProvider.overrideWith((ref) async => testProfile),
         weightLogsProvider.overrideWith((ref) async => const <BodyWeightLog>[]),
@@ -39,6 +40,15 @@ void main() {
     await tester.enterText(find.byKey(const Key('coach_input')), text);
     await tester.tap(find.byKey(const Key('coach_send')));
   }
+
+  testWidgets('disabled coach shows the in-development screen and never loads the chat', (tester) async {
+    final repo = await pumpScreen(tester, enabled: false);
+
+    expect(find.byKey(const Key('coach_locked')), findsOneWidget);
+    expect(find.byKey(const Key('coach_input')), findsNothing);
+    expect(find.byKey(const Key('coach_suggestion_0')), findsNothing);
+    expect(repo.loadCount, 0);
+  });
 
   testWidgets('empty chat shows suggestions; tapping one sends it', (tester) async {
     final repo = await pumpScreen(tester);

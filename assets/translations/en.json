@@ -384,6 +384,15 @@
     "clear": "Clear chat",
     "clear_title": "Clear the chat?",
     "clear_body": "Messages are deleted. Changes made from the chat can no longer be undone.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "locked_badge": "In development",
+    "locked_body": "Your AI coach is coming soon. By chatting you'll be able to:",
+    "locked_feature_1": "Get personal answers to nutrition and training questions",
+    "locked_feature_2": "Update your weight and profile (height, activity)",
+    "locked_feature_3": "Change your goal and recalculate your targets",
+    "locked_feature_4": "Log meals by describing what you ate",
+    "locked_feature_5": "Log sets during a workout",
+    "locked_feature_6": "Add or remove exercises in your program",
+    "locked_note": "Every change is shown to you for approval first and can be undone."
   }
 }

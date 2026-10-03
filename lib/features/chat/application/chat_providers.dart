@@ -6,3 +6,7 @@ import '../data/chat_repository.dart';
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return SupabaseChatRepository(AppSupabase.client);
 });
+
+/// Antrenör sohbeti açık mı? Geliştirme sürerken `false`: sekme görünür ama
+/// yalnız tanıtım + "geliştirme aşamasında" ekranı gösterilir, model çağrılmaz.
+final coachEnabledProvider = Provider<bool>((ref) => false);

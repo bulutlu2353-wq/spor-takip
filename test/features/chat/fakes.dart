@@ -18,6 +18,9 @@ class FakeChatRepository implements ChatRepository {
   /// Doluysa fetchMessages bu hatayı fırlatır.
   Object? loadError;
 
+  /// fetchMessages kaç kez çağrıldı.
+  int loadCount = 0;
+
   /// Doluysa send bu hatayı fırlatır.
   ChatSendException? sendError;
 
@@ -36,6 +39,7 @@ class FakeChatRepository implements ChatRepository {
 
   @override
   Future<List<ChatMessage>> fetchMessages() async {
+    loadCount++;
     if (loadError != null) throw loadError!;
     return [...messages];
   }
