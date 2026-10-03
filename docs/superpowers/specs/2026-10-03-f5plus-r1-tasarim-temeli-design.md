@@ -65,7 +65,7 @@ Konum: `lib/core/theme/` (`app_colors.dart`, `app_theme.dart`).
   Bunlardan `ColorScheme` (brightness: dark) kurulur; `primary=accent`, `onPrimary=onAccent`, `surface=surface`, `error=error` vb.
 - **Yazı (`TextTheme`):** `display*`, `headline*`, `titleLarge` → Montserrat 800/900; `titleMedium` ve altı, `body*`, `label*` → Inter 400/600. Büyük rakamlar (kalori, kilo, 1RM) `headline*` stilini kullanır.
 - **Yazı tipi dosyaları:** `assets/fonts/` altına yalnız kullanılan kalınlıklar (Montserrat 800, 900; Inter 400, 600) eklenir, `pubspec.yaml` `fonts:` bölümünde tanımlanır. Yeni paket eklenmez (bu makinede `pub get` ağda takılıyor; `google_fonts` çalışma anında indirir). Lisans: her ikisi SIL Open Font License; lisans metinleri `assets/fonts/` altına konur.
-- **Bileşen temaları:** `CardTheme` (renk `surface`, köşe 16, gölge 0, kenar boşluğu yok), `FilledButtonTheme` (zemin `accent`, metin `onAccent`, Montserrat büyük harf, köşe 12, yükseklik 48), `OutlinedButtonTheme`/`TextButtonTheme` (vurgu renkli), `InputDecorationTheme` (dolu `surface`, köşe 12, odakta `accent` kenar), `NavigationBarTheme` (zemin `background`, seçili `accent`, diğer `muted`, gösterge saydam/ince), `AppBarTheme` (zemin `background`, gölge 0, başlık Montserrat), `ChipTheme`, `DialogTheme`, `SnackBarTheme`, `ProgressIndicatorTheme` (`accent`), `DividerTheme` (`line`).
+- **Bileşen temaları:** `CardTheme` (renk `surface`, köşe 16, gölge 0, kenar boşluğu yok), `FilledButtonTheme` (zemin `accent`, metin `onAccent`, Montserrat 800, köşe 12, yükseklik 48; metin büyük harfe çevrilmez — Flutter'da tema düzeyinde dönüşüm yok ve `toUpperCase` Türkçede i/İ hatası yapar), `OutlinedButtonTheme`/`TextButtonTheme` (vurgu renkli), `InputDecorationTheme` (dolu `surface`, köşe 12, odakta `accent` kenar), `NavigationBarTheme` (zemin `background`, seçili `accent`, diğer `muted`, gösterge saydam/ince), `AppBarTheme` (zemin `background`, gölge 0, başlık Montserrat), `ChipTheme`, `DialogTheme`, `SnackBarTheme`, `ProgressIndicatorTheme` (`accent`), `DividerTheme` (`line`).
 - **Grafik yardımcı:** `fl_chart` renkleri temadan otomatik almaz. `lib/core/theme/chart_style.dart` çizgi/ızgara/eksen renk ve metin stillerini temadan üretir; R1'de mevcut grafiklere bağlanır (ekran düzenleri R4'te).
 
 ### 4.2 Ortak Bileşenler
@@ -98,7 +98,7 @@ Konum: `lib/shared/widgets/`. Her biri tek iş yapar, yalnız temaya bağımlıd
    | Güç | ilk serinin tahmini 1RM'i (kg) + hareket adı | 30 günlük fark | `/home/strength` | `strengthCardProvider` |
    | Ölçü | bel; yoksa ilk ölçülen bölge (cm) | son iki ölçüm farkı | `/home/measurements` | `measurementsProvider` |
 
-   Kilo ve bel için **düşüş** olumlu (`accent`), güç ve antrenman için **artış** olumlu. Veri yoksa "—" ve kısa yönlendirme ("Kilo gir", "Antrenman başlat", "Ölçü ekle"). Mevcut fark hesapları (`formatDelta`, `measurementChange`, 30 günlük değişim) yeniden kullanılır.
+   Kilo için olumlu yön kullanıcının amacına göre (kilo verme → düşüş, kas kazanma → artış, formda kalma → renk yok); bel için düşüş, güç için artış olumlu (`accent`). Veri yoksa "—" ve kısa yönlendirme ("Kilo gir", "Antrenman başlat", "Ölçü ekle"). Mevcut fark hesapları (`formatDelta`, `measurementChange`, 30 günlük değişim) yeniden kullanılır.
 
 **Ana sayfadan kaldırılanlar:** `TargetsCard`, `WeeklySummaryCard`, `BodyWeightCard`, `StrengthCard`, `MeasurementsCard`. İçerikleri (grafik, tablo, ekleme butonları) detay ekranlarında zaten var; haftalık karşılaştırma tablosu R3'te geçmiş ekranına taşınır. `TargetsCard`, `BodyWeightCard`, `StrengthCard`, `MeasurementsCard` dosyaları ve testleri R1'de silinir (yalnız başka yerde kullanılmıyorlarsa). `WeeklySummaryCard` R3'te geçmiş ekranına taşınacağı için dosyası ve testi kalır.
 
@@ -120,7 +120,7 @@ Konum: `lib/shared/widgets/`. Her biri tek iş yapar, yalnız temaya bağımlıd
 
 - **Kontrast:** neon yeşil yalnız koyu zeminde kullanılır; vurgu üstünde metin her zaman `onAccent`. İkincil metin `#8A8F98` koyu zeminde okunur seviyede (WCAG AA büyük metin).
 - **Grafikler:** `fl_chart` varsayılan renkleri koyu zeminde kaybolabilir → `chart_style.dart` (§4.1).
-- **Paket boyutu:** 4 yazı tipi dosyası ≈ 1 MB; yalnız kullanılan kalınlıklar eklenir.
+- **Paket boyutu:** 4 yazı tipi dosyası ≈ 1,5 MB (tam karakter setli statik TTF); yalnız kullanılan kalınlıklar eklenir.
 - **Diğer ekranlar R1 sonunda "ara durumda" kalır:** tema sayesinde koyu ve tutarlı renkte olurlar ama düzenleri R2–R4'te yenilenir. Bu kabul edildi.
 
 ## 8. Kapsam Dışı
