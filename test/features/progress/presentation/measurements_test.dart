@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/body_measurement.dart';
 import 'package:spor_takip/features/progress/presentation/measurements_screen.dart';
-import 'package:spor_takip/features/progress/presentation/widgets/measurements_card.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/progress_line_chart.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 
@@ -34,46 +33,11 @@ void main() {
       tester.widget<TextField>(find.byKey(Key('measurement_field_${site.name}')));
 
   Future<void> openAddForm(WidgetTester tester) async {
-    await tester.pumpWidget(testApp(const MeasurementsCard(), overrides: overrides()));
+    await tester.pumpWidget(testApp(const MeasurementsScreen(), overrides: overrides(), scaffold: false));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('measurement_add_button')));
+    await tester.tap(find.byKey(const Key('measurements_screen_add')));
     await tester.pumpAndSettle();
   }
-
-  group('card', () {
-    testWidgets('shows the last date and a chip per filled site', (tester) async {
-      await tester.pumpWidget(testApp(const MeasurementsCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      // Tarih `.tr()` namedArgs'ı içinde (bkz. Global Constraints); yalnızca varlığı.
-      expect(find.byKey(const Key('measurements_last')), findsOneWidget);
-      expect(find.byKey(const Key('measurement_chip_waist')), findsOneWidget);
-      expect(find.byKey(const Key('measurement_chip_arm')), findsOneWidget);
-      expect(find.byKey(const Key('measurement_chip_neck')), findsNothing);
-      expect(find.textContaining('83 (▼ 2)'), findsOneWidget);
-    });
-
-    testWidgets('empty state', (tester) async {
-      repo.items.clear();
-      await tester.pumpWidget(testApp(const MeasurementsCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('measurements_empty')), findsOneWidget);
-    });
-
-    testWidgets('tapping opens the measurements screen', (tester) async {
-      await tester.pumpWidget(testApp(
-        const MeasurementsCard(),
-        overrides: overrides(),
-        stubRoutes: {'/home/measurements': 'MEASUREMENTS_SCREEN'},
-      ));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('measurements_last')));
-      await tester.pumpAndSettle();
-      expect(find.text('MEASUREMENTS_SCREEN'), findsOneWidget);
-    });
-  });
 
   group('form', () {
     testWidgets('saves today with the filled sites only', (tester) async {

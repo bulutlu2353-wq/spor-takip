@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/presentation/strength_screen.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/progress_line_chart.dart';
-import 'package:spor_takip/features/progress/presentation/widgets/strength_card.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 
 import '../fakes.dart';
@@ -27,40 +26,6 @@ void main() {
         progressDataRepositoryProvider.overrideWithValue(data),
         nowProvider.overrideWithValue(() => _now),
       ];
-
-  group('card', () {
-    testWidgets('lists recent exercises with the latest estimate and the change', (tester) async {
-      await tester.pumpWidget(testApp(const StrengthCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('strength_row_squat')), findsOneWidget);
-      expect(find.byKey(const Key('strength_row_bench')), findsOneWidget);
-      expect(find.byKey(const Key('strength_row_deadlift')), findsNothing); // 90 günden eski
-      expect(tester.widget<Text>(find.byKey(const Key('strength_value_squat'))).data, '110 kg');
-      expect(find.text('squat name'), findsOneWidget);
-    });
-
-    testWidgets('empty state', (tester) async {
-      data.sessions.clear();
-      await tester.pumpWidget(testApp(const StrengthCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('strength_empty')), findsOneWidget);
-    });
-
-    testWidgets('tapping opens the strength screen', (tester) async {
-      await tester.pumpWidget(testApp(
-        const StrengthCard(),
-        overrides: overrides(),
-        stubRoutes: {'/home/strength': 'STRENGTH_SCREEN'},
-      ));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('strength_value_squat')));
-      await tester.pumpAndSettle();
-      expect(find.text('STRENGTH_SCREEN'), findsOneWidget);
-    });
-  });
 
   group('screen', () {
     Future<void> pumpScreen(WidgetTester tester) async {

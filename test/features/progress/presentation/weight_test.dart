@@ -4,7 +4,6 @@ import 'package:spor_takip/features/onboarding/application/profile_providers.dar
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/body_weight_log.dart';
 import 'package:spor_takip/features/progress/presentation/weight_screen.dart';
-import 'package:spor_takip/features/progress/presentation/widgets/body_weight_card.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 
 import '../fakes.dart';
@@ -30,43 +29,11 @@ void main() {
       ];
 
   Future<void> openAddDialog(WidgetTester tester) async {
-    await tester.pumpWidget(testApp(const BodyWeightCard(), overrides: overrides()));
+    await tester.pumpWidget(testApp(const WeightScreen(), overrides: overrides(), scaffold: false));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('weight_add_button')));
+    await tester.tap(find.byKey(const Key('weight_screen_add')));
     await tester.pumpAndSettle();
   }
-
-  group('card', () {
-    testWidgets('shows the latest weight and the 30-day change', (tester) async {
-      await tester.pumpWidget(testApp(const BodyWeightCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      expect(tester.widget<Text>(find.byKey(const Key('weight_latest'))).data, '80 kg');
-      // Değişim `.tr()` namedArgs'ı içinde (bkz. Global Constraints); yalnızca varlığı.
-      expect(find.byKey(const Key('weight_change')), findsOneWidget);
-    });
-
-    testWidgets('empty state', (tester) async {
-      repo.logs.clear();
-      await tester.pumpWidget(testApp(const BodyWeightCard(), overrides: overrides()));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('weight_empty')), findsOneWidget);
-    });
-
-    testWidgets('tapping the card opens the weight screen', (tester) async {
-      await tester.pumpWidget(testApp(
-        const BodyWeightCard(),
-        overrides: overrides(),
-        stubRoutes: {'/home/weight': 'WEIGHT_SCREEN'},
-      ));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('weight_latest')));
-      await tester.pumpAndSettle();
-      expect(find.text('WEIGHT_SCREEN'), findsOneWidget);
-    });
-  });
 
   group('log dialog', () {
     testWidgets('saves today with a comma decimal and closes', (tester) async {

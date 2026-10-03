@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/weekly_summary.dart';
-import 'package:spor_takip/features/progress/presentation/widgets/targets_card.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/weekly_summary_card.dart';
 
 import '../fixtures.dart';
@@ -27,16 +26,6 @@ final _summary = WeeklySummary(
 
 void main() {
   setUpAll(initTestLocalization);
-
-  // Hedef değerleri `.tr()` namedArgs'ı içinde; çeviri testte yüklenmeyebildiği
-  // için (bkz. Global Constraints) yalnızca iki satırın varlığı doğrulanır.
-  testWidgets('targets card shows the calorie and protein targets', (tester) async {
-    await tester.pumpWidget(testApp(const TargetsCard(profile: testProfile)));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('home_calorie_target')), findsOneWidget);
-    expect(find.byKey(const Key('home_protein_target')), findsOneWidget);
-  });
 
   testWidgets('weekly summary shows this week, last week and the change', (tester) async {
     await tester.pumpWidget(testApp(const WeeklySummaryCard(), overrides: [

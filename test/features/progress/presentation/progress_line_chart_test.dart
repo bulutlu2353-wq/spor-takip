@@ -1,5 +1,4 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/core/theme/app_colors.dart';
 import 'package:spor_takip/features/progress/domain/trend.dart';

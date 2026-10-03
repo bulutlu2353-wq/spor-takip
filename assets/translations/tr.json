@@ -62,8 +62,6 @@
   "home": {
     "title": "Spor Takip",
     "no_profile": "Profil bulunamadı",
-    "calorie_target": "Günlük hedef: {value} kcal",
-    "protein_target": "Protein hedefi: {value} g",
     "load_error": "Profil yüklenemedi",
     "greeting_morning": "Günaydın",
     "greeting_day": "İyi günler",
