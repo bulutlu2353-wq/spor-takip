@@ -33,6 +33,8 @@ Widget testApp(
     path: 'assets/translations',
     fallbackLocale: const Locale('tr'),
     child: ProviderScope(
+      // Riverpod 3'ün otomatik yeniden denemesi kapalı: hata durumu hemen görünsün.
+      retry: (retryCount, error) => null,
       overrides: [isLoggedInProvider.overrideWithValue(true), ...overrides.cast()],
       child: MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
     ),
