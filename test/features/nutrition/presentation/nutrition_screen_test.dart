@@ -52,10 +52,12 @@ void main() {
     );
   }
 
-  testWidgets('shows empty state when there are no meals today', (tester) async {
+  testWidgets('with no meals shows the remaining card and the empty state', (tester) async {
     await tester.pumpWidget(wrap(const NutritionScreen(), meals: const []));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('remaining_calories_card')), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const Key('remaining_calories_value'))).data, '2500');
     expect(find.byKey(const Key('nutrition_empty_state')), findsOneWidget);
   });
 
@@ -82,7 +84,18 @@ void main() {
 
     expect(find.text('Yulaf'), findsOneWidget);
     expect(find.text('Tavuk'), findsOneWidget);
-    expect(find.byKey(const Key('nutrition_daily_totals')), findsOneWidget);
+    // 2500 hedef − (380 + 250) yenen
+    expect(tester.widget<Text>(find.byKey(const Key('remaining_calories_value'))).data, '1870');
+    String subtotal(String type) => tester
+        .widget<Text>(find.descendant(
+          of: find.byKey(Key('nutrition_section_$type')),
+          matching: find.byKey(const ValueKey('section_header_trailing')),
+        ))
+        .data!;
+    expect(subtotal('breakfast'), startsWith('380'));
+    expect(subtotal('lunch'), startsWith('250'));
+    expect(find.byKey(const Key('nutrition_section_dinner')), findsNothing);
+    expect(find.byKey(const Key('nutrition_empty_state')), findsNothing);
   });
 
   testWidgets('tapping the FAB navigates to /nutrition/capture', (tester) async {

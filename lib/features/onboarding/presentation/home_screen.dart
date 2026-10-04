@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/day_label.dart';
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../nutrition/presentation/widgets/today_nutrition_card.dart';
@@ -70,7 +71,7 @@ class _HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final date = '${'home.weekday_${now.weekday}'.tr()}, ${now.day} ${'home.month_${now.month}'.tr()}';
+    final date = dayLabel(now);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

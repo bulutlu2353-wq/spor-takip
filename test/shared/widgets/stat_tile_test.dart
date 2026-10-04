@@ -53,4 +53,12 @@ void main() {
     expect(text.data, 'İLERLEME');
     expect(text.style!.color, AppColors.muted);
   });
+
+  testWidgets('section header shows an optional trailing text in the normal text color', (tester) async {
+    await tester.pumpWidget(themed(const SectionHeader('Kahvaltı', trailing: '520 kcal')));
+
+    final trailing = tester.widget<Text>(find.byKey(const ValueKey('section_header_trailing')));
+    expect(trailing.data, '520 kcal');
+    expect(trailing.style!.color, AppColors.text);
+  });
 }
