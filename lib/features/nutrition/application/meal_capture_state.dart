@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/meal_repository.dart';
 import '../domain/food_item.dart';
+import '../domain/macro_totals.dart';
 import '../domain/meal_type.dart';
 
 sealed class MealCaptureState {
@@ -27,6 +28,7 @@ class MealCaptureReviewing extends MealCaptureState {
     required this.photoPath,
     required this.items,
     required this.itemKeys,
+    this.perGram = const [],
     this.aiFailureReason = AiFailureReason.none,
   });
 
@@ -41,18 +43,30 @@ class MealCaptureReviewing extends MealCaptureState {
   /// öğe için yeniden kullanmasını (ve dolayısıyla eski metnin görünmeye
   /// devam etmesini) engeller.
   final List<Key> itemKeys;
+
+  /// Her `items[i]` için 1 gram başına kcal/makro (R2 spec §4.4); oran
+  /// bilinmiyorsa null. Yalnız istemcide, kaydedilmez. Notifier'ın ürettiği
+  /// durumlarda `items` ile aynı uzunluktadır.
+  final List<MacroTotals?> perGram;
   final AiFailureReason aiFailureReason;
 
   bool get canSave =>
       items.isNotEmpty && items.every((item) => item.grams > 0 && !item.needsReview);
 
-  MealCaptureReviewing copyWith({List<FoodItem>? items, List<Key>? itemKeys}) {
+  double get totalCalories => items.fold(0, (sum, item) => sum + item.calories);
+
+  MealCaptureReviewing copyWith({
+    List<FoodItem>? items,
+    List<Key>? itemKeys,
+    List<MacroTotals?>? perGram,
+  }) {
     return MealCaptureReviewing(
       mealType: mealType,
       mealId: mealId,
       photoPath: photoPath,
       items: items ?? this.items,
       itemKeys: itemKeys ?? this.itemKeys,
+      perGram: perGram ?? this.perGram,
       aiFailureReason: aiFailureReason,
     );
   }

@@ -74,6 +74,20 @@ void main() {
       );
       expect(state.canSave, isTrue);
     });
+
+    test('totalCalories sums item calories', () {
+      const state = MealCaptureReviewing(
+        mealType: MealType.lunch,
+        mealId: 'm',
+        photoPath: 'p',
+        items: [
+          FoodItem(name: 'A', grams: 100, calories: 120.5),
+          FoodItem(name: 'B', grams: 50, calories: 80),
+        ],
+        itemKeys: [ValueKey('a'), ValueKey('b')],
+      );
+      expect(state.totalCalories, 200.5);
+    });
   });
 
   _registerNotifierTests();
@@ -181,6 +195,93 @@ void _registerNotifierTests() {
       expect(state.items, hasLength(1));
       expect(state.items.single.needsReview, isTrue);
       expect(state.items.single.grams, 0);
+    });
+
+    Future<MealCaptureNotifier> reviewWith(List<FoodItem> items) async {
+      fakeRepo.analyzeResult = MealAnalysisResult(items: items, failureReason: AiFailureReason.none);
+      final notifier = container.read(mealCaptureProvider.notifier);
+      await notifier.startCapture(mealType: MealType.lunch, photoBytes: Uint8List(0));
+      return notifier;
+    }
+
+    MealCaptureReviewing reviewing() => container.read(mealCaptureProvider) as MealCaptureReviewing;
+
+    test('startCapture stores per-gram values for reviewed items only', () async {
+      await reviewWith(const [
+        FoodItem(name: 'Tavuk', grams: 200, calories: 330, proteinG: 62),
+        FoodItem(name: 'Sos', grams: 0, needsReview: true),
+      ]);
+
+      final state = reviewing();
+      expect(state.perGram, hasLength(2));
+      expect(state.perGram[0]!.calories, closeTo(1.65, 1e-9));
+      expect(state.perGram[1], isNull);
+    });
+
+    test('updateItemGrams scales calories and macros', () async {
+      final notifier = await reviewWith(const [FoodItem(name: 'Tavuk', grams: 200, calories: 330, proteinG: 62)]);
+
+      notifier.updateItemGrams(0, 300);
+
+      final item = reviewing().items.single;
+      expect(item.grams, 300);
+      expect(item.calories, closeTo(495, 1e-9));
+      expect(item.proteinG, closeTo(93, 1e-9));
+      expect(reviewing().totalCalories, closeTo(495, 1e-9));
+    });
+
+    test('updateItemGrams keeps the ratio when grams pass through zero', () async {
+      final notifier = await reviewWith(const [FoodItem(name: 'Tavuk', grams: 200, calories: 330)]);
+
+      notifier.updateItemGrams(0, 0);
+      notifier.updateItemGrams(0, 250);
+
+      expect(reviewing().items.single.calories, closeTo(412.5, 1e-9));
+    });
+
+    test('updateItemGrams on an item without a ratio only changes grams', () async {
+      final notifier = await reviewWith(const [FoodItem(name: 'Sos', grams: 0, calories: 0, needsReview: true)]);
+
+      notifier.updateItemGrams(0, 40);
+
+      final item = reviewing().items.single;
+      expect(item.grams, 40);
+      expect(item.calories, 0);
+      expect(item.needsReview, isTrue);
+    });
+
+    test('updateItem with new calories refreshes the ratio', () async {
+      final notifier = await reviewWith(const [FoodItem(name: 'Tavuk', grams: 200, calories: 330)]);
+
+      notifier.updateItem(0, reviewing().items.single.copyWith(calories: 400));
+      notifier.updateItemGrams(0, 100);
+
+      expect(reviewing().items.single.calories, closeTo(200, 1e-9));
+    });
+
+    test('updateItem with only a new name keeps the ratio', () async {
+      final notifier = await reviewWith(const [FoodItem(name: 'Tavuk', grams: 200, calories: 330)]);
+
+      notifier.updateItemGrams(0, 0);
+      notifier.updateItem(0, reviewing().items.single.copyWith(name: 'Izgara tavuk'));
+      notifier.updateItemGrams(0, 200);
+
+      expect(reviewing().items.single.calories, closeTo(330, 1e-9));
+    });
+
+    test('removeItem and addManualItem keep perGram aligned with items', () async {
+      final notifier = await reviewWith(const [
+        FoodItem(name: 'A', grams: 100, calories: 100),
+        FoodItem(name: 'B', grams: 100, calories: 300),
+      ]);
+
+      notifier.removeItem(0);
+      expect(reviewing().perGram, hasLength(1));
+      expect(reviewing().perGram.single!.calories, closeTo(3, 1e-9));
+
+      notifier.addManualItem();
+      expect(reviewing().perGram, hasLength(2));
+      expect(reviewing().perGram[1], isNull);
     });
 
     test('confirmSave is a no-op when canSave is false', () async {
