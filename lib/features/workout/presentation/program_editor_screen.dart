@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_fonts.dart';
 import '../application/program_editor_notifier.dart';
 import '../application/workout_providers.dart';
 import '../domain/block_format.dart';
@@ -202,7 +203,7 @@ class _ProgramEditorScreenState extends ConsumerState<ProgramEditorScreen> {
                       const SizedBox(height: 16),
                       for (final (i, workout) in draft.workouts.indexed)
                         _workoutCard(i, workout, draft.workouts.length, draft.scheduleMode),
-                      OutlinedButton.icon(
+                      TextButton.icon(
                         key: const Key('editor_add_workout'),
                         onPressed: () => notifier.addWorkout(
                           'workout.editor_default_workout_name'.tr(namedArgs: {'n': '${draft.workouts.length + 1}'}),
@@ -218,104 +219,113 @@ class _ProgramEditorScreenState extends ConsumerState<ProgramEditorScreen> {
 
   Widget _workoutCard(int i, ProgramWorkout workout, int count, ScheduleMode mode) {
     final notifier = ref.read(programEditorProvider.notifier);
-    return Card(
-      key: Key('editor_workout_$i'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            title: Text(workout.name, style: Theme.of(context).textTheme.titleMedium),
-            trailing: Wrap(
-              children: [
-                IconButton(
-                  key: Key('editor_workout_rename_$i'),
-                  icon: const Icon(Icons.edit_outlined),
-                  onPressed: () => _renameWorkout(i, workout.name),
-                ),
-                IconButton(
-                  key: Key('editor_workout_up_$i'),
-                  tooltip: 'workout.move_up'.tr(),
-                  icon: const Icon(Icons.arrow_upward),
-                  onPressed: i == 0 ? null : () => notifier.moveWorkout(i, i - 1),
-                ),
-                IconButton(
-                  key: Key('editor_workout_down_$i'),
-                  tooltip: 'workout.move_down'.tr(),
-                  icon: const Icon(Icons.arrow_downward),
-                  onPressed: i == count - 1 ? null : () => notifier.moveWorkout(i, i + 1),
-                ),
-                IconButton(
-                  key: Key('editor_workout_delete_$i'),
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () => notifier.removeWorkout(i),
-                ),
-              ],
-            ),
-          ),
-          if (mode == ScheduleMode.weekdays)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<int>(
-                key: Key('editor_weekday_$i'),
-                value: workout.weekday,
-                hint: Text('workout.editor_weekday_hint'.tr()),
-                items: [
-                  for (var d = 1; d <= 7; d++)
-                    DropdownMenuItem(
-                      key: Key('weekday_option_$d'),
-                      value: d,
-                      child: Text('workout.weekday_$d'.tr()),
-                    ),
-                ],
-                onChanged: (d) {
-                  if (!notifier.setWeekday(i, d)) _snack('workout.editor_weekday_taken'.tr());
-                },
-              ),
-            ),
-          for (final (b, block) in workout.exercises.indexed)
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        key: Key('editor_workout_$i'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             ListTile(
-              key: Key('editor_block_${i}_$b'),
-              title: Text(block.exerciseName),
-              subtitle: Text([setsRepsLabel(block), ?loadLabel(block, null)].join(' · ')),
-              onTap: () => _editBlock(i, b, workout),
-              trailing: PopupMenuButton<_BlockAction>(
-                key: Key('editor_block_menu_${i}_$b'),
-                onSelected: (action) => switch (action) {
-                  _BlockAction.up => notifier.moveBlock(i, b, b - 1),
-                  _BlockAction.down => notifier.moveBlock(i, b, b + 1),
-                  _BlockAction.delete => notifier.removeBlock(i, b),
-                },
-                itemBuilder: (_) => [
-                  if (b > 0)
-                    PopupMenuItem(
-                      key: const Key('block_menu_up'),
-                      value: _BlockAction.up,
-                      child: Text('workout.move_up'.tr()),
+              title: Text(
+                workout.name,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontFamily: AppFonts.heading,
+                      fontWeight: FontWeight.w800,
                     ),
-                  if (b < workout.exercises.length - 1)
-                    PopupMenuItem(
-                      key: const Key('block_menu_down'),
-                      value: _BlockAction.down,
-                      child: Text('workout.move_down'.tr()),
-                    ),
-                  PopupMenuItem(
-                    key: const Key('block_menu_delete'),
-                    value: _BlockAction.delete,
-                    child: Text('workout.delete'.tr()),
+              ),
+              trailing: Wrap(
+                children: [
+                  IconButton(
+                    key: Key('editor_workout_rename_$i'),
+                    icon: const Icon(Icons.edit_outlined),
+                    onPressed: () => _renameWorkout(i, workout.name),
+                  ),
+                  IconButton(
+                    key: Key('editor_workout_up_$i'),
+                    tooltip: 'workout.move_up'.tr(),
+                    icon: const Icon(Icons.arrow_upward),
+                    onPressed: i == 0 ? null : () => notifier.moveWorkout(i, i - 1),
+                  ),
+                  IconButton(
+                    key: Key('editor_workout_down_$i'),
+                    tooltip: 'workout.move_down'.tr(),
+                    icon: const Icon(Icons.arrow_downward),
+                    onPressed: i == count - 1 ? null : () => notifier.moveWorkout(i, i + 1),
+                  ),
+                  IconButton(
+                    key: Key('editor_workout_delete_$i'),
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => notifier.removeWorkout(i),
                   ),
                 ],
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextButton.icon(
-              key: Key('editor_add_block_$i'),
-              onPressed: () => _addBlock(i),
-              icon: const Icon(Icons.add),
-              label: Text('workout.editor_add_block'.tr()),
+            if (mode == ScheduleMode.weekdays)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DropdownButton<int>(
+                  key: Key('editor_weekday_$i'),
+                  value: workout.weekday,
+                  hint: Text('workout.editor_weekday_hint'.tr()),
+                  items: [
+                    for (var d = 1; d <= 7; d++)
+                      DropdownMenuItem(
+                        key: Key('weekday_option_$d'),
+                        value: d,
+                        child: Text('workout.weekday_$d'.tr()),
+                      ),
+                  ],
+                  onChanged: (d) {
+                    if (!notifier.setWeekday(i, d)) _snack('workout.editor_weekday_taken'.tr());
+                  },
+                ),
+              ),
+            for (final (b, block) in workout.exercises.indexed)
+              ListTile(
+                key: Key('editor_block_${i}_$b'),
+                title: Text(block.exerciseName),
+                subtitle: Text([setsRepsLabel(block), ?loadLabel(block, null)].join(' · ')),
+                onTap: () => _editBlock(i, b, workout),
+                trailing: PopupMenuButton<_BlockAction>(
+                  key: Key('editor_block_menu_${i}_$b'),
+                  onSelected: (action) => switch (action) {
+                    _BlockAction.up => notifier.moveBlock(i, b, b - 1),
+                    _BlockAction.down => notifier.moveBlock(i, b, b + 1),
+                    _BlockAction.delete => notifier.removeBlock(i, b),
+                  },
+                  itemBuilder: (_) => [
+                    if (b > 0)
+                      PopupMenuItem(
+                        key: const Key('block_menu_up'),
+                        value: _BlockAction.up,
+                        child: Text('workout.move_up'.tr()),
+                      ),
+                    if (b < workout.exercises.length - 1)
+                      PopupMenuItem(
+                        key: const Key('block_menu_down'),
+                        value: _BlockAction.down,
+                        child: Text('workout.move_down'.tr()),
+                      ),
+                    PopupMenuItem(
+                      key: const Key('block_menu_delete'),
+                      value: _BlockAction.delete,
+                      child: Text('workout.delete'.tr()),
+                    ),
+                  ],
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: TextButton.icon(
+                key: Key('editor_add_block_$i'),
+                onPressed: () => _addBlock(i),
+                icon: const Icon(Icons.add),
+                label: Text('workout.editor_add_block'.tr()),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

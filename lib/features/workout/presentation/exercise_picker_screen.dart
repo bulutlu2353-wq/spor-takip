@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../shared/widgets/accent_chip.dart';
 import '../application/workout_providers.dart';
 import '../data/exercise_repository.dart';
 import '../domain/exercise.dart';
@@ -128,9 +129,10 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
               data: (all) {
                 final results = filterExercises(all, query: _query, muscle: _muscle, equipment: _equipment);
                 if (results.isEmpty) return Center(child: Text('workout.picker_no_results'.tr()));
-                return ListView.builder(
+                return ListView.separated(
                   padding: const EdgeInsets.only(bottom: 88),
                   itemCount: results.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
                   itemBuilder: (context, index) {
                     final e = results[index];
                     return ListTile(
@@ -171,9 +173,9 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
           for (final v in values)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: FilterChip(
+              child: AccentChip(
                 key: Key('$keyPrefix${taxonomySlug(v)}'),
-                label: Text(label(v)),
+                label: label(v),
                 selected: selected == v,
                 onSelected: (on) => onSelected(on ? v : null),
               ),
