@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_fonts.dart';
+import '../../../shared/text_case.dart';
+import '../../../shared/widgets/stat_box.dart';
 import '../../progress/application/progress_providers.dart';
 import '../application/session_providers.dart';
 import '../domain/block_format.dart';
+import '../domain/session_stats.dart';
 import '../domain/workout_session.dart';
 import 'history_screen.dart';
 
@@ -54,6 +58,7 @@ class HistoryDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionAsync = ref.watch(sessionDetailProvider(sessionId));
+    final now = ref.watch(nowProvider)();
     return Scaffold(
       key: const Key('history_detail_screen'),
       appBar: AppBar(
@@ -69,31 +74,85 @@ class HistoryDetailScreen extends ConsumerWidget {
       body: sessionAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('workout.history.load_error'.tr())),
-        data: (session) => ListView(
-          padding: const EdgeInsets.all(16),
+        data: (session) => _content(context, session, now),
+      ),
+    );
+  }
+
+  Widget _content(BuildContext context, WorkoutSession session, DateTime now) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final muted = theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant);
+    final meta = '${historyDateLabel(session.startedAt, now)} · ${session.programName}';
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(
+          upperCaseFor(meta, Localizations.localeOf(context).languageCode),
+          key: const Key('history_detail_meta'),
+          style: theme.textTheme.labelMedium?.copyWith(color: scheme.onSurfaceVariant, letterSpacing: 1),
+        ),
+        const SizedBox(height: 12),
+        StatBoxRow(
           children: [
-            Text(historySubtitle(session)),
-            const SizedBox(height: 8),
-            for (final sets in session.exerciseGroups)
-              Card(
+            StatBox(
+              key: const Key('history_detail_duration'),
+              label: 'workout.session.stat_duration'.tr(),
+              value: formatDuration(sessionDuration(session, now)),
+            ),
+            StatBox(
+              key: const Key('history_detail_sets'),
+              label: 'workout.session.stat_sets'.tr(),
+              value: '${completedSetCount(session)}',
+            ),
+            StatBox(
+              key: const Key('history_detail_volume'),
+              label: 'workout.session.stat_volume'.tr(),
+              value: '${trimNumber(totalVolumeKg(session))} kg',
+            ),
+          ],
+        ),
+        for (final sets in session.exerciseGroups)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ListTile(title: Text(sets.first.exerciseName)),
-                    for (final (index, set) in sets.indexed)
-                      ListTile(
-                        key: Key('history_set_${set.id}'),
-                        dense: true,
-                        enabled: set.isCompleted,
-                        leading: Text('${index + 1}'),
-                        title: Text(set.isCompleted ? _doneLabel(set) : 'workout.history.not_done'.tr()),
+                    Text(
+                      sets.first.exerciseName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontFamily: AppFonts.heading,
+                        fontWeight: FontWeight.w800,
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    for (final (index, set) in sets.indexed) ...[
+                      if (index > 0) const Divider(height: 1),
+                      Padding(
+                        key: Key('history_set_${set.id}'),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 32, child: Text('${index + 1}', style: muted)),
+                            Expanded(
+                              child: Text(
+                                set.isCompleted ? _doneLabel(set) : 'workout.history.not_done'.tr(),
+                                style: set.isCompleted ? null : muted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+      ],
     );
   }
 }

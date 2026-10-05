@@ -3,17 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_fonts.dart';
+import '../../../shared/widgets/section_header.dart';
+import '../../progress/presentation/widgets/weekly_summary_card.dart';
 import '../application/session_providers.dart';
 import '../domain/block_format.dart';
 import '../domain/session_stats.dart';
 import '../domain/workout_session.dart';
 
-/// "26.9.2026 · StrongLifts 5x5 · 50:00 · 1500 kg"
-String historySubtitle(WorkoutSession session) {
-  final d = session.startedAt.toLocal();
-  final duration = formatDuration(sessionDuration(session, DateTime.now()));
-  return '${d.day}.${d.month}.${d.year} · ${session.programName} · $duration · '
-      '${trimNumber(totalVolumeKg(session))} kg';
+/// "4 Ekim"; yıl [now]'ınkinden farklıysa "30 Aralık 2025".
+String historyDateLabel(DateTime startedAt, DateTime now) {
+  final d = startedAt.toLocal();
+  final label = '${d.day} ${'home.month_${d.month}'.tr()}';
+  return d.year == now.year ? label : '$label ${d.year}';
+}
+
+/// "4 Ekim · 48:20 · 5850 kg" — geçmiş listesindeki alt satır (program adı detayda).
+String historyListSubtitle(WorkoutSession session, DateTime now) {
+  final duration = formatDuration(sessionDuration(session, now));
+  return '${historyDateLabel(session.startedAt, now)} · $duration · ${trimNumber(totalVolumeKg(session))} kg';
 }
 
 class HistoryScreen extends ConsumerWidget {
@@ -22,6 +30,7 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyAsync = ref.watch(sessionHistoryProvider);
+    final now = ref.watch(nowProvider)();
     return Scaffold(
       key: const Key('history_screen'),
       appBar: AppBar(title: Text('workout.history.title'.tr())),
@@ -39,22 +48,71 @@ class HistoryScreen extends ConsumerWidget {
             ],
           ),
         ),
-        data: (sessions) {
-          if (sessions.isEmpty) {
-            return Center(child: Text('workout.history.empty'.tr(), key: const Key('history_empty')));
-          }
-          return ListView(
-            children: [
-              for (final session in sessions)
-                ListTile(
-                  key: Key('history_${session.id}'),
-                  title: Text(session.workoutName),
-                  subtitle: Text(historySubtitle(session)),
-                  onTap: () => context.push('/workout/history/${session.id}'),
+        data: (sessions) => ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          children: [
+            const WeeklySummaryCard(),
+            SectionHeader('workout.history.sessions'.tr()),
+            if (sessions.isEmpty)
+              Text(
+                'workout.history.empty'.tr(),
+                key: const Key('history_empty'),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              )
+            else
+              for (final session in sessions) _HistoryTile(session: session, now: now),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HistoryTile extends StatelessWidget {
+  const _HistoryTile({required this.session, required this.now});
+
+  final WorkoutSession session;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        key: Key('history_${session.id}'),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.push('/workout/history/${session.id}'),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.workoutName,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontFamily: AppFonts.heading,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        historyListSubtitle(session, now),
+                        style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ),
-            ],
-          );
-        },
+                Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

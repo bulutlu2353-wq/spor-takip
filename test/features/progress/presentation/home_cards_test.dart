@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/core/theme/app_colors.dart';
 import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/weekly_summary.dart';
@@ -44,6 +45,20 @@ void main() {
     expect(_text(tester, 'weekly_nutrition_days_this'), '4');
     expect(_text(tester, 'weekly_weight_this'), '80');
     expect(_text(tester, 'weekly_weight_change'), '▼ 0.5');
+  });
+
+  testWidgets('weekly change is accent for more training and muted otherwise', (tester) async {
+    await tester.pumpWidget(testApp(const WeeklySummaryCard(), overrides: [
+      weeklySummaryProvider.overrideWith((ref) async => _summary),
+      profileProvider.overrideWith((ref) async => testProfile),
+    ]));
+    await tester.pumpAndSettle();
+
+    Color? color(String key) => tester.widget<Text>(find.byKey(Key(key))).style!.color;
+    expect(color('weekly_workouts_change'), AppColors.accent);
+    expect(color('weekly_volume_change'), AppColors.accent);
+    expect(color('weekly_calories_change'), AppColors.muted);
+    expect(color('weekly_weight_change'), AppColors.muted);
   });
 
   testWidgets('weekly summary empty state', (tester) async {

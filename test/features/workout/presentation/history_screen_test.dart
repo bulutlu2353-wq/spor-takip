@@ -5,11 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
+import 'package:spor_takip/features/progress/application/progress_providers.dart';
+import 'package:spor_takip/features/progress/domain/weekly_summary.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/domain/workout_session.dart';
 import 'package:spor_takip/features/workout/presentation/history_detail_screen.dart';
 import 'package:spor_takip/features/workout/presentation/history_screen.dart';
 
+import '../../progress/fixtures.dart';
 import '../fakes.dart';
 
 SessionSet _set(String id, {int idx = 0, bool done = true}) => SessionSet(
@@ -43,6 +47,16 @@ final _inProgress = WorkoutSession(
   startedAt: DateTime(2026, 9, 26, 10),
 );
 
+final _lastYear = WorkoutSession(
+  id: 'old',
+  programName: 'StrongLifts 5x5',
+  workoutName: 'Antrenman A',
+  workoutPosition: 0,
+  startedAt: DateTime(2025, 12, 30, 10),
+  finishedAt: DateTime(2025, 12, 30, 10, 40),
+  sets: [_set('y1')],
+);
+
 void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
@@ -70,6 +84,14 @@ void main() {
         overrides: [
           isLoggedInProvider.overrideWithValue(true),
           sessionRepositoryProvider.overrideWithValue(repo),
+          nowProvider.overrideWithValue(() => DateTime(2026, 9, 26, 12)),
+          weeklySummaryProvider.overrideWith((ref) async => weeklySummary(
+                now: DateTime(2026, 9, 26, 12),
+                sessions: const [],
+                meals: const [],
+                weights: const [],
+              )),
+          profileProvider.overrideWith((ref) async => testProfile),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -83,6 +105,9 @@ void main() {
     expect(find.byKey(const Key('history_h1')), findsOneWidget);
     expect(find.byKey(const Key('history_cur')), findsNothing);
     expect(find.textContaining('300 kg'), findsOneWidget);
+    expect(find.byKey(const Key('weekly_summary_card')), findsOneWidget);
+    expect(find.text('20 ${'home.month_9'.tr()} · 50:00 · 300 kg'), findsOneWidget);
+    expect(find.textContaining('StrongLifts'), findsNothing);
   });
 
   testWidgets('empty history', (tester) async {
@@ -90,6 +115,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('history_empty')), findsOneWidget);
+    expect(find.byKey(const Key('weekly_summary_card')), findsOneWidget);
   });
 
   testWidgets('detail shows sets and deleting returns to an empty list', (tester) async {
@@ -104,6 +130,11 @@ void main() {
     expect(find.text('Barbell Squat'), findsOneWidget);
     expect(find.text('60 kg × 5'), findsOneWidget);
     expect(find.byKey(const Key('history_set_x2')), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const Key('history_detail_meta'))).data, contains('STRONGLIFTS 5X5'));
+    expect(
+      find.descendant(of: find.byKey(const Key('history_detail_volume')), matching: find.text('300 kg')),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const Key('history_delete_button')));
     await tester.pumpAndSettle();
@@ -112,5 +143,12 @@ void main() {
 
     expect(repo.sessions, isEmpty);
     expect(find.byKey(const Key('history_empty')), findsOneWidget);
+  });
+
+  testWidgets('a session from another year shows the year', (tester) async {
+    await tester.pumpWidget(wrap(FakeSessionRepository(sessions: [_lastYear])));
+    await tester.pumpAndSettle();
+
+    expect(find.text('30 ${'home.month_12'.tr()} 2025 · 40:00 · 300 kg'), findsOneWidget);
   });
 }
