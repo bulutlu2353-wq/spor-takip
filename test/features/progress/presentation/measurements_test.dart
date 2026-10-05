@@ -1,10 +1,13 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/core/theme/app_colors.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/body_measurement.dart';
 import 'package:spor_takip/features/progress/presentation/measurements_screen.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/progress_line_chart.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
+import 'package:spor_takip/shared/date_label.dart';
 
 import '../fakes.dart';
 import 'test_app.dart';
@@ -85,6 +88,11 @@ void main() {
 
   group('screen', () {
     Future<void> pumpScreen(WidgetTester tester) async {
+      // Testte çeviri yüklenmez; uzun anahtar metinli aralık çipleri alt alta
+      // dizilip listeyi aşağı iter. Uzun ekran, satırları görünür tutar.
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       await tester.pumpWidget(testApp(const MeasurementsScreen(), overrides: overrides(), scaffold: false));
       await tester.pumpAndSettle();
     }
@@ -126,6 +134,19 @@ void main() {
 
       expect(field(tester, MeasurementSite.waist).controller!.text, '83');
       expect(field(tester, MeasurementSite.arm).controller!.text, '35');
+    });
+
+    testWidgets('shows the latest value of the site; the change is never highlighted', (tester) async {
+      await pumpScreen(tester);
+
+      Text text(String key) => tester.widget<Text>(find.byKey(Key(key)));
+      expect(text('measurement_current').data, '83');
+      expect(
+        text('measurement_change').data,
+        'progress.change_in_range'.tr(namedArgs: {'delta': '▼ 2 cm', 'range': 'progress.range.three_months'.tr()}),
+      );
+      expect(text('measurement_change').style!.color, AppColors.muted);
+      expect(find.text(shortDateLabel(DateTime(2026, 9, 20), _now)), findsOneWidget);
     });
   });
 }

@@ -2,15 +2,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/date_label.dart';
+import '../../../shared/widgets/accent_chip.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../../workout/application/session_providers.dart';
 import '../application/progress_providers.dart';
 import '../domain/body_measurement.dart';
 import '../domain/progress_format.dart';
 import '../domain/trend.dart';
 import 'widgets/card_states.dart';
+import 'widgets/chart_card.dart';
 import 'widgets/measurement_form_dialog.dart';
+import 'widgets/progress_hero.dart';
 import 'widgets/progress_line_chart.dart';
-import 'widgets/range_selector.dart';
 
 class MeasurementsScreen extends ConsumerStatefulWidget {
   const MeasurementsScreen({super.key});
@@ -70,6 +74,7 @@ class _MeasurementsScreenState extends ConsumerState<MeasurementsScreen> {
       for (final m in list)
         if (m.values[site] case final cm?) ValuePoint(m.date, cm),
     ];
+    final inRange = pointsInRange(points, _range, now);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
@@ -78,33 +83,79 @@ class _MeasurementsScreenState extends ConsumerState<MeasurementsScreen> {
           runSpacing: 4,
           children: [
             for (final s in sites)
-              ChoiceChip(
+              AccentChip(
                 key: Key('site_chip_${s.name}'),
-                label: Text('progress.sites.${s.name}'.tr()),
+                label: 'progress.sites.${s.name}'.tr(),
                 selected: s == site,
                 onSelected: (_) => setState(() => _site = s),
               ),
           ],
         ),
-        const SizedBox(height: 12),
-        RangeSelector(value: _range, onChanged: (range) => setState(() => _range = range)),
         const SizedBox(height: 16),
-        ProgressLineChart(key: const Key('measurement_chart'), points: pointsInRange(points, _range, now)),
+        // Hangi yönün iyi olduğu bölgeye ve amaca bağlı: değişim hep gri.
+        ProgressHero(
+          label: 'progress.sites.${site.name}'.tr(),
+          value: formatOneDecimal(points.last.value),
+          unit: 'cm',
+          change: rangeChangeLabel(changeInRange(inRange), 'cm', _range),
+          valueKey: const Key('measurement_current'),
+          changeKey: const Key('measurement_change'),
+        ),
         const SizedBox(height: 16),
-        for (final m in list.reversed)
-          ListTile(
-            key: Key('measurement_row_${formatDbDate(m.date)}'),
-            title: Text(formatShortDate(m.date)),
-            subtitle: Text(_summary(m)),
-            onTap: () => showMeasurementForm(context, existing: m),
-            trailing: IconButton(
-              key: Key('measurement_delete_${formatDbDate(m.date)}'),
+        ChartCard(
+          range: _range,
+          onRangeChanged: (range) => setState(() => _range = range),
+          chart: ProgressLineChart(key: const Key('measurement_chart'), points: inRange),
+        ),
+        SectionHeader('progress.records'.tr()),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              for (final (index, m) in list.reversed.indexed) ...[
+                if (index > 0) const Divider(height: 1),
+                _row(m, now),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _row(BodyMeasurement m, DateTime now) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final day = formatDbDate(m.date);
+    return InkWell(
+      key: Key('measurement_row_$day'),
+      onTap: () => showMeasurementForm(context, existing: m),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    shortDateLabel(m.date, now),
+                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(_summary(m), style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                ],
+              ),
+            ),
+            IconButton(
+              key: Key('measurement_delete_$day'),
               icon: const Icon(Icons.delete_outline),
+              color: scheme.onSurfaceVariant,
               tooltip: 'progress.delete'.tr(),
               onPressed: () => _delete(m),
             ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 

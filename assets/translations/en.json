@@ -384,7 +384,6 @@
     "strength": {
       "title": "Strength progress",
       "empty": "Finish your first workout to see your strength chart here.",
-      "exercise": "Exercise",
       "estimated_1rm": "Estimated 1RM",
       "estimated_note": "Estimated 1RM (Epley): best set of each session; sets above 10 reps and without weight are not counted."
     },

@@ -7,7 +7,6 @@ import 'package:spor_takip/features/progress/domain/trend.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/card_states.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/chart_card.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/progress_line_chart.dart';
-import 'package:spor_takip/features/progress/presentation/widgets/range_selector.dart';
 
 Widget _wrap(Widget child) => EasyLocalization(
       supportedLocales: const [Locale('tr'), Locale('en')],
@@ -37,16 +36,6 @@ void main() {
     expect(find.descendant(of: find.byKey(const Key('single')), matching: find.byType(LineChart)), findsOneWidget);
     expect(find.descendant(of: find.byKey(const Key('empty')), matching: find.byType(LineChart)), findsNothing);
     expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('range selector reports the tapped range', (tester) async {
-    ChartRange? picked;
-    await tester.pumpWidget(_wrap(RangeSelector(value: ChartRange.threeMonths, onChanged: (r) => picked = r)));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('range_year')));
-    await tester.pumpAndSettle();
-    expect(picked, ChartRange.year);
   });
 
   testWidgets('chart card shows the chart and reports the tapped range', (tester) async {

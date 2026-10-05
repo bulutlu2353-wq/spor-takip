@@ -8,8 +8,9 @@ import '../domain/progress_format.dart';
 import '../domain/strength.dart';
 import '../domain/trend.dart';
 import 'widgets/card_states.dart';
+import 'widgets/chart_card.dart';
+import 'widgets/progress_hero.dart';
 import 'widgets/progress_line_chart.dart';
-import 'widgets/range_selector.dart';
 
 class StrengthScreen extends ConsumerStatefulWidget {
   const StrengthScreen({super.key});
@@ -32,33 +33,58 @@ class _StrengthScreenState extends ConsumerState<StrengthScreen> {
     }
     final selected = all.firstWhere((s) => s.exerciseId == _exerciseId, orElse: () => all.first);
     final points = [for (final p in selected.points) if (isInRange(p.date, _range, now)) p];
+    final values = [for (final p in points) ValuePoint(p.date, p.estimateKg)];
+    final change = changeInRange(values);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('progress.strength.exercise'.tr(), style: Theme.of(context).textTheme.labelMedium),
-        DropdownButton<String>(
-          key: const Key('strength_exercise_picker'),
-          value: selected.exerciseId,
-          isExpanded: true,
-          items: [
-            for (final s in all)
-              DropdownMenuItem(
-                value: s.exerciseId,
-                child: Text(s.exerciseName, overflow: TextOverflow.ellipsis),
-              ),
-          ],
-          onChanged: (id) => setState(() => _exerciseId = id),
+        DecoratedBox(
+          decoration: BoxDecoration(color: scheme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: DropdownButton<String>(
+              key: const Key('strength_exercise_picker'),
+              value: selected.exerciseId,
+              isExpanded: true,
+              underline: const SizedBox.shrink(),
+              items: [
+                for (final s in all)
+                  DropdownMenuItem(
+                    value: s.exerciseId,
+                    child: Text(s.exerciseName, overflow: TextOverflow.ellipsis),
+                  ),
+              ],
+              onChanged: (id) => setState(() => _exerciseId = id),
+            ),
+          ),
         ),
         const SizedBox(height: 16),
-        RangeSelector(value: _range, onChanged: (range) => setState(() => _range = range)),
+        ProgressHero(
+          label: 'progress.strength.estimated_1rm'.tr(),
+          value: formatOneDecimal(selected.points.last.estimateKg),
+          unit: 'kg',
+          change: rangeChangeLabel(change, 'kg', _range),
+          highlight: change != null && change > 0,
+          valueKey: const Key('strength_current'),
+          changeKey: const Key('strength_change'),
+        ),
         const SizedBox(height: 16),
-        ProgressLineChart(
-          key: const Key('strength_chart'),
-          points: [for (final p in points) ValuePoint(p.date, p.estimateKg)],
-          tooltipLabel: (index) => _tooltip(points[index]),
+        ChartCard(
+          range: _range,
+          onRangeChanged: (range) => setState(() => _range = range),
+          chart: ProgressLineChart(
+            key: const Key('strength_chart'),
+            points: values,
+            tooltipLabel: (index) => _tooltip(points[index]),
+          ),
         ),
         const SizedBox(height: 8),
-        Text('progress.strength.estimated_note'.tr(), style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          'progress.strength.estimated_note'.tr(),
+          style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+        ),
       ],
     );
   }

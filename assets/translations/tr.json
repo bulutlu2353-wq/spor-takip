@@ -384,7 +384,6 @@
     "strength": {
       "title": "Güç ilerlemesi",
       "empty": "İlk antrenmanını bitirince burada güç grafiğin görünecek.",
-      "exercise": "Hareket",
       "estimated_1rm": "Tahmini 1RM",
       "estimated_note": "Tahmini 1RM (Epley): her oturumun en iyi seti; 10 tekrardan fazla ve kilosuz setler sayılmaz."
     },
