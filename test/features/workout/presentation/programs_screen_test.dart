@@ -72,8 +72,10 @@ void main() {
     expect(find.byKey(const Key('programs_screen')), findsOneWidget);
     expect(find.text('Benim programım'), findsOneWidget);
     expect(find.text('StrongLifts 5x5'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('nSuns 5/3/1 LP 4 gün'), 200);
     expect(find.text('nSuns 5/3/1 LP 4 gün'), findsOneWidget);
     expect(find.byKey(const Key('programs_active_section')), findsNothing);
+    expect(find.byKey(const Key('program_card_active_tag')), findsNothing);
   });
 
   testWidgets('shows the active program at the top', (tester) async {
@@ -83,6 +85,7 @@ void main() {
     final activeSection = find.byKey(const Key('programs_active_section'));
     expect(activeSection, findsOneWidget);
     expect(find.descendant(of: activeSection, matching: find.text('StrongLifts 5x5')), findsOneWidget);
+    expect(find.descendant(of: activeSection, matching: find.byKey(const Key('program_card_active_tag'))), findsOneWidget);
   });
 
   testWidgets('level and day filters narrow the built-in list', (tester) async {

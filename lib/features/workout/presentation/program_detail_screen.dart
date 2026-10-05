@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_fonts.dart';
 import '../application/workout_providers.dart';
 import '../domain/block_grouping.dart';
 import '../domain/program.dart';
@@ -10,6 +11,7 @@ import '../domain/schedule_mode.dart';
 import 'one_rep_max_sheet.dart';
 import 'start_workout.dart';
 import 'widgets/exercise_group_tile.dart';
+import 'widgets/program_card.dart';
 
 /// Programı aktif yapar; yüzdelik programlarda önce 1RM panelini gösterir
 /// (panel atlanabilir, aktivasyon her durumda yapılır).
@@ -98,77 +100,115 @@ class ProgramDetailScreen extends ConsumerWidget {
         ),
         data: (program) {
           final isActive = program.id == activeId;
+          final theme = Theme.of(context);
+          final scheme = theme.colorScheme;
+          final muted = theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant);
+          final heading = theme.textTheme.titleSmall?.copyWith(
+            fontFamily: AppFonts.heading,
+            fontWeight: FontWeight.w800,
+          );
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (program.description != null) Text(program.description!),
-              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Flexible(child: Text(programDetails(program), key: const Key('program_detail_meta'), style: muted)),
+                  if (isActive) ...[
+                    const SizedBox(width: 8),
+                    const ActiveTag(key: Key('program_active_badge')),
+                  ],
+                ],
+              ),
+              if (program.description != null) ...[
+                const SizedBox(height: 8),
+                Text(program.description!),
+              ],
+              const SizedBox(height: 16),
+              if (!isActive) ...[
+                FilledButton(
+                  key: const Key('program_activate_button'),
+                  onPressed: () => _run(context, () => activateProgram(context, ref, program)),
+                  child: Text('workout.activate'.tr()),
+                ),
+                const SizedBox(height: 8),
+              ],
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  if (isActive)
-                    Chip(
-                      key: const Key('program_active_badge'),
-                      avatar: const Icon(Icons.star, size: 18),
-                      label: Text('workout.active_badge'.tr()),
-                    )
-                  else
-                    FilledButton(
-                      key: const Key('program_activate_button'),
-                      onPressed: () => _run(context, () => activateProgram(context, ref, program)),
-                      child: Text('workout.activate'.tr()),
-                    ),
                   if (program.isBuiltIn)
                     OutlinedButton(
                       key: const Key('program_customize_button'),
                       onPressed: () => _run(context, () => _customize(context, ref, program)),
                       child: Text('workout.customize'.tr()),
                     )
-                  else ...[
+                  else
                     OutlinedButton(
                       key: const Key('program_edit_button'),
                       onPressed: () => context.push('/workout/program/${program.id}/edit'),
                       child: Text('workout.edit'.tr()),
                     ),
-                    OutlinedButton(
-                      key: const Key('program_delete_button'),
-                      onPressed: () => _run(context, () => _delete(context, ref, program)),
-                      child: Text('workout.delete'.tr()),
-                    ),
-                  ],
                   if (program.usesPercentages)
                     OutlinedButton(
                       key: const Key('program_one_rep_max_button'),
                       onPressed: () => showOneRepMaxSheet(context, program),
                       child: Text('workout.one_rep_max_button'.tr()),
                     ),
+                  if (!program.isBuiltIn)
+                    TextButton(
+                      key: const Key('program_delete_button'),
+                      style: TextButton.styleFrom(foregroundColor: scheme.error),
+                      onPressed: () => _run(context, () => _delete(context, ref, program)),
+                      child: Text('workout.delete'.tr()),
+                    ),
                 ],
               ),
-              const SizedBox(height: 16),
-              if (program.workouts.isEmpty) Text('workout.no_workouts'.tr()),
+              if (program.workouts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('workout.no_workouts'.tr(), style: muted),
+                ),
               for (final (index, workout) in program.workouts.indexed)
-                Card(
-                  key: Key('workout_section_$index'),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListTile(
-                        title: Text(workout.name, style: Theme.of(context).textTheme.titleMedium),
-                        subtitle: program.scheduleMode == ScheduleMode.weekdays && workout.weekday != null
-                            ? Text('workout.weekday_${workout.weekday}'.tr())
-                            : null,
-                        trailing: workout.exercises.isEmpty
-                            ? null
-                            : TextButton(
-                                key: Key('workout_start_$index'),
-                                onPressed: () => _run(context, () => startWorkout(context, ref, program, index)),
-                                child: Text('workout.session.start'.tr()),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Card(
+                    key: Key('workout_section_$index'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 12, 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(workout.name, style: heading),
+                                    if (program.scheduleMode == ScheduleMode.weekdays && workout.weekday != null)
+                                      Text('workout.weekday_${workout.weekday}'.tr(), style: muted),
+                                  ],
+                                ),
                               ),
-                      ),
-                      for (final group in groupBlocks(workout.exercises))
-                        ExerciseGroupTile(group: group, oneRepMaxes: oneRepMaxes),
-                    ],
+                              if (workout.exercises.isNotEmpty)
+                                FilledButton(
+                                  key: Key('workout_start_$index'),
+                                  style: FilledButton.styleFrom(
+                                    minimumSize: const Size(0, 36),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  ),
+                                  onPressed: () => _run(context, () => startWorkout(context, ref, program, index)),
+                                  child: Text('workout.session.start'.tr()),
+                                ),
+                            ],
+                          ),
+                        ),
+                        for (final (g, group) in groupBlocks(workout.exercises).indexed) ...[
+                          if (g > 0) const Divider(indent: 16, endIndent: 16),
+                          ExerciseGroupTile(group: group, oneRepMaxes: oneRepMaxes),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
             ],

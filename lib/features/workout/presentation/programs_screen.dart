@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../shared/widgets/accent_chip.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../application/workout_providers.dart';
 import '../domain/program.dart';
 import '../domain/program_level.dart';
@@ -72,69 +74,72 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
         .where((p) => _level == null || p.level == _level)
         .where((p) => _days == null || p.effectiveDaysPerWeek == _days)
         .toList();
-    final titleStyle = Theme.of(context).textTheme.titleMedium;
 
     void open(Program p) => context.push('/workout/program/${p.id}');
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
       children: [
         if (active != null)
           Column(
             key: const Key('programs_active_section'),
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('workout.active_program'.tr(), style: titleStyle),
+              SectionHeader('workout.active_program'.tr()),
               ProgramCard(program: active, isActive: true, onTap: () => open(active)),
-              const SizedBox(height: 16),
             ],
           ),
-        Text('workout.my_programs'.tr(), style: titleStyle),
+        SectionHeader('workout.my_programs'.tr()),
         if (mine.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text('workout.no_my_programs'.tr()),
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'workout.no_my_programs'.tr(),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
           ),
         for (final p in mine) ProgramCard(key: ValueKey('mine_${p.id}'), program: p, onTap: () => open(p)),
-        const SizedBox(height: 16),
-        Text('workout.built_in_programs'.tr(), style: titleStyle),
-        const SizedBox(height: 8),
+        SectionHeader('workout.built_in_programs'.tr()),
         Wrap(
           spacing: 8,
+          runSpacing: 6,
           children: [
-            ChoiceChip(
+            AccentChip(
               key: const Key('programs_level_filter_all'),
-              label: Text('workout.filter_all'.tr()),
+              label: 'workout.filter_all'.tr(),
               selected: _level == null,
               onSelected: (_) => setState(() => _level = null),
             ),
             for (final level in ProgramLevel.values)
-              ChoiceChip(
+              AccentChip(
                 key: Key('programs_level_filter_${level.name}'),
-                label: Text('workout.level_${level.name}'.tr()),
+                label: 'workout.level_${level.name}'.tr(),
                 selected: _level == level,
                 onSelected: (_) => setState(() => _level = level),
               ),
           ],
         ),
+        const SizedBox(height: 6),
         Wrap(
           spacing: 8,
+          runSpacing: 6,
           children: [
-            ChoiceChip(
+            AccentChip(
               key: const Key('programs_days_filter_all'),
-              label: Text('workout.filter_all'.tr()),
+              label: 'workout.filter_all'.tr(),
               selected: _days == null,
               onSelected: (_) => setState(() => _days = null),
             ),
             for (final d in _dayOptions)
-              ChoiceChip(
+              AccentChip(
                 key: Key('programs_days_filter_$d'),
-                label: Text('workout.days_per_week'.tr(namedArgs: {'count': '$d'})),
+                label: 'workout.days_per_week'.tr(namedArgs: {'count': '$d'}),
                 selected: _days == d,
                 onSelected: (_) => setState(() => _days = d),
               ),
           ],
         ),
+        const SizedBox(height: 12),
         if (builtIn.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),

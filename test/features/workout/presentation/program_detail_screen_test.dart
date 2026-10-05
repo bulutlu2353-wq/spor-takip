@@ -127,6 +127,7 @@ void main() {
     expect(find.text('Barbell Squat'), findsOneWidget); // iki blok tek başlık
     expect(find.textContaining('1 × 5+'), findsOneWidget);
     expect(find.textContaining('%76.5'), findsOneWidget);
+    expect(find.byKey(const Key('program_detail_meta')), findsOneWidget);
   });
 
   testWidgets('shows kilograms when a 1RM is known', (tester) async {
