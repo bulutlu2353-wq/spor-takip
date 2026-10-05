@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_fonts.dart';
+import '../../../shared/date_label.dart';
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/stat_box.dart';
 import '../../progress/application/progress_providers.dart';
@@ -11,7 +12,6 @@ import '../application/session_providers.dart';
 import '../domain/block_format.dart';
 import '../domain/session_stats.dart';
 import '../domain/workout_session.dart';
-import 'history_screen.dart';
 
 String _doneLabel(SessionSet set) =>
     set.weightKg == null ? '× ${set.reps}' : '${trimNumber(set.weightKg!)} kg × ${set.reps}';
@@ -83,7 +83,7 @@ class HistoryDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final muted = theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant);
-    final meta = '${historyDateLabel(session.startedAt, now)} · ${session.programName}';
+    final meta = '${shortDateLabel(session.startedAt, now)} · ${session.programName}';
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [

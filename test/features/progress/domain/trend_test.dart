@@ -34,4 +34,12 @@ void main() {
       expect(changeOver30Days(points), -2.5);
     });
   });
+
+  group('changeInRange', () {
+    test('needs two points, then last minus first', () {
+      expect(changeInRange(const <ValuePoint>[]), isNull);
+      expect(changeInRange([_p(9, 1, 80)]), isNull);
+      expect(changeInRange([_p(8, 1, 82), _p(9, 1, 81), _p(9, 20, 80)]), -2);
+    });
+  });
 }

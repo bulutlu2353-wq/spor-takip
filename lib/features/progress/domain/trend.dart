@@ -29,6 +29,10 @@ bool isInRange(DateTime date, ChartRange range, DateTime now) {
 List<ValuePoint> pointsInRange(List<ValuePoint> points, ChartRange range, DateTime now) =>
     [for (final p in points) if (isInRange(p.date, range, now)) p];
 
+/// [points] aralığa süzülmüş, eskiden yeniye: son − ilk. 2'den az nokta → null.
+double? changeInRange(List<ValuePoint> points) =>
+    points.length < 2 ? null : points.last.value - points.first.value;
+
 /// Spec §4.3. [points] eskiden yeniye: son değer − (tarihi son tarihten en az
 /// 30 gün önce olan en yeni değer). Böyle bir değer yoksa null.
 double? changeOver30Days(List<ValuePoint> points) {

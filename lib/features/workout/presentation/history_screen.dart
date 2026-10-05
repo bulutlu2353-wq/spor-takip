@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_fonts.dart';
+import '../../../shared/date_label.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../progress/presentation/widgets/weekly_summary_card.dart';
 import '../application/session_providers.dart';
@@ -11,17 +12,10 @@ import '../domain/block_format.dart';
 import '../domain/session_stats.dart';
 import '../domain/workout_session.dart';
 
-/// "4 Ekim"; yıl [now]'ınkinden farklıysa "30 Aralık 2025".
-String historyDateLabel(DateTime startedAt, DateTime now) {
-  final d = startedAt.toLocal();
-  final label = '${d.day} ${'home.month_${d.month}'.tr()}';
-  return d.year == now.year ? label : '$label ${d.year}';
-}
-
 /// "4 Ekim · 48:20 · 5850 kg" — geçmiş listesindeki alt satır (program adı detayda).
 String historyListSubtitle(WorkoutSession session, DateTime now) {
   final duration = formatDuration(sessionDuration(session, now));
-  return '${historyDateLabel(session.startedAt, now)} · $duration · ${trimNumber(totalVolumeKg(session))} kg';
+  return '${shortDateLabel(session.startedAt, now)} · $duration · ${trimNumber(totalVolumeKg(session))} kg';
 }
 
 class HistoryScreen extends ConsumerWidget {
