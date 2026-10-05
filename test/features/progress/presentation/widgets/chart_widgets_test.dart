@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/progress/domain/trend.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/card_states.dart';
+import 'package:spor_takip/features/progress/presentation/widgets/chart_card.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/progress_line_chart.dart';
 import 'package:spor_takip/features/progress/presentation/widgets/range_selector.dart';
 
@@ -43,6 +44,22 @@ void main() {
     await tester.pumpWidget(_wrap(RangeSelector(value: ChartRange.threeMonths, onChanged: (r) => picked = r)));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const Key('range_year')));
+    await tester.pumpAndSettle();
+    expect(picked, ChartRange.year);
+  });
+
+  testWidgets('chart card shows the chart and reports the tapped range', (tester) async {
+    ChartRange? picked;
+    await tester.pumpWidget(_wrap(ChartCard(
+      range: ChartRange.threeMonths,
+      onRangeChanged: (r) => picked = r,
+      chart: const SizedBox(key: Key('chart'), height: 50),
+    )));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('chart')), findsOneWidget);
+    expect(find.byKey(const Key('range_all')), findsOneWidget);
     await tester.tap(find.byKey(const Key('range_year')));
     await tester.pumpAndSettle();
     expect(picked, ChartRange.year);

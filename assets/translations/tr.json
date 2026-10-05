@@ -334,6 +334,15 @@
     "delete": "Sil",
     "delete_confirm": "Bu kayıt silinsin mi?",
     "change_30d": "30 gün: {value}",
+    "change_in_range": "{delta} · {range}",
+    "trend": "Trend",
+    "records": "Kayıtlar",
+    "range_short": {
+      "month": "1A",
+      "threeMonths": "3A",
+      "year": "1Y",
+      "all": "Tümü"
+    },
     "date": "Tarih: {date}",
     "range": {
       "month": "1 ay",
@@ -369,12 +378,14 @@
       "saved_target": "Kilo kaydedildi. Yeni kalori hedefin: {value} kcal",
       "empty": "Henüz kilo kaydın yok. İlk kaydını ekle.",
       "last_log_hint": "Son kalan kilo kaydı silinemez",
-      "stale": "Liste güncellendi, tekrar dene"
+      "stale": "Liste güncellendi, tekrar dene",
+      "current": "Güncel"
     },
     "strength": {
       "title": "Güç ilerlemesi",
       "empty": "İlk antrenmanını bitirince burada güç grafiğin görünecek.",
       "exercise": "Hareket",
+      "estimated_1rm": "Tahmini 1RM",
       "estimated_note": "Tahmini 1RM (Epley): her oturumun en iyi seti; 10 tekrardan fazla ve kilosuz setler sayılmaz."
     },
     "measurements": {

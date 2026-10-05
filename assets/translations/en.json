@@ -334,6 +334,15 @@
     "delete": "Delete",
     "delete_confirm": "Delete this entry?",
     "change_30d": "30 days: {value}",
+    "change_in_range": "{delta} · {range}",
+    "trend": "Trend",
+    "records": "Records",
+    "range_short": {
+      "month": "1M",
+      "threeMonths": "3M",
+      "year": "1Y",
+      "all": "All"
+    },
     "date": "Date: {date}",
     "range": {
       "month": "1 mo",
@@ -369,12 +378,14 @@
       "saved_target": "Weight saved. Your new calorie target: {value} kcal",
       "empty": "No weight entries yet. Add your first one.",
       "last_log_hint": "The last remaining weight entry cannot be deleted",
-      "stale": "The list was updated, try again"
+      "stale": "The list was updated, try again",
+      "current": "Current"
     },
     "strength": {
       "title": "Strength progress",
       "empty": "Finish your first workout to see your strength chart here.",
       "exercise": "Exercise",
+      "estimated_1rm": "Estimated 1RM",
       "estimated_note": "Estimated 1RM (Epley): best set of each session; sets above 10 reps and without weight are not counted."
     },
     "measurements": {
