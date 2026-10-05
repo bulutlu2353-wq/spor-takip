@@ -1,10 +1,14 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/core/theme/app_colors.dart';
 import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
+import 'package:spor_takip/features/onboarding/domain/profile.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/progress/domain/body_weight_log.dart';
 import 'package:spor_takip/features/progress/presentation/weight_screen.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
+import 'package:spor_takip/shared/date_label.dart';
 
 import '../fakes.dart';
 import '../fixtures.dart';
@@ -73,7 +77,16 @@ void main() {
   });
 
   group('screen', () {
+    // Testte çeviri yüklenmez; uzun anahtar metinli aralık çipleri alt alta
+    // dizilip listeyi aşağı iter. Uzun ekran, satırları görünür tutar.
+    void tallView(WidgetTester tester) {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+    }
+
     Future<void> pumpScreen(WidgetTester tester) async {
+      tallView(tester);
       await tester.pumpWidget(testApp(const WeightScreen(), overrides: overrides(), scaffold: false));
       await tester.pumpAndSettle();
     }
@@ -124,6 +137,40 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.logged.single.date, DateTime(2026, 9, 20));
       expect(repo.logged.single.update.weightKg, 80.4);
+    });
+
+    testWidgets('shows the latest weight, the change in range and per-entry differences', (tester) async {
+      await pumpScreen(tester);
+
+      Text text(String key) => tester.widget<Text>(find.byKey(Key(key)));
+      expect(text('weight_current').data, '80');
+      expect(
+        text('weight_change').data,
+        'progress.change_in_range'.tr(namedArgs: {'delta': '▼ 2 kg', 'range': 'progress.range.three_months'.tr()}),
+      );
+      // Test profilinin hedefi kas kazanmak: düşüş olumlu sayılmaz.
+      expect(text('weight_change').style!.color, AppColors.muted);
+      expect(text('weight_delta_2026-09-20').data, '▼ 2');
+      expect(find.byKey(const Key('weight_delta_2026-08-01')), findsNothing);
+      expect(find.text(shortDateLabel(DateTime(2026, 9, 20), _now)), findsOneWidget);
+    });
+
+    testWidgets('a loss is highlighted when the goal is losing weight', (tester) async {
+      tallView(tester);
+      await tester.pumpWidget(testApp(
+        const WeightScreen(),
+        overrides: [
+          bodyWeightRepositoryProvider.overrideWithValue(repo),
+          profileProvider.overrideWith((ref) async => testProfile.copyWith(goal: Goal.loseWeight)),
+          nowProvider.overrideWithValue(() => _now),
+        ],
+        scaffold: false,
+      ));
+      await tester.pumpAndSettle();
+
+      Color? color(String key) => tester.widget<Text>(find.byKey(Key(key))).style!.color;
+      expect(color('weight_change'), AppColors.accent);
+      expect(color('weight_delta_2026-09-20'), AppColors.accent);
     });
   });
 }
