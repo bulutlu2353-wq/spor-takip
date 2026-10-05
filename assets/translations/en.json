@@ -292,7 +292,6 @@
       "no_sets_body": "Do you want to cancel the workout?",
       "add_exercise": "Add exercise",
       "remove_exercise": "Remove exercise",
-      "set_label": "Set {n}",
       "deloaded": "Failed 3 times, weight reduced",
       "save_error": "Could not save, try again",
       "reps_required": "Enter the reps first",

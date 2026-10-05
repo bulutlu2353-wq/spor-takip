@@ -29,6 +29,21 @@ SessionSet _s(String id, {int idx = 0, bool deloaded = false}) => SessionSet(
       deloaded: deloaded,
     );
 
+SessionSet _done(String id, {int idx = 0}) => SessionSet(
+      id: id,
+      exercisePosition: 0,
+      setIndex: idx,
+      exerciseId: 'Barbell_Squat',
+      exerciseName: 'Barbell Squat',
+      targetRepsMin: 5,
+      targetRepsMax: 5,
+      restSeconds: 90,
+      suggestedWeightKg: 60,
+      weightKg: 60,
+      reps: 5,
+      completedAt: DateTime(2026, 9, 26, 10, 10),
+    );
+
 void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
@@ -88,6 +103,11 @@ void main() {
 
   String fieldText(WidgetTester tester, String key) =>
       tester.widget<TextField>(find.byKey(Key(key))).controller!.text;
+
+  String keyText(WidgetTester tester, String key) => tester.widget<Text>(find.byKey(Key(key))).data!;
+
+  double progress(WidgetTester tester) =>
+      tester.widget<LinearProgressIndicator>(find.byKey(const Key('session_progress_bar'))).value!;
 
   Future<void> open(WidgetTester tester) async {
     await tester.pumpWidget(wrap());
@@ -209,5 +229,61 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('SUMMARY'), findsOneWidget);
+  });
+
+  testWidgets('the stats strip shows duration, set progress and volume', (tester) async {
+    await open(tester);
+
+    expect(keyText(tester, 'session_elapsed'), '30:00');
+    expect(keyText(tester, 'session_sets_progress'), '0/2');
+    expect(keyText(tester, 'session_volume'), '0 kg');
+    expect(progress(tester), 0);
+    expect(keyText(tester, 'session_exercise_progress_0'), '0/2');
+
+    await tester.tap(find.byKey(const Key('set_check_a')));
+    await tester.pumpAndSettle();
+
+    expect(keyText(tester, 'session_sets_progress'), '1/2');
+    expect(keyText(tester, 'session_volume'), '300 kg');
+    expect(progress(tester), 0.5);
+    expect(keyText(tester, 'session_exercise_progress_0'), '1/2');
+  });
+
+  testWidgets('an exercise with every set done collapses and opens on tap', (tester) async {
+    repo = FakeSessionRepository(sessions: [
+      WorkoutSession(
+        id: 'sess',
+        programId: 'p1',
+        programName: 'StrongLifts 5x5',
+        workoutName: 'Antrenman A',
+        workoutPosition: 0,
+        startedAt: DateTime(2026, 9, 26, 10),
+        sets: [_done('a'), _done('b', idx: 1)],
+      ),
+    ]);
+    await open(tester);
+
+    expect(find.byKey(const Key('session_exercise_collapsed_0')), findsOneWidget);
+    expect(find.byKey(const Key('session_exercise_0')), findsNothing);
+    expect(find.byKey(const Key('set_check_a')), findsNothing);
+    expect(keyText(tester, 'session_sets_progress'), '2/2');
+
+    await tester.tap(find.byKey(const Key('session_exercise_collapsed_0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('set_check_a')), findsOneWidget);
+    expect(find.byKey(const Key('session_exercise_collapsed_0')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('session_exercise_header_0')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('session_exercise_collapsed_0')), findsOneWidget);
+  });
+
+  testWidgets('the app bar shows the workout and program names', (tester) async {
+    await open(tester);
+
+    expect(find.byKey(const Key('session_workout_name')), findsOneWidget);
+    expect(find.text('StrongLifts 5x5'), findsOneWidget);
+    expect(keyText(tester, 'set_number_a'), '1');
+    expect(keyText(tester, 'set_number_b'), '2');
   });
 }

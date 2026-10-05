@@ -32,37 +32,50 @@ class RestTimerBar extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final timer = ref.read(restTimerProvider.notifier);
+    final theme = Theme.of(context);
+    final onBar = theme.colorScheme.onPrimary;
     return Material(
       key: const Key('rest_timer_bar'),
-      color: Theme.of(context).colorScheme.secondaryContainer,
+      color: theme.colorScheme.primary,
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              const Icon(Icons.timer_outlined),
-              const SizedBox(width: 8),
-              Text(
-                formatDuration(remaining),
-                key: const Key('rest_timer_remaining'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(width: 8),
-              // Dar ekranda düğmelere yer kalsın diye etiket kısalır.
-              Expanded(child: Text('workout.session.rest'.tr(), overflow: TextOverflow.ellipsis)),
-              TextButton(
-                key: const Key('rest_timer_add'),
-                onPressed: () => timer.addSeconds(30),
-                child: Text('workout.session.rest_add'.tr()),
-              ),
-              IconButton(
-                key: const Key('rest_timer_skip'),
-                onPressed: timer.stop,
-                tooltip: 'workout.session.rest_skip'.tr(),
-                icon: const Icon(Icons.skip_next),
-              ),
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+          child: IconTheme.merge(
+            data: IconThemeData(color: onBar),
+            child: Row(
+              children: [
+                const Icon(Icons.timer_outlined),
+                const SizedBox(width: 8),
+                Text(
+                  formatDuration(remaining),
+                  key: const Key('rest_timer_remaining'),
+                  style: theme.textTheme.headlineSmall?.copyWith(color: onBar, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(width: 8),
+                // Dar ekranda düğmelere yer kalsın diye etiket kısalır.
+                Expanded(
+                  child: Text(
+                    'workout.session.rest'.tr(),
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: onBar, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                TextButton(
+                  key: const Key('rest_timer_add'),
+                  style: TextButton.styleFrom(foregroundColor: onBar),
+                  onPressed: () => timer.addSeconds(30),
+                  child: Text('workout.session.rest_add'.tr()),
+                ),
+                IconButton(
+                  key: const Key('rest_timer_skip'),
+                  onPressed: timer.stop,
+                  tooltip: 'workout.session.rest_skip'.tr(),
+                  color: onBar,
+                  icon: const Icon(Icons.skip_next),
+                ),
+              ],
+            ),
           ),
         ),
       ),
