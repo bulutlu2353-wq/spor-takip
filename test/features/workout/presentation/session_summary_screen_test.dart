@@ -135,4 +135,18 @@ void main() {
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.byKey(const Key('session_summary_screen')), findsOneWidget);
   });
+
+  testWidgets('shows the completed header and stat boxes', (tester) async {
+    await tester.pumpWidget(wrap());
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('summary_title')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('summary_duration')), matching: find.text('45:00')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('summary_sets')), matching: find.text('2')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('summary_volume')), matching: find.text('880 kg')), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(const Key('summary_1rm_Barbell_Squat')), matching: find.byType(Checkbox)),
+      findsOneWidget,
+    );
+  });
 }
