@@ -53,6 +53,7 @@
     "sport_type_hint": "Örn. fitness, koşu, yüzme, bisiklet, futbol",
     "exercise_days_question": "Haftada kaç gün spor yapıyorsunuz?",
     "exercise_days_hint": "0-7 arası bir sayı",
+    "days_unit": "gün",
     "goal_question": "Hedefiniz nedir?",
     "goal_lose_weight": "Kilo vermek",
     "goal_gain_muscle": "Kas kazanmak",

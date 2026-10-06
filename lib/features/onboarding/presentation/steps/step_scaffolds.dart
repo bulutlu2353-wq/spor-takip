@@ -1,6 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_fonts.dart';
+import '../../../../shared/text_case.dart';
+
 class WizardStepScaffold extends StatelessWidget {
   const WizardStepScaffold({
     super.key,
@@ -25,6 +28,12 @@ class WizardStepScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final stepLabel = 'onboarding.step_of'.tr(namedArgs: {
+      'current': stepNumber.toString(),
+      'total': totalSteps.toString(),
+    });
     return Scaffold(
       appBar: AppBar(
         leading: onBack == null
@@ -36,19 +45,23 @@ class WizardStepScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            LinearProgressIndicator(value: stepNumber / totalSteps),
-            const SizedBox(height: 8),
+            _StepSegments(current: stepNumber, total: totalSteps),
+            const SizedBox(height: 12),
             Text(
-              'onboarding.step_of'.tr(namedArgs: {
-                'current': stepNumber.toString(),
-                'total': totalSteps.toString(),
-              }),
+              upperCaseFor(stepLabel, Localizations.localeOf(context).languageCode),
+              key: const Key('wizard_step_label'),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: scheme.primary,
+                fontFamily: AppFonts.heading,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1,
+              ),
             ),
-            const SizedBox(height: 24),
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 12),
+            Text(title, style: theme.textTheme.headlineMedium),
             const SizedBox(height: 24),
             Expanded(child: child),
-            ElevatedButton(
+            FilledButton(
               key: const Key('wizard_next_button'),
               onPressed: isValid ? onNext : null,
               child: Text(nextLabel ?? 'onboarding.next'.tr()),
@@ -56,6 +69,37 @@ class WizardStepScaffold extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Her adım için bir parça; tamamlanan ve şu anki adımlar neon (spec §4.1).
+class _StepSegments extends StatelessWidget {
+  const _StepSegments({required this.current, required this.total});
+
+  final int current;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      key: const Key('wizard_step_segments'),
+      children: [
+        for (var i = 0; i < total; i++) ...[
+          if (i > 0) const SizedBox(width: 4),
+          Expanded(
+            child: Container(
+              key: Key('wizard_segment_$i'),
+              height: 4,
+              decoration: BoxDecoration(
+                color: i < current ? scheme.primary : scheme.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -73,6 +117,7 @@ class NumericStepScreen extends StatefulWidget {
     required this.onBack,
     required this.stepNumber,
     required this.totalSteps,
+    this.unit,
   });
 
   final String title;
@@ -85,6 +130,7 @@ class NumericStepScreen extends StatefulWidget {
   final VoidCallback? onBack;
   final int stepNumber;
   final int totalSteps;
+  final String? unit;
 
   @override
   State<NumericStepScreen> createState() => _NumericStepScreenState();
@@ -111,6 +157,8 @@ class _NumericStepScreenState extends State<NumericStepScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return WizardStepScaffold(
       title: widget.title,
       stepNumber: widget.stepNumber,
@@ -121,12 +169,37 @@ class _NumericStepScreenState extends State<NumericStepScreen> {
         widget.onSave(_value!);
         widget.onNext();
       },
-      child: TextField(
-        key: const Key('numeric_step_field'),
-        controller: _controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(hintText: widget.hintText),
-        onChanged: (text) => setState(() => _value = double.tryParse(text)),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            SizedBox(
+              width: 220,
+              child: TextField(
+                key: const Key('numeric_step_field'),
+                controller: _controller,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontFamily: AppFonts.heading, fontWeight: FontWeight.w900, fontSize: 56),
+                decoration: InputDecoration.collapsed(
+                  hintText: widget.hintText,
+                  hintStyle: theme.textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+                onChanged: (text) => setState(() => _value = double.tryParse(text)),
+              ),
+            ),
+            if (widget.unit != null) ...[
+              const SizedBox(width: 8),
+              Text(
+                widget.unit!,
+                key: const Key('numeric_step_unit'),
+                style: theme.textTheme.titleLarge?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -146,7 +219,7 @@ class ChoiceStepScreen<T> extends StatelessWidget {
   });
 
   final String title;
-  final List<(T value, String label)> options;
+  final List<(T value, String label, IconData icon)> options;
   final T? selected;
   final ValueChanged<T> onSave;
   final VoidCallback onNext;
@@ -163,20 +236,65 @@ class ChoiceStepScreen<T> extends StatelessWidget {
       isValid: selected != null,
       onBack: onBack,
       onNext: onNext,
-      child: RadioGroup<T>(
-        groupValue: selected,
-        onChanged: (value) {
-          if (value != null) onSave(value);
+      child: ListView.separated(
+        itemCount: options.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 10),
+        itemBuilder: (context, index) {
+          final (value, label, icon) = options[index];
+          return _ChoiceCard(
+            key: Key('choice_option_$value'),
+            label: label,
+            icon: icon,
+            selected: value == selected,
+            onTap: () => onSave(value),
+          );
         },
-        child: ListView(
-          children: [
-            for (final option in options)
-              RadioListTile<T>(
-                key: Key('choice_option_${option.$1}'),
-                title: Text(option.$2),
-                value: option.$1,
+      ),
+    );
+  }
+}
+
+/// İkonlu seçim kartı; seçiliyse neon kenarlık ve onay işareti (spec §4.2).
+class _ChoiceCard extends StatelessWidget {
+  const _ChoiceCard({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    const radius = BorderRadius.all(Radius.circular(16));
+    return Material(
+      color: scheme.surfaceContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: selected ? BorderSide(color: scheme.primary, width: 2) : BorderSide(color: scheme.outlineVariant),
+      ),
+      child: InkWell(
+        customBorder: const RoundedRectangleBorder(borderRadius: radius),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(icon, color: scheme.primary),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(label, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               ),
-          ],
+              if (selected) Icon(Icons.check_circle, color: scheme.primary),
+            ],
+          ),
         ),
       ),
     );

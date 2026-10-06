@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spor_takip/core/theme/app_colors.dart';
+import 'package:spor_takip/core/theme/app_theme.dart';
 import 'package:spor_takip/features/onboarding/presentation/steps/step_scaffolds.dart';
 
 void main() {
@@ -17,7 +19,7 @@ void main() {
       supportedLocales: const [Locale('tr'), Locale('en')],
       path: 'assets/translations',
       fallbackLocale: const Locale('tr'),
-      child: MaterialApp(home: child),
+      child: MaterialApp(theme: AppTheme.dark(), home: child),
     );
   }
 
@@ -44,12 +46,12 @@ void main() {
     await tester.pumpAndSettle();
 
     final nextButton = find.byKey(const Key('wizard_next_button'));
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
 
     await tester.enterText(find.byKey(const Key('numeric_step_field')), '75');
     await tester.pump();
 
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNotNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNotNull);
 
     await tester.tap(nextButton);
     expect(saved, 75.0);
@@ -79,7 +81,7 @@ void main() {
     await tester.pump();
 
     final nextButton = find.byKey(const Key('wizard_next_button'));
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
   });
 
   testWidgets('ChoiceStepScreen: Next button disabled until an option is selected', (tester) async {
@@ -88,7 +90,7 @@ void main() {
       wrap(
         ChoiceStepScreen<String>(
           title: 'Test',
-          options: const [('a', 'Seçenek A'), ('b', 'Seçenek B')],
+          options: const [('a', 'Seçenek A', Icons.star), ('b', 'Seçenek B', Icons.star_border)],
           selected: null,
           onSave: (value) => selected = value,
           onNext: () {},
@@ -101,7 +103,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final nextButton = find.byKey(const Key('wizard_next_button'));
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
 
     await tester.tap(find.byKey(const Key('choice_option_a')));
     await tester.pump();
@@ -128,12 +130,12 @@ void main() {
     await tester.pumpAndSettle();
 
     final nextButton = find.byKey(const Key('wizard_next_button'));
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
 
     await tester.enterText(find.byKey(const Key('text_step_field')), 'Fitness');
     await tester.pump();
 
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNotNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNotNull);
   });
 
   testWidgets('TextStepScreen: required=false leaves Next enabled when empty', (tester) async {
@@ -155,6 +157,63 @@ void main() {
     await tester.pumpAndSettle();
 
     final nextButton = find.byKey(const Key('wizard_next_button'));
-    expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNotNull);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNotNull);
+  });
+
+  testWidgets('step bar has one segment per step and lights done and current ones', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        NumericStepScreen(
+          title: 'Test',
+          hintText: 'Değer gir',
+          min: 20,
+          max: 300,
+          initialValue: null,
+          unit: 'kg',
+          onSave: (_) {},
+          onNext: () {},
+          onBack: null,
+          stepNumber: 2,
+          totalSteps: 5,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Color segmentColor(int i) =>
+        (tester.widget<Container>(find.byKey(Key('wizard_segment_$i'))).decoration! as BoxDecoration).color!;
+    for (var i = 0; i < 5; i++) {
+      expect(find.byKey(Key('wizard_segment_$i')), findsOneWidget);
+    }
+    expect(find.byKey(const Key('wizard_segment_5')), findsNothing);
+    expect(segmentColor(1), AppColors.accent);
+    expect(segmentColor(2), AppColors.line);
+    expect(tester.widget<Text>(find.byKey(const Key('wizard_step_label'))).style!.color, AppColors.accent);
+    expect(tester.widget<Text>(find.byKey(const Key('numeric_step_unit'))).data, 'kg');
+  });
+
+  testWidgets('ChoiceStepScreen: only the selected card shows a check mark', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        ChoiceStepScreen<String>(
+          title: 'Test',
+          options: const [('a', 'Seçenek A', Icons.star), ('b', 'Seçenek B', Icons.star_border)],
+          selected: 'b',
+          onSave: (_) {},
+          onNext: () {},
+          onBack: null,
+          stepNumber: 1,
+          totalSteps: 1,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(const Key('choice_option_b')), matching: find.byIcon(Icons.check_circle)),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.star), findsOneWidget);
   });
 }

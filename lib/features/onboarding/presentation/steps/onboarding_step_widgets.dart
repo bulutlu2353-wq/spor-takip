@@ -28,6 +28,7 @@ class WeightStep extends ConsumerWidget {
       hintText: 'onboarding.weight_hint'.tr(),
       min: 20,
       max: 300,
+      unit: 'kg',
       initialValue: answers.weightKg,
       onSave: (value) => ref
           .read(onboardingWizardProvider.notifier)
@@ -62,6 +63,7 @@ class HeightStep extends ConsumerWidget {
       hintText: 'onboarding.height_hint'.tr(),
       min: 100,
       max: 250,
+      unit: 'cm',
       initialValue: answers.heightCm,
       onSave: (value) => ref
           .read(onboardingWizardProvider.notifier)
@@ -128,9 +130,9 @@ class GenderStep extends ConsumerWidget {
     return ChoiceStepScreen<Gender>(
       title: 'onboarding.gender_question'.tr(),
       options: [
-        (Gender.male, 'onboarding.gender_male'.tr()),
-        (Gender.female, 'onboarding.gender_female'.tr()),
-        (Gender.unspecified, 'onboarding.gender_unspecified'.tr()),
+        (Gender.male, 'onboarding.gender_male'.tr(), Icons.male),
+        (Gender.female, 'onboarding.gender_female'.tr(), Icons.female),
+        (Gender.unspecified, 'onboarding.gender_unspecified'.tr(), Icons.person_outline),
       ],
       selected: answers.gender,
       onSave: (value) => ref
@@ -164,11 +166,11 @@ class ActivityLevelStep extends ConsumerWidget {
     return ChoiceStepScreen<ActivityLevel>(
       title: 'onboarding.activity_question'.tr(),
       options: [
-        (ActivityLevel.sedentary, 'onboarding.activity_sedentary'.tr()),
-        (ActivityLevel.light, 'onboarding.activity_light'.tr()),
-        (ActivityLevel.moderate, 'onboarding.activity_moderate'.tr()),
-        (ActivityLevel.active, 'onboarding.activity_active'.tr()),
-        (ActivityLevel.veryActive, 'onboarding.activity_very_active'.tr()),
+        (ActivityLevel.sedentary, 'onboarding.activity_sedentary'.tr(), Icons.weekend_outlined),
+        (ActivityLevel.light, 'onboarding.activity_light'.tr(), Icons.directions_walk),
+        (ActivityLevel.moderate, 'onboarding.activity_moderate'.tr(), Icons.directions_run),
+        (ActivityLevel.active, 'onboarding.activity_active'.tr(), Icons.fitness_center),
+        (ActivityLevel.veryActive, 'onboarding.activity_very_active'.tr(), Icons.bolt),
       ],
       selected: answers.activityLevel,
       onSave: (value) => ref
@@ -202,8 +204,8 @@ class DoesExerciseStep extends ConsumerWidget {
     return ChoiceStepScreen<bool>(
       title: 'onboarding.does_exercise_question'.tr(),
       options: [
-        (true, 'onboarding.yes'.tr()),
-        (false, 'onboarding.no'.tr()),
+        (true, 'onboarding.yes'.tr(), Icons.check),
+        (false, 'onboarding.no'.tr(), Icons.close),
       ],
       selected: answers.doesExercise,
       onSave: (value) => ref
@@ -272,6 +274,7 @@ class ExerciseDaysStep extends ConsumerWidget {
       hintText: 'onboarding.exercise_days_hint'.tr(),
       min: 0,
       max: 7,
+      unit: 'onboarding.days_unit'.tr(),
       initialValue: answers.exerciseDaysPerWeek?.toDouble(),
       onSave: (value) => ref
           .read(onboardingWizardProvider.notifier)
@@ -304,9 +307,9 @@ class GoalStep extends ConsumerWidget {
     return ChoiceStepScreen<Goal>(
       title: 'onboarding.goal_question'.tr(),
       options: [
-        (Goal.loseWeight, 'onboarding.goal_lose_weight'.tr()),
-        (Goal.gainMuscle, 'onboarding.goal_gain_muscle'.tr()),
-        (Goal.maintain, 'onboarding.goal_maintain'.tr()),
+        (Goal.loseWeight, 'onboarding.goal_lose_weight'.tr(), Icons.trending_down),
+        (Goal.gainMuscle, 'onboarding.goal_gain_muscle'.tr(), Icons.fitness_center),
+        (Goal.maintain, 'onboarding.goal_maintain'.tr(), Icons.balance),
       ],
       selected: answers.goal,
       onSave: (value) => ref

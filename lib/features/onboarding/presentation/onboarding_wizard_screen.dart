@@ -80,7 +80,8 @@ class _OnboardingWizardScreenState extends ConsumerState<OnboardingWizardScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(_saveError!),
-              ElevatedButton(onPressed: _finish, child: Text('onboarding.retry'.tr())),
+              const SizedBox(height: 12),
+              FilledButton(onPressed: _finish, child: Text('onboarding.retry'.tr())),
             ],
           ),
         ),
