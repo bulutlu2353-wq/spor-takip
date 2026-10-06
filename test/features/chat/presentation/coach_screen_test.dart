@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/core/theme/app_colors.dart';
 import 'package:spor_takip/features/chat/application/chat_providers.dart';
 import 'package:spor_takip/features/chat/data/chat_repository.dart';
 import 'package:spor_takip/features/chat/domain/chat_models.dart';
@@ -48,6 +49,11 @@ void main() {
     expect(find.byKey(const Key('coach_input')), findsNothing);
     expect(find.byKey(const Key('coach_suggestion_0')), findsNothing);
     expect(repo.loadCount, 0);
+    expect(find.byKey(const Key('coach_locked_badge')), findsOneWidget);
+    expect(find.byKey(const Key('coach_locked_title')), findsOneWidget);
+    for (var i = 0; i < 6; i++) {
+      expect(find.byKey(Key('coach_feature_$i')), findsOneWidget);
+    }
   });
 
   testWidgets('empty chat shows suggestions; tapping one sends it', (tester) async {
@@ -141,5 +147,14 @@ void main() {
   testWidgets('a load error offers a reload', (tester) async {
     await pumpScreen(tester, loadError: Exception('offline'));
     expect(find.byKey(const Key('coach_reload')), findsOneWidget);
+  });
+
+  testWidgets('user bubbles use the accent, assistant bubbles the card surface', (tester) async {
+    await pumpScreen(tester, messages: [userMessage('selam'), assistantMessage(null, content: 'merhaba')]);
+
+    BoxDecoration decorationOf(String key) =>
+        tester.widget<Container>(find.byKey(Key(key))).decoration! as BoxDecoration;
+    expect(decorationOf('bubble_u1').color, AppColors.accent);
+    expect(decorationOf('bubble_a1').color, AppColors.surface);
   });
 }

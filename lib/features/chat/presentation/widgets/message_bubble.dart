@@ -26,10 +26,20 @@ class MessageBubble extends StatelessWidget {
                 key: Key('bubble_${message.id}'),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isUser ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16),
+                  color: isUser ? scheme.primary : scheme.surfaceContainer,
+                  border: isUser ? null : Border.all(color: scheme.outlineVariant),
+                  // Konuşan tarafın alt köşesi sivri (spec §5.2).
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(16),
+                    topRight: const Radius.circular(16),
+                    bottomLeft: Radius.circular(isUser ? 16 : 4),
+                    bottomRight: Radius.circular(isUser ? 4 : 16),
+                  ),
                 ),
-                child: Text(message.content),
+                child: Text(
+                  message.content,
+                  style: TextStyle(color: isUser ? scheme.onPrimary : scheme.onSurface),
+                ),
               ),
               if (event != null) ConfirmCard(key: ValueKey(event.id), event: event),
             ],

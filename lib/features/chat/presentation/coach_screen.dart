@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_fonts.dart';
+import '../../../shared/text_case.dart';
 import '../application/chat_notifier.dart';
 import '../application/chat_providers.dart';
 import '../data/chat_repository.dart';
@@ -42,6 +44,9 @@ class _CoachLocked extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final titleLines = upperCaseFor('coach.locked_title'.tr(), languageCode).split('\n');
     return Scaffold(
       appBar: AppBar(title: Text('coach.title'.tr())),
       body: Center(
@@ -52,21 +57,114 @@ class _CoachLocked extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 480),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.construction_outlined, size: 56, color: theme.colorScheme.primary),
-                const SizedBox(height: 12),
-                Chip(label: Text('coach.locked_badge'.tr())),
-                const SizedBox(height: 12),
-                Text('coach.locked_body'.tr(), textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
+                Container(
+                  key: const Key('coach_locked_badge'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: scheme.primary, borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    upperCaseFor('coach.locked_badge'.tr(), languageCode),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.onPrimary,
+                      fontFamily: AppFonts.heading,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
-                for (final (icon, key) in _lockedFeatures)
-                  ListTile(dense: true, leading: Icon(icon), title: Text(key.tr())),
-                const SizedBox(height: 12),
-                Text('coach.locked_note'.tr(), textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
+                // İkinci satır neon (maketteki "ANTRENÖRÜN"); satırlar çeviride \n ile ayrılır.
+                Text.rich(
+                  key: const Key('coach_locked_title'),
+                  TextSpan(
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontFamily: AppFonts.heading,
+                      fontWeight: FontWeight.w900,
+                      height: 1.05,
+                    ),
+                    children: [
+                      for (var i = 0; i < titleLines.length; i++)
+                        TextSpan(
+                          text: i < titleLines.length - 1 ? '${titleLines[i]}\n' : titleLines[i],
+                          style: TextStyle(color: i == 1 ? scheme.primary : scheme.onSurface),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'coach.locked_body'.tr(),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 20),
+                for (var row = 0; row < _lockedFeatures.length; row += 2) ...[
+                  if (row > 0) const SizedBox(height: 10),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = row; i < row + 2 && i < _lockedFeatures.length; i++) ...[
+                          if (i > row) const SizedBox(width: 10),
+                          Expanded(
+                            child: _FeatureTile(
+                              key: Key('coach_feature_$i'),
+                              icon: _lockedFeatures[i].$1,
+                              text: _lockedFeatures[i].$2.tr(),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                ClipRRect(
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(8)),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainer,
+                      border: Border(left: BorderSide(color: scheme.primary, width: 3)),
+                    ),
+                    child: Text(
+                      'coach.locked_note'.tr(),
+                      style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FeatureTile extends StatelessWidget {
+  const _FeatureTile({super.key, required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 22, color: theme.colorScheme.primary),
+          const SizedBox(height: 8),
+          Text(text, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+        ],
       ),
     );
   }
@@ -209,7 +307,7 @@ class _Suggestions extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.forum_outlined, size: 48),
+            Icon(Icons.forum_outlined, size: 48, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 12),
             Text('coach.empty'.tr(), textAlign: TextAlign.center),
             const SizedBox(height: 16),
@@ -219,14 +317,40 @@ class _Suggestions extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: [
                 for (var i = 0; i < _suggestions.length; i++)
-                  ActionChip(
+                  _SuggestionChip(
                     key: Key('coach_suggestion_$i'),
-                    label: Text(_suggestions[i].tr()),
-                    onPressed: () => onTap(_suggestions[i].tr()),
+                    label: _suggestions[i].tr(),
+                    onTap: () => onTap(_suggestions[i].tr()),
                   ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Neon kenarlı öneri çipi; seçili durumu yok (AccentChip filtre çipi olduğu için kullanılmaz).
+class _SuggestionChip extends StatelessWidget {
+  const _SuggestionChip({super.key, required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const radius = BorderRadius.all(Radius.circular(20));
+    return Material(
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: theme.colorScheme.primary)),
+      child: InkWell(
+        customBorder: const RoundedRectangleBorder(borderRadius: radius),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Text(label, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -286,7 +410,7 @@ class _InputBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 4, 4, 8),
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
         child: Row(
           children: [
             Expanded(
@@ -298,12 +422,13 @@ class _InputBar extends StatelessWidget {
                 maxLines: 4,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
-                decoration: InputDecoration(hintText: 'coach.input_hint'.tr(), border: const OutlineInputBorder()),
+                decoration: InputDecoration(hintText: 'coach.input_hint'.tr()),
               ),
             ),
-            IconButton(
+            const SizedBox(width: 8),
+            IconButton.filled(
               key: const Key('coach_send'),
-              icon: const Icon(Icons.send),
+              icon: const Icon(Icons.arrow_upward),
               onPressed: enabled ? onSend : null,
             ),
           ],
