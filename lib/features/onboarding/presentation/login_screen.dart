@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/auth_providers.dart';
+import 'widgets/auth_header.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -92,64 +93,101 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key('login_screen'),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('auth.login_title'.tr(), style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 24),
-            TextField(
-              key: const Key('login_email_field'),
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(labelText: 'auth.email_label'.tr()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('login_password_field'),
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'auth.password_label'.tr()),
-            ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AuthHeader(title: 'app.title'.tr(), tagline: 'auth.login_tagline'.tr()),
+                  const SizedBox(height: 32),
+                  TextField(
+                    key: const Key('login_email_field'),
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(labelText: 'auth.email_label'.tr()),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    key: const Key('login_password_field'),
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'auth.password_label'.tr()),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _isSubmitting ? null : _forgotPassword,
+                      child: Text('auth.forgot_password'.tr()),
+                    ),
+                  ),
+                  if (_errorMessage != null) ...[
+                    Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  const SizedBox(height: 8),
+                  FilledButton(
+                    key: const Key('login_submit_button'),
+                    onPressed: _isSubmitting ? null : _submit,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text('auth.login_button'.tr()),
+                  ),
+                  const _OrDivider(),
+                  OutlinedButton.icon(
+                    key: const Key('login_google_button'),
+                    onPressed: _isSubmitting ? null : _signInWithGoogle,
+                    icon: const Icon(Icons.login),
+                    label: Text('auth.google_sign_in'.tr()),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    key: const Key('login_go_to_register_button'),
+                    onPressed: () => context.push('/register'),
+                    child: Text('auth.go_to_register'.tr()),
+                  ),
+                ],
               ),
-            ],
-            const SizedBox(height: 24),
-            ElevatedButton(
-              key: const Key('login_submit_button'),
-              onPressed: _isSubmitting ? null : _submit,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text('auth.login_button'.tr()),
             ),
-            TextButton(
-              onPressed: _isSubmitting ? null : _forgotPassword,
-              child: Text('auth.forgot_password'.tr()),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              key: const Key('login_google_button'),
-              onPressed: _isSubmitting ? null : _signInWithGoogle,
-              icon: const Icon(Icons.login),
-              label: Text('auth.google_sign_in'.tr()),
-            ),
-            TextButton(
-              key: const Key('login_go_to_register_button'),
-              onPressed: () => context.push('/register'),
-              child: Text('auth.go_to_register'.tr()),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// Şifreli giriş ile Google girişi arasındaki "veya" ayracı.
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      key: const Key('auth_or_divider'),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              'auth.or'.tr(),
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ),
+          const Expanded(child: Divider()),
+        ],
       ),
     );
   }

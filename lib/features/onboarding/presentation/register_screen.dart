@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/auth_providers.dart';
+import 'widgets/auth_header.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -69,61 +70,65 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key('register_screen'),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'auth.register_title'.tr(),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              key: const Key('register_email_field'),
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(labelText: 'auth.email_label'.tr()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('register_password_field'),
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'auth.password_label'.tr()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('register_confirm_password_field'),
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'auth.confirm_password_label'.tr()),
-            ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AuthHeader(title: 'app.title'.tr(), tagline: 'auth.register_tagline'.tr()),
+                  const SizedBox(height: 32),
+                  TextField(
+                    key: const Key('register_email_field'),
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(labelText: 'auth.email_label'.tr()),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    key: const Key('register_password_field'),
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'auth.password_label'.tr()),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    key: const Key('register_confirm_password_field'),
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'auth.confirm_password_label'.tr()),
+                  ),
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    key: const Key('register_submit_button'),
+                    onPressed: _isSubmitting ? null : _submit,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text('auth.register_button'.tr()),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () => context.pop(),
+                    child: Text('auth.go_to_login'.tr()),
+                  ),
+                ],
               ),
-            ],
-            const SizedBox(height: 24),
-            ElevatedButton(
-              key: const Key('register_submit_button'),
-              onPressed: _isSubmitting ? null : _submit,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text('auth.register_button'.tr()),
             ),
-            TextButton(
-              onPressed: () => context.pop(),
-              child: Text('auth.go_to_login'.tr()),
-            ),
-          ],
+          ),
         ),
       ),
     );
