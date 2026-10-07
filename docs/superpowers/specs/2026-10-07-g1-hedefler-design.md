@@ -171,3 +171,13 @@ TDD; mevcut test yapısı (`test/features/...`, `testApp`).
    8. Kilo girişi sonrası kalori hedefi yeni kiloyla güncellenir.
 
 Sonra `PLAN.md` satırı, branch kapanışı (master'a fast-forward, push onayla), ardından G2 brainstorm.
+
+## 9. Plan sırasında netleşenler (2026-10-07)
+
+Plan (`docs/superpowers/plans/2026-10-07-g1-hedefler.md`) yazılırken bu spec'teki şu noktalar güncellendi; çelişki olursa bu bölüm geçerlidir:
+
+1. Odak enum'unun adı `GoalFocus` (`Focus`, Flutter widget'ıyla çakışıyor).
+2. Kalori formülü `max(tdee + delta, min(tdee, taban))`: taban açığı sınırlar ama hedefi TDEE'nin üstüne çıkarmaz. Migration da aynı formülü kullanır.
+3. Onboarding'de "koru" seçilince `pace` cevaplarda kalır; `buildProfileFromAnswers` korumada `pace`'i null yazar (`sportType` deseni). `OnboardingAnswers`'ta `clearPace` yok, yalnızca `Profile.copyWith`'te var.
+4. G1 öncesi uygulanmış `set_goal` olayının geri alınması `modified` döner (mevcut `after` karşılaştırması sayesinde ek kod gerekmez); bekleyen eski olay `stale` olur.
+5. Eski olay kartlarındaki hedef değer etiketleri `coach.legacy_goal.*` altına taşınır.
