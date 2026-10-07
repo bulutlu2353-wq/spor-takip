@@ -28,6 +28,9 @@ class AuthRepository {
     return user.id;
   }
 
+  /// Giriş yapılan e-posta (ayarlar → hesap); oturum yoksa null.
+  String? get currentEmail => _client.auth.currentUser?.email;
+
   Future<AuthResponse> signUp({required String email, required String password}) {
     return _client.auth.signUp(email: email, password: password);
   }

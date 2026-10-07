@@ -29,6 +29,15 @@ void main() {
     expect(losing.copyWith(weightDirection: WeightDirection.maintain, clearPace: true).pace, isNull);
   });
 
+  test('copyWith edits and clears the optional settings fields', () {
+    final edited = testProfile.copyWith(birthYear: 1990, gender: Gender.female, sportType: 'Koşu', healthNotes: 'Bel');
+    expect((edited.birthYear, edited.gender, edited.sportType, edited.healthNotes), (1990, Gender.female, 'Koşu', 'Bel'));
+    expect(edited.copyWith(heightCm: 181).sportType, 'Koşu');
+    final cleared = edited.copyWith(clearSportType: true, clearHealthNotes: true);
+    expect(cleared.sportType, isNull);
+    expect(cleared.healthNotes, isNull);
+  });
+
   test('database names round-trip', () {
     for (final level in ActivityLevel.values) {
       expect(activityLevelFromDb(activityLevelToDb(level)), level);

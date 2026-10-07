@@ -22,4 +22,9 @@ class ProfileRepository {
   Future<void> saveProfile(Profile profile) {
     return _client.from(_table).upsert(profile.toJson());
   }
+
+  /// Yalnız verilen sütunları günceller (ayarlar ekranı, G2 spec §3.3).
+  Future<void> updateProfile(String userId, Map<String, dynamic> fields) {
+    return _client.from(_table).update(fields).eq('user_id', userId);
+  }
 }
