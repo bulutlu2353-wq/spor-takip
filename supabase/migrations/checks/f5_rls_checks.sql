@@ -2,7 +2,7 @@
 -- A = profili olan bir kullanıcı, B = başka bir kullanıcı. Sonuç bilerek HATA
 -- olarak basılır; hata tüm değişiklikleri geri aldığı için veritabanında
 -- hiçbir şey değişmez.
--- Beklenen: kilo=t profil=t amac=t ogun=t set=t program=t bayat=stale
+-- Beklenen: kilo=t profil=t amac=t eski_amac=t ogun=t set=t program=t bayat=stale
 --           engel=modified tekrar_engellendi=t iptal=t kayit=t B_gorulen=0
 --           B_engellendi=t usage_silinemedi=t temizle=t
 do $$
@@ -39,6 +39,9 @@ declare
   c numeric;
   h numeric;
   g text;
+  g_pace text;
+  g_focuses text[];
+  ok_legacy boolean;
 begin
   select p.user_id into a from public.profiles p limit 1;
   select u.id into b from auth.users u where u.id <> a limit 1;
@@ -52,7 +55,7 @@ begin
   delete from public.body_weight_logs where user_id = a;
   insert into public.body_weight_logs (user_id, logged_on, weight_kg) values (a, date '2026-01-10', 80);
   update public.profiles
-    set weight_kg = 80, height_cm = 180, goal = 'maintain', activity_level = 'moderate',
+    set weight_kg = 80, height_cm = 180, weight_direction = 'maintain', pace = null, focuses = array['general'], activity_level = 'moderate',
         daily_calorie_target = 2700, daily_protein_target_g = 160
     where user_id = a;
   delete from public.workout_sessions where user_id = a and finished_at is null;
@@ -86,17 +89,34 @@ begin
   select height_cm, daily_calorie_target into h, c from public.profiles where user_id = a;
   ok_profile := ok_profile and r = 'undone' and h = 180 and c = 2700;
 
-  -- 3) Amaç: lose_weight → geri al → maintain
-  pl := jsonb_build_object('goal', 'lose_weight');
+  -- 3) Amaç: kilo ver / dengeli / [kas, güç] → geri al → koru / [genel]
+  pl := jsonb_build_object('weight_direction', 'lose', 'pace', 'balanced',
+                           'focuses', jsonb_build_array('muscle', 'strength'));
   insert into public.chat_events (user_id, tool, summary, payload, base)
     values (a, 'set_goal', 's', pl, public.chat_target_snapshot('set_goal', pl))
     returning id into e;
-  r := public.apply_chat_action(e, '{"calorie_target": 2700, "protein_target": 160}');
-  select goal into g from public.profiles where user_id = a;
-  ok_goal := r = 'applied' and g = 'lose_weight';
+  r := public.apply_chat_action(e, '{"calorie_target": 2200, "protein_target": 176}');
+  select weight_direction, pace, focuses into g, g_pace, g_focuses from public.profiles where user_id = a;
+  ok_goal := r = 'applied' and g = 'lose' and g_pace = 'balanced' and g_focuses = array['muscle', 'strength'];
   r := public.undo_chat_action(e);
-  select goal into g from public.profiles where user_id = a;
-  ok_goal := ok_goal and r = 'undone' and g = 'maintain';
+  select weight_direction, pace, focuses, daily_calorie_target into g, g_pace, g_focuses, c
+    from public.profiles where user_id = a;
+  ok_goal := ok_goal and r = 'undone' and g = 'maintain' and g_pace is null
+    and g_focuses = array['general'] and c = 2700;
+
+  -- 3b) G1 öncesi olaylar: bekleyen uygulanamaz (stale), uygulanmış geri alınamaz (modified)
+  insert into public.chat_events (user_id, tool, summary, payload, base)
+    values (a, 'set_goal', 's', '{"goal": "lose_weight"}',
+            '{"goal": "maintain", "daily_calorie_target": 2700, "daily_protein_target_g": 160}')
+    returning id into e;
+  r := public.apply_chat_action(e, '{"calorie_target": 2700, "protein_target": 160}');
+  ok_legacy := r = 'stale';
+  insert into public.chat_events (user_id, tool, status, summary, payload, base, before, after)
+    values (a, 'set_goal', 'applied', 's', '{"goal": "lose_weight"}', '{"goal": "maintain"}',
+            '{"goal": "maintain"}', '{"goal": "lose_weight"}')
+    returning id into e;
+  r := public.undo_chat_action(e);
+  ok_legacy := ok_legacy and r = 'modified';
 
   -- 4) Öğün: kartta düzenlenen gramlarla iki kalem; geri al → öğün silinir
   pl := jsonb_build_object(
@@ -183,7 +203,7 @@ begin
   end;
 
   -- 10) Vazgeçilen öneri uygulanamaz
-  pl := jsonb_build_object('goal', 'gain_muscle');
+  pl := jsonb_build_object('weight_direction', 'gain', 'pace', 'slow', 'focuses', jsonb_build_array('muscle'));
   insert into public.chat_events (user_id, tool, summary, payload, base)
     values (a, 'set_goal', 's', pl, public.chat_target_snapshot('set_goal', pl))
     returning id into e;
@@ -195,7 +215,7 @@ begin
   end;
 
   -- 11) Mesaj çifti + öneri kaydı
-  pl := jsonb_build_object('goal', 'gain_muscle');
+  pl := jsonb_build_object('weight_direction', 'gain', 'pace', 'slow', 'focuses', jsonb_build_array('muscle'));
   snap := public.save_chat_exchange('merhaba', 'amacını değiştireyim mi?',
     jsonb_build_object('tool', 'set_goal', 'summary', 's', 'payload', pl,
                        'base', public.chat_target_snapshot('set_goal', pl)));
@@ -226,8 +246,8 @@ begin
 
   reset role;
 
-  raise exception 'SONUC kilo=% profil=% amac=% ogun=% set=% program=% bayat=% engel=% tekrar_engellendi=% iptal=% kayit=% B_gorulen=% B_engellendi=% usage_silinemedi=% temizle=%',
-    ok_weight, ok_profile, ok_goal, ok_meal, ok_set, ok_program, stale_result, modified_result,
+  raise exception 'SONUC kilo=% profil=% amac=% eski_amac=% ogun=% set=% program=% bayat=% engel=% tekrar_engellendi=% iptal=% kayit=% B_gorulen=% B_engellendi=% usage_silinemedi=% temizle=%',
+    ok_weight, ok_profile, ok_goal, ok_legacy, ok_meal, ok_set, ok_program, stale_result, modified_result,
     reapply_blocked, cancel_ok, exchange_ok, b_seen, b_blocked, usage_kept, clear_ok;
 end;
 $$;
