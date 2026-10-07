@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_fonts.dart';
 import '../../../../shared/text_case.dart';
+import '../widgets/big_number_field.dart';
+import '../widgets/choice_card.dart';
 
 class WizardStepScaffold extends StatelessWidget {
   const WizardStepScaffold({
@@ -157,8 +159,6 @@ class _NumericStepScreenState extends State<NumericStepScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     return WizardStepScaffold(
       title: widget.title,
       stepNumber: widget.stepNumber,
@@ -170,35 +170,11 @@ class _NumericStepScreenState extends State<NumericStepScreen> {
         widget.onNext();
       },
       child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            SizedBox(
-              width: 220,
-              child: TextField(
-                key: const Key('numeric_step_field'),
-                controller: _controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontFamily: AppFonts.heading, fontWeight: FontWeight.w900, fontSize: 56),
-                decoration: InputDecoration.collapsed(
-                  hintText: widget.hintText,
-                  hintStyle: theme.textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
-                ),
-                onChanged: (text) => setState(() => _value = double.tryParse(text)),
-              ),
-            ),
-            if (widget.unit != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                widget.unit!,
-                key: const Key('numeric_step_unit'),
-                style: theme.textTheme.titleLarge?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-            ],
-          ],
+        child: BigNumberField(
+          controller: _controller,
+          hintText: widget.hintText,
+          unit: widget.unit,
+          onChanged: (value) => setState(() => _value = value),
         ),
       ),
     );
@@ -245,7 +221,7 @@ class ChoiceStepScreen<T> extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, index) {
           final (value, label, icon) = options[index];
-          return _ChoiceCard(
+          return ChoiceCard(
             key: Key('choice_option_$value'),
             label: label,
             icon: icon,
@@ -316,7 +292,7 @@ class MultiChoiceStepScreen<T> extends StatelessWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final (value, label, icon) = options[index];
-                return _ChoiceCard(
+                return ChoiceCard(
                   key: Key('choice_option_$value'),
                   label: label,
                   icon: icon,
@@ -327,71 +303,6 @@ class MultiChoiceStepScreen<T> extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// İkonlu seçim kartı; seçiliyse neon kenarlık ve onay işareti (spec §4.2).
-class _ChoiceCard extends StatelessWidget {
-  const _ChoiceCard({
-    super.key,
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-    this.subtitle,
-    this.subtitleKey,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-  final String? subtitle;
-  final Key? subtitleKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    const radius = BorderRadius.all(Radius.circular(16));
-    return Material(
-      color: scheme.surfaceContainer,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: selected ? BorderSide(color: scheme.primary, width: 2) : BorderSide(color: scheme.outlineVariant),
-      ),
-      child: InkWell(
-        customBorder: const RoundedRectangleBorder(borderRadius: radius),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(icon, color: scheme.primary),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(label, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle!,
-                        key: subtitleKey,
-                        style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (selected) Icon(Icons.check_circle, color: scheme.primary),
-            ],
-          ),
-        ),
       ),
     );
   }
