@@ -144,3 +144,43 @@ Migration ve deploy yok.
    8. İnternet kapalıyken kaydet → hata mesajı, profil değişmez.
 
 Sonra `PLAN.md` satırı ve dal kapanışı.
+
+## 9. İsim ve logo: LevelUp Fit (kapsama sonradan eklendi, 2026-10-07)
+
+Kullanıcı plan aşamasında uygulama adı ve logosunun da G2'de yenilenmesini istedi. Maket (git'e girmez): `.superpowers/brainstorm/g2/logo-options.html`, seçilen **B · Rütbe şeritleri**.
+
+### 9.1 Görünen ad
+
+- `app.title` ve `home.title` (tr + en): **LevelUp Fit**.
+- `web/index.html`: `<title>` ve `apple-mobile-web-app-title` → "LevelUp Fit"; `description` → "Antrenman, beslenme ve ilerleme takibi".
+- `web/manifest.json`: `name` "LevelUp Fit", `short_name` "LevelUp", `description` aynı metin, `background_color` ve `theme_color` `#0E0F12`.
+- `android/app/src/main/AndroidManifest.xml` `android:label` ve `ios/Runner/Info.plist` `CFBundleDisplayName` → "LevelUp Fit".
+- Değişmeyenler: paket adı `spor_takip`, bundle/application id'ler, `CFBundleName`, repo adı.
+
+### 9.2 Logo bileşeni
+
+- `lib/shared/widgets/app_logo.dart` → `AppLogo({super.key, this.size = 56})`; `CustomPaint` ile:
+  - Koyu (`AppColors.background` #0E0F12) yuvarlatılmış kare, radius = size × 0.22, 1.5 px `AppColors.line` kenarlık.
+  - 100×100 birimlik koordinatlarda iki "^" şerit: üst `(22,52)→(50,28)→(78,52)`, alt `(22,76)→(50,52)→(78,76)`; kalınlık 12 birim, yuvarlak uç ve birleşim; üst `AppColors.accent`, alt `AppColors.accent` %55 opak.
+- `AuthHeader`: "S" karesi yerine `AppLogo(size: 56)` (anahtar `auth_logo`).
+
+### 9.3 Yazı (wordmark)
+
+- Türkçe büyük harf "Fit"i "FİT" yaptığından marka yazısı dile göre büyütülmez.
+- `AuthHeader` başlığı sabit iki parça: "LEVELUP" (`onSurface`) + " " + "FIT" (`primary`), mevcut Montserrat 900 26 px / harf aralığı 1. `title` parametresi kaldırılır.
+- Diğer yerler (ana ekran üst barı) `app.title`/`home.title` metnini olduğu gibi gösterir.
+
+### 9.4 İkon dosyaları
+
+- `tool/generate_icons.py` (Pillow; projeye paket eklenmez): logoyu 1024 px'te çizip `LANCZOS` ile küçültür.
+  - Web: `web/favicon.png` 16 px; `web/icons/Icon-192.png`, `Icon-512.png` (yuvarlatılmış kare, şeffaf köşe); `Icon-maskable-192.png`, `Icon-maskable-512.png` (tam kare koyu zemin, şeritler %70 ölçekte ortalı).
+  - Android: `mipmap-mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi/ic_launcher.png` = 48/72/96/144/192 px.
+  - iOS: `ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json` içindeki her girdinin `size × scale` boyutu, dosya adı Contents.json'dan; tam kare, şeffaflık yok (iOS köşeleri kendisi yuvarlar).
+- Çalıştırma: `python tool/generate_icons.py` (proje kökünden). Üretilen PNG'ler commit'lenir.
+
+### 9.5 Test ve doğrulama
+
+- `auth_screens_test`: başlıkta `auth_logo` (`AppLogo`) var; yazı "LEVELUP" + "FIT" (Türkçe yerelde de "FIT").
+- `app_logo_test`: verilen boyutta `CustomPaint` çizilir.
+- Uygulama adını doğrulayan mevcut testler "LevelUp Fit"e güncellenir.
+- Manuel listeye ek: (9) tarayıcı sekmesinde yeni favicon + "LevelUp Fit"; (10) giriş ekranında yeni logo ve "LEVELUP FIT" yazısı.
