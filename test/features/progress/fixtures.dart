@@ -13,7 +13,8 @@ const testProfile = Profile(
   activityLevel: ActivityLevel.moderate,
   doesExercise: true,
   exerciseDaysPerWeek: 3,
-  goal: Goal.gainMuscle,
+  weightDirection: WeightDirection.maintain,
+  focuses: {GoalFocus.muscle},
   dailyCalorieTarget: 2700,
   dailyProteinTargetG: 176,
 );

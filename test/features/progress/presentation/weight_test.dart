@@ -161,7 +161,7 @@ void main() {
         const WeightScreen(),
         overrides: [
           bodyWeightRepositoryProvider.overrideWithValue(repo),
-          profileProvider.overrideWith((ref) async => testProfile.copyWith(goal: Goal.loseWeight)),
+          profileProvider.overrideWith((ref) async => testProfile.copyWith(weightDirection: WeightDirection.lose, pace: Pace.balanced)),
           nowProvider.overrideWithValue(() => _now),
         ],
         scaffold: false,

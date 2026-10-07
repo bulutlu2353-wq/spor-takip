@@ -147,7 +147,19 @@ class _OnboardingWizardScreenState extends ConsumerState<OnboardingWizardScreen>
           onNext: onNext,
           onBack: onBack,
         ),
-      OnboardingStepId.goal => GoalStep(
+      OnboardingStepId.weightDirection => WeightDirectionStep(
+          stepNumber: stepNumber,
+          totalSteps: totalSteps,
+          onNext: onNext,
+          onBack: onBack,
+        ),
+      OnboardingStepId.pace => PaceStep(
+          stepNumber: stepNumber,
+          totalSteps: totalSteps,
+          onNext: onNext,
+          onBack: onBack,
+        ),
+      OnboardingStepId.focuses => FocusesStep(
           stepNumber: stepNumber,
           totalSteps: totalSteps,
           onNext: onNext,

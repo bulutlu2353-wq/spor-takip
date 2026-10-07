@@ -14,7 +14,9 @@ void main() {
       currentYear: 2026,
       gender: testProfile.gender,
       activityLevel: testProfile.activityLevel,
-      goal: testProfile.goal,
+      weightDirection: testProfile.weightDirection,
+      pace: testProfile.pace,
+      focuses: testProfile.focuses,
     );
     expect(update.weightKg, 85);
     expect(update.calorieTarget, expected.calorieTarget);

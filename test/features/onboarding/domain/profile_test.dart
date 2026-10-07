@@ -13,7 +13,9 @@ void main() {
       'does_exercise': true,
       'sport_type': 'Fitness',
       'exercise_days_per_week': 4,
-      'goal': 'gain_muscle',
+      'weight_direction': 'gain',
+      'pace': 'balanced',
+      'focuses': ['muscle', 'strength'],
       'health_notes': 'Diz sakatlığı geçmişi',
       'daily_calorie_target': 2858.55,
       'daily_protein_target_g': 154.0,
@@ -30,7 +32,9 @@ void main() {
     expect(profile.doesExercise, true);
     expect(profile.sportType, 'Fitness');
     expect(profile.exerciseDaysPerWeek, 4);
-    expect(profile.goal, Goal.gainMuscle);
+    expect(profile.weightDirection, WeightDirection.gain);
+    expect(profile.pace, Pace.balanced);
+    expect(profile.focuses, {GoalFocus.muscle, GoalFocus.strength});
     expect(profile.healthNotes, 'Diz sakatlığı geçmişi');
     expect(profile.dailyCalorieTarget, 2858.55);
     expect(profile.dailyProteinTargetG, 154.0);
@@ -49,7 +53,9 @@ void main() {
       'does_exercise': false,
       'sport_type': null,
       'exercise_days_per_week': 0,
-      'goal': 'lose_weight',
+      'weight_direction': 'maintain',
+      'pace': null,
+      'focuses': <String>[],
       'health_notes': null,
       'daily_calorie_target': 1345.25,
       'daily_protein_target_g': 120.0,
@@ -59,6 +65,8 @@ void main() {
 
     expect(profile.sportType, isNull);
     expect(profile.healthNotes, isNull);
+    expect(profile.pace, isNull);
+    expect(profile.focuses, isEmpty);
     expect(profile.toJson(), json);
   });
 }

@@ -29,6 +29,9 @@ Profile buildProfileFromAnswers({
 }) {
   assert(answers.isComplete, 'buildProfileFromAnswers tamamlanmamış cevaplarla çağrıldı');
   final doesExercise = answers.doesExercise!;
+  final direction = answers.weightDirection!;
+  // Korumada eski hız seçimi yok sayılır (sportType deseni).
+  final pace = direction == WeightDirection.maintain ? null : answers.pace;
   final result = calculator.calculate(
     weightKg: answers.weightKg!,
     heightCm: answers.heightCm!,
@@ -36,7 +39,9 @@ Profile buildProfileFromAnswers({
     currentYear: currentYear,
     gender: answers.gender!,
     activityLevel: answers.activityLevel!,
-    goal: answers.goal!,
+    weightDirection: direction,
+    pace: pace,
+    focuses: answers.focuses,
   );
   return Profile(
     userId: userId,
@@ -48,7 +53,9 @@ Profile buildProfileFromAnswers({
     doesExercise: doesExercise,
     sportType: doesExercise ? answers.sportType : null,
     exerciseDaysPerWeek: doesExercise ? answers.exerciseDaysPerWeek! : 0,
-    goal: answers.goal!,
+    weightDirection: direction,
+    pace: pace,
+    focuses: answers.focuses,
     healthNotes: answers.healthNotes,
     dailyCalorieTarget: result.calorieTarget,
     dailyProteinTargetG: result.proteinTargetG,

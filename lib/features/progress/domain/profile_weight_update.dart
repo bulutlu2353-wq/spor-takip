@@ -29,7 +29,9 @@ ProfileWeightUpdate profileWeightUpdate(
     currentYear: currentYear,
     gender: profile.gender,
     activityLevel: profile.activityLevel,
-    goal: profile.goal,
+    weightDirection: profile.weightDirection,
+    pace: profile.pace,
+    focuses: profile.focuses,
   );
   return ProfileWeightUpdate(
     weightKg: weightKg,

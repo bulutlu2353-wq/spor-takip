@@ -16,7 +16,8 @@ Profile _withWeight(double kg) => Profile(
       activityLevel: testProfile.activityLevel,
       doesExercise: testProfile.doesExercise,
       exerciseDaysPerWeek: testProfile.exerciseDaysPerWeek,
-      goal: testProfile.goal,
+      weightDirection: testProfile.weightDirection,
+      focuses: testProfile.focuses,
       dailyCalorieTarget: testProfile.dailyCalorieTarget,
       dailyProteinTargetG: testProfile.dailyProteinTargetG,
     );

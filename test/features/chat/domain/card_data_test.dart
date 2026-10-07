@@ -14,8 +14,13 @@ void main() {
       ('height_cm', 180, 185),
       ('activity_level', 'moderate', 'active'),
     ]);
-    final goal = profileFieldChanges(goalEvent()).single;
-    expect((goal.field, goal.before, goal.after), ('goal', 'gain_muscle', 'lose_weight'));
+    final goal = profileFieldChanges(goalEvent());
+    expect(goal.map((c) => c.field), ['weight_direction', 'pace', 'focuses']);
+    expect((goal[0].before, goal[0].after), ('maintain', 'lose'));
+    expect((goal[1].before, goal[1].after), (null, 'balanced'));
+    expect(goal[2].after, ['muscle']);
+    final legacy = profileFieldChanges(legacyGoalEvent()).single;
+    expect((legacy.field, legacy.before, legacy.after), ('goal', 'gain_muscle', 'lose_weight'));
   });
 
   test('profileAfter applies the proposed change', () {
@@ -23,7 +28,11 @@ void main() {
     final updated = profileAfter(testProfile, profileEvent());
     expect(updated.heightCm, 185);
     expect(updated.activityLevel, ActivityLevel.active);
-    expect(profileAfter(testProfile, goalEvent()).goal, Goal.loseWeight);
+    final goal = profileAfter(testProfile, goalEvent());
+    expect(goal.weightDirection, WeightDirection.lose);
+    expect(goal.pace, Pace.balanced);
+    expect(goal.focuses, {GoalFocus.muscle});
+    expect(profileAfter(testProfile, legacyGoalEvent()), same(testProfile));
     expect(profileAfter(testProfile, mealEvent()), same(testProfile));
   });
 
@@ -35,12 +44,16 @@ void main() {
       currentYear: 2026,
       gender: Gender.male,
       activityLevel: ActivityLevel.moderate,
-      goal: Goal.gainMuscle,
+      weightDirection: WeightDirection.maintain,
+      pace: null,
+      focuses: {GoalFocus.muscle},
     );
     final targets = targetsAfter(testProfile, weightEvent(kg: 82), currentYear: 2026)!;
     expect(targets.calorieTarget, expected.calorieTarget);
     expect(targets.proteinTargetG, expected.proteinTargetG);
     expect(targetsAfter(testProfile, mealEvent(), currentYear: 2026), isNull);
+    final goalTargets = targetsAfter(testProfile, goalEvent(), currentYear: 2026)!;
+    expect(goalTargets.proteinTargetG, closeTo(80 * 2.2, 0.01));
   });
 
   test('weight before is the same-day log, else the profile weight', () {

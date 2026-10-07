@@ -16,10 +16,19 @@ class FieldChange {
   final Object? after;
 }
 
+/// `set_goal` payload'ındaki alanlar (G1 sonrası; hep birlikte gönderilir).
+const goalFields = ['weight_direction', 'pace', 'focuses'];
+
 List<FieldChange> profileFieldChanges(ChatEvent event) {
-  final changes = event.tool == ChatTool.setGoal
-      ? {'goal': event.payload['goal']}
-      : Map<String, dynamic>.from(event.payload['changes'] as Map);
+  final Map<String, dynamic> changes;
+  if (event.tool == ChatTool.setGoal) {
+    // G1 öncesi olaylar tek `goal` alanı taşır.
+    changes = event.payload.containsKey('goal')
+        ? {'goal': event.payload['goal']}
+        : {for (final field in goalFields) field: event.payload[field]};
+  } else {
+    changes = Map<String, dynamic>.from(event.payload['changes'] as Map);
+  }
   return [for (final e in changes.entries) FieldChange(e.key, event.base[e.key], e.value)];
 }
 
@@ -29,7 +38,16 @@ Profile profileAfter(Profile profile, ChatEvent event) {
     case ChatTool.logBodyWeight:
       return profile.copyWith(weightKg: weightAfter(event));
     case ChatTool.setGoal:
-      return profile.copyWith(goal: goalFromDb(event.payload['goal'] as String));
+      final payload = event.payload;
+      // G1 öncesi olay artık uygulanamaz; profil değişmez.
+      if (payload.containsKey('goal')) return profile;
+      final pace = paceFromDb(payload['pace'] as String?);
+      return profile.copyWith(
+        weightDirection: WeightDirection.values.byName(payload['weight_direction'] as String),
+        pace: pace,
+        clearPace: pace == null,
+        focuses: focusesFromDb(payload['focuses'] as List<dynamic>),
+      );
     case ChatTool.updateProfile:
       final changes = Map<String, dynamic>.from(event.payload['changes'] as Map);
       final activity = changes['activity_level'] as String?;
@@ -60,7 +78,9 @@ TdeeResult? targetsAfter(
     currentYear: currentYear,
     gender: after.gender,
     activityLevel: after.activityLevel,
-    goal: after.goal,
+    weightDirection: after.weightDirection,
+    pace: after.pace,
+    focuses: after.focuses,
   );
 }
 

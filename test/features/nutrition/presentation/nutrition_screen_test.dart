@@ -22,7 +22,7 @@ Profile _profile() => const Profile(
       doesExercise: true,
       sportType: 'Fitness',
       exerciseDaysPerWeek: 3,
-      goal: Goal.maintain,
+      weightDirection: WeightDirection.maintain,
       dailyCalorieTarget: 2500,
       dailyProteinTargetG: 150,
     );

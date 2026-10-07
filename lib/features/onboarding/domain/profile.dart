@@ -2,7 +2,14 @@ enum Gender { male, female, unspecified }
 
 enum ActivityLevel { sedentary, light, moderate, active, veryActive }
 
-enum Goal { loseWeight, gainMuscle, maintain }
+/// Kilo yönü: kalori hedefini belirler (spec §2).
+enum WeightDirection { lose, maintain, gain }
+
+/// Kilo verme/alma hızı; korumada yok.
+enum Pace { slow, balanced, fast }
+
+/// Odaklar (çoklu). Flutter'ın `Focus` widget'ıyla çakışmasın diye `GoalFocus`.
+enum GoalFocus { muscle, strength, endurance, general }
 
 class Profile {
   const Profile({
@@ -15,7 +22,9 @@ class Profile {
     required this.doesExercise,
     this.sportType,
     required this.exerciseDaysPerWeek,
-    required this.goal,
+    required this.weightDirection,
+    this.pace,
+    this.focuses = const <GoalFocus>{},
     this.healthNotes,
     required this.dailyCalorieTarget,
     required this.dailyProteinTargetG,
@@ -30,7 +39,9 @@ class Profile {
   final bool doesExercise;
   final String? sportType;
   final int exerciseDaysPerWeek;
-  final Goal goal;
+  final WeightDirection weightDirection;
+  final Pace? pace;
+  final Set<GoalFocus> focuses;
   final String? healthNotes;
   final double dailyCalorieTarget;
   final double dailyProteinTargetG;
@@ -46,7 +57,9 @@ class Profile {
       doesExercise: json['does_exercise'] as bool,
       sportType: json['sport_type'] as String?,
       exerciseDaysPerWeek: json['exercise_days_per_week'] as int,
-      goal: goalFromDb(json['goal'] as String),
+      weightDirection: WeightDirection.values.byName(json['weight_direction'] as String),
+      pace: paceFromDb(json['pace'] as String?),
+      focuses: focusesFromDb(json['focuses'] as List<dynamic>),
       healthNotes: json['health_notes'] as String?,
       dailyCalorieTarget: (json['daily_calorie_target'] as num).toDouble(),
       dailyProteinTargetG: (json['daily_protein_target_g'] as num).toDouble(),
@@ -64,7 +77,9 @@ class Profile {
       'does_exercise': doesExercise,
       'sport_type': sportType,
       'exercise_days_per_week': exerciseDaysPerWeek,
-      'goal': goalToDb(goal),
+      'weight_direction': weightDirection.name,
+      'pace': pace?.name,
+      'focuses': focusesToDb(focuses),
       'health_notes': healthNotes,
       'daily_calorie_target': dailyCalorieTarget,
       'daily_protein_target_g': dailyProteinTargetG,
@@ -78,7 +93,10 @@ class Profile {
     ActivityLevel? activityLevel,
     bool? doesExercise,
     int? exerciseDaysPerWeek,
-    Goal? goal,
+    WeightDirection? weightDirection,
+    Pace? pace,
+    bool clearPace = false,
+    Set<GoalFocus>? focuses,
   }) {
     return Profile(
       userId: userId,
@@ -90,7 +108,9 @@ class Profile {
       doesExercise: doesExercise ?? this.doesExercise,
       sportType: sportType,
       exerciseDaysPerWeek: exerciseDaysPerWeek ?? this.exerciseDaysPerWeek,
-      goal: goal ?? this.goal,
+      weightDirection: weightDirection ?? this.weightDirection,
+      pace: clearPace ? null : pace ?? this.pace,
+      focuses: focuses ?? this.focuses,
       healthNotes: healthNotes,
       dailyCalorieTarget: dailyCalorieTarget,
       dailyProteinTargetG: dailyProteinTargetG,
@@ -130,26 +150,11 @@ ActivityLevel activityLevelFromDb(String value) {
   }
 }
 
-String goalToDb(Goal goal) {
-  switch (goal) {
-    case Goal.loseWeight:
-      return 'lose_weight';
-    case Goal.gainMuscle:
-      return 'gain_muscle';
-    case Goal.maintain:
-      return 'maintain';
-  }
-}
+Pace? paceFromDb(String? value) => value == null ? null : Pace.values.byName(value);
 
-Goal goalFromDb(String value) {
-  switch (value) {
-    case 'lose_weight':
-      return Goal.loseWeight;
-    case 'gain_muscle':
-      return Goal.gainMuscle;
-    case 'maintain':
-      return Goal.maintain;
-    default:
-      throw ArgumentError('Unknown goal: $value');
-  }
-}
+Set<GoalFocus> focusesFromDb(List<dynamic> values) =>
+    {for (final value in values) GoalFocus.values.byName(value as String)};
+
+/// Enum sırasıyla; aynı küme hep aynı diziyi verir.
+List<String> focusesToDb(Set<GoalFocus> focuses) =>
+    [for (final focus in GoalFocus.values) if (focuses.contains(focus)) focus.name];

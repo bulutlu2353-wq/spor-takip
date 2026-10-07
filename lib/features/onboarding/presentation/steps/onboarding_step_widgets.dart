@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/onboarding_wizard_notifier.dart';
+import '../../../progress/domain/progress_format.dart';
 import '../../domain/profile.dart';
+import '../../domain/tdee_calculator.dart';
 import 'step_scaffolds.dart';
 
 class WeightStep extends ConsumerWidget {
@@ -287,8 +289,8 @@ class ExerciseDaysStep extends ConsumerWidget {
   }
 }
 
-class GoalStep extends ConsumerWidget {
-  const GoalStep({
+class WeightDirectionStep extends ConsumerWidget {
+  const WeightDirectionStep({
     super.key,
     required this.stepNumber,
     required this.totalSteps,
@@ -304,17 +306,96 @@ class GoalStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final answers = ref.watch(onboardingWizardProvider);
-    return ChoiceStepScreen<Goal>(
-      title: 'onboarding.goal_question'.tr(),
+    return ChoiceStepScreen<WeightDirection>(
+      title: 'onboarding.direction_question'.tr(),
       options: [
-        (Goal.loseWeight, 'onboarding.goal_lose_weight'.tr(), Icons.trending_down),
-        (Goal.gainMuscle, 'onboarding.goal_gain_muscle'.tr(), Icons.fitness_center),
-        (Goal.maintain, 'onboarding.goal_maintain'.tr(), Icons.balance),
+        (WeightDirection.lose, 'onboarding.direction_lose'.tr(), Icons.trending_down),
+        (WeightDirection.maintain, 'onboarding.direction_maintain'.tr(), Icons.balance),
+        (WeightDirection.gain, 'onboarding.direction_gain'.tr(), Icons.trending_up),
       ],
-      selected: answers.goal,
+      selected: answers.weightDirection,
       onSave: (value) => ref
           .read(onboardingWizardProvider.notifier)
-          .update((a) => a.copyWith(goal: value)),
+          .update((a) => a.copyWith(weightDirection: value)),
+      onNext: onNext,
+      onBack: onBack,
+      stepNumber: stepNumber,
+      totalSteps: totalSteps,
+    );
+  }
+}
+
+class PaceStep extends ConsumerWidget {
+  const PaceStep({
+    super.key,
+    required this.stepNumber,
+    required this.totalSteps,
+    required this.onNext,
+    required this.onBack,
+  });
+
+  final int stepNumber;
+  final int totalSteps;
+  final VoidCallback onNext;
+  final VoidCallback? onBack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final answers = ref.watch(onboardingWizardProvider);
+    final weightKg = answers.weightKg ?? 0;
+    final direction = answers.weightDirection ?? WeightDirection.lose;
+    return ChoiceStepScreen<Pace>(
+      title: 'onboarding.pace_question'.tr(),
+      options: [
+        (Pace.slow, 'onboarding.pace_slow'.tr(), Icons.directions_walk),
+        (Pace.balanced, 'onboarding.pace_balanced'.tr(), Icons.speed),
+        (Pace.fast, 'onboarding.pace_fast'.tr(), Icons.rocket_launch),
+      ],
+      subtitleOf: (pace) => 'onboarding.pace_estimate'.tr(
+        namedArgs: {'kg': formatOneDecimal(weeklyChangeKg(weightKg, direction, pace))},
+      ),
+      selected: answers.pace,
+      onSave: (value) => ref
+          .read(onboardingWizardProvider.notifier)
+          .update((a) => a.copyWith(pace: value)),
+      onNext: onNext,
+      onBack: onBack,
+      stepNumber: stepNumber,
+      totalSteps: totalSteps,
+    );
+  }
+}
+
+class FocusesStep extends ConsumerWidget {
+  const FocusesStep({
+    super.key,
+    required this.stepNumber,
+    required this.totalSteps,
+    required this.onNext,
+    required this.onBack,
+  });
+
+  final int stepNumber;
+  final int totalSteps;
+  final VoidCallback onNext;
+  final VoidCallback? onBack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final answers = ref.watch(onboardingWizardProvider);
+    return MultiChoiceStepScreen<GoalFocus>(
+      title: 'onboarding.focus_question'.tr(),
+      hint: 'onboarding.focus_hint'.tr(),
+      options: [
+        (GoalFocus.muscle, 'onboarding.focus_muscle'.tr(), Icons.fitness_center),
+        (GoalFocus.strength, 'onboarding.focus_strength'.tr(), Icons.bolt),
+        (GoalFocus.endurance, 'onboarding.focus_endurance'.tr(), Icons.directions_run),
+        (GoalFocus.general, 'onboarding.focus_general'.tr(), Icons.favorite),
+      ],
+      selected: answers.focuses,
+      onChanged: (value) => ref
+          .read(onboardingWizardProvider.notifier)
+          .update((a) => a.copyWith(focuses: value)),
       onNext: onNext,
       onBack: onBack,
       stepNumber: stepNumber,

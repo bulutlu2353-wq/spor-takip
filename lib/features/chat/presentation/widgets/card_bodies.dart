@@ -60,7 +60,15 @@ String _fieldValue(String field, Object? value) {
     case 'activity_level':
       return 'onboarding.activity_$value'.tr();
     case 'goal':
-      return 'onboarding.goal_$value'.tr();
+      return 'coach.legacy_goal.$value'.tr();
+    case 'weight_direction':
+      return 'onboarding.direction_$value'.tr();
+    case 'pace':
+      return 'onboarding.pace_$value'.tr();
+    case 'focuses':
+      final focuses = value as List;
+      if (focuses.isEmpty) return '—';
+      return [for (final focus in focuses) 'onboarding.focus_$focus'.tr()].join(', ');
     case 'does_exercise':
       return (value == true ? 'onboarding.yes' : 'onboarding.no').tr();
   }

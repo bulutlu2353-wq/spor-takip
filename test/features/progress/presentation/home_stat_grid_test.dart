@@ -33,6 +33,15 @@ final _squat = StrengthSeries(exerciseId: 'squat', exerciseName: 'Squat', points
 ]);
 
 void main() {
+  test('weightChangeIsGood follows the weight direction', () {
+    expect(weightChangeIsGood(-1, WeightDirection.lose), isTrue);
+    expect(weightChangeIsGood(1, WeightDirection.lose), isFalse);
+    expect(weightChangeIsGood(1, WeightDirection.gain), isTrue);
+    expect(weightChangeIsGood(-1, WeightDirection.gain), isFalse);
+    expect(weightChangeIsGood(-1, WeightDirection.maintain), isFalse);
+    expect(weightChangeIsGood(1, WeightDirection.maintain), isFalse);
+  });
+
   setUpAll(initTestLocalization);
 
   Future<void> pump(
@@ -95,11 +104,11 @@ void main() {
       BodyWeightLog(date: DateTime(2026, 8, 1), weightKg: 82),
       BodyWeightLog(date: DateTime(2026, 9, 20), weightKg: 80),
     ];
-    // testProfile hedefi kas kazanma: düşüş olumlu değil.
+    // testProfile kilosunu koruyor: düşüş olumlu değil.
     await pump(tester, weights: weights);
     expect(part(tester, 'home_tile_weight', 'detail').style!.color, AppColors.muted);
 
-    await pump(tester, weights: weights, profile: testProfile.copyWith(goal: Goal.loseWeight));
+    await pump(tester, weights: weights, profile: testProfile.copyWith(weightDirection: WeightDirection.lose, pace: Pace.balanced));
     expect(part(tester, 'home_tile_weight', 'detail').style!.color, AppColors.accent);
   });
 

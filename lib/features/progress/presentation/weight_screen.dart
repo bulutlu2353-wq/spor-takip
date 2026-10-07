@@ -31,7 +31,7 @@ class _WeightScreenState extends ConsumerState<WeightScreen> {
   ChartRange _range = ChartRange.threeMonths;
 
   /// Fark kullanıcının amacına göre olumlu mu? Profil yoksa hayır.
-  static bool _isGood(double? delta, Goal? goal) =>
+  static bool _isGood(double? delta, WeightDirection? goal) =>
       delta != null && goal != null && weightChangeIsGood(delta, goal);
 
   Future<void> _delete(BodyWeightLog log) async {
@@ -68,7 +68,7 @@ class _WeightScreenState extends ConsumerState<WeightScreen> {
     if (message != null) messenger.showSnackBar(SnackBar(content: Text(message.tr())));
   }
 
-  Widget _list(List<BodyWeightLog> logs, DateTime now, Goal? goal) {
+  Widget _list(List<BodyWeightLog> logs, DateTime now, WeightDirection? goal) {
     if (logs.isEmpty) {
       return Center(child: Text('progress.weight.empty'.tr(), key: const Key('weight_empty')));
     }
@@ -121,7 +121,7 @@ class _WeightScreenState extends ConsumerState<WeightScreen> {
     BodyWeightLog log, {
     required double? delta,
     required DateTime now,
-    required Goal? goal,
+    required WeightDirection? goal,
     required bool canDelete,
   }) {
     final theme = Theme.of(context);
@@ -168,7 +168,7 @@ class _WeightScreenState extends ConsumerState<WeightScreen> {
   @override
   Widget build(BuildContext context) {
     final logsAsync = ref.watch(weightLogsProvider);
-    final goal = ref.watch(profileProvider).value?.goal;
+    final goal = ref.watch(profileProvider).value?.weightDirection;
     final now = ref.watch(nowProvider)();
     return Scaffold(
       key: const Key('weight_screen'),

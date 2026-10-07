@@ -40,6 +40,18 @@ ChatEvent goalEvent({ChatEventStatus status = ChatEventStatus.pending}) {
     id: 'e-goal',
     tool: ChatTool.setGoal,
     status: status,
+    summary: 'Amaç değişikliği: Kilo vermek (dengeli) · Kas',
+    payload: {'weight_direction': 'lose', 'pace': 'balanced', 'focuses': ['muscle']},
+    base: {'weight_direction': 'maintain', 'pace': null, 'focuses': ['muscle'], ..._targets},
+  );
+}
+
+/// G1 öncesi kaydedilmiş, tek `goal` alanlı olay.
+ChatEvent legacyGoalEvent({ChatEventStatus status = ChatEventStatus.applied}) {
+  return ChatEvent(
+    id: 'e-legacy-goal',
+    tool: ChatTool.setGoal,
+    status: status,
     summary: 'Amaç değişikliği: Kilo vermek',
     payload: {'goal': 'lose_weight'},
     base: {'goal': 'gain_muscle', ..._targets},

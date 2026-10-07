@@ -10,7 +10,9 @@ class OnboardingAnswers {
     this.doesExercise,
     this.sportType,
     this.exerciseDaysPerWeek,
-    this.goal,
+    this.weightDirection,
+    this.pace,
+    this.focuses = const <GoalFocus>{},
     this.healthNotes,
   });
 
@@ -22,7 +24,11 @@ class OnboardingAnswers {
   final bool? doesExercise;
   final String? sportType;
   final int? exerciseDaysPerWeek;
-  final Goal? goal;
+  final WeightDirection? weightDirection;
+
+  /// "Koru" seçilse de silinmez; profil oluşturulurken korumada yok sayılır.
+  final Pace? pace;
+  final Set<GoalFocus> focuses;
   final String? healthNotes;
 
   OnboardingAnswers copyWith({
@@ -34,7 +40,9 @@ class OnboardingAnswers {
     bool? doesExercise,
     String? sportType,
     int? exerciseDaysPerWeek,
-    Goal? goal,
+    WeightDirection? weightDirection,
+    Pace? pace,
+    Set<GoalFocus>? focuses,
     String? healthNotes,
   }) {
     return OnboardingAnswers(
@@ -46,7 +54,9 @@ class OnboardingAnswers {
       doesExercise: doesExercise ?? this.doesExercise,
       sportType: sportType ?? this.sportType,
       exerciseDaysPerWeek: exerciseDaysPerWeek ?? this.exerciseDaysPerWeek,
-      goal: goal ?? this.goal,
+      weightDirection: weightDirection ?? this.weightDirection,
+      pace: pace ?? this.pace,
+      focuses: focuses ?? this.focuses,
       healthNotes: healthNotes ?? this.healthNotes,
     );
   }
@@ -60,5 +70,7 @@ class OnboardingAnswers {
       doesExercise != null &&
       (doesExercise == false ||
           (sportType != null && exerciseDaysPerWeek != null)) &&
-      goal != null;
+      weightDirection != null &&
+      (weightDirection == WeightDirection.maintain || pace != null) &&
+      focuses.isNotEmpty;
 }

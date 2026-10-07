@@ -10,11 +10,11 @@ import '../../domain/body_measurement.dart';
 import '../../domain/progress_format.dart';
 import '../../domain/trend.dart';
 
-/// Kilo değişimi kullanıcının amacına göre olumlu mu?
-bool weightChangeIsGood(double change, Goal goal) => switch (goal) {
-      Goal.loseWeight => change < 0,
-      Goal.gainMuscle => change > 0,
-      Goal.maintain => false,
+/// Kilo değişimi kullanıcının kilo yönüne göre olumlu mu? Korumada hiçbir değişim vurgulanmaz.
+bool weightChangeIsGood(double change, WeightDirection direction) => switch (direction) {
+      WeightDirection.lose => change < 0,
+      WeightDirection.gain => change > 0,
+      WeightDirection.maintain => false,
     };
 
 /// Ana sayfada gösterilecek bölge: bel varsa bel, yoksa ilk ölçülen.
@@ -33,7 +33,7 @@ class HomeStatGrid extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _WeightTile(goal: profile.goal)),
+            Expanded(child: _WeightTile(goal: profile.weightDirection)),
             const SizedBox(width: 12),
             const Expanded(child: _WeekTile()),
           ],
@@ -69,7 +69,7 @@ Widget _asyncTile<T>({
 class _WeightTile extends ConsumerWidget {
   const _WeightTile({required this.goal});
 
-  final Goal goal;
+  final WeightDirection goal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

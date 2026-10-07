@@ -144,6 +144,22 @@ void main() {
     expect(repo.applied.single.extras['calorie_target'], expected.calorieTarget);
   });
 
+  testWidgets('goal card lists direction, pace and focuses', (tester) async {
+    await pumpCard(tester, goalEvent());
+
+    expect(find.byKey(const Key('card_field_weight_direction')), findsOneWidget);
+    expect(find.byKey(const Key('card_field_pace')), findsOneWidget);
+    expect(find.byKey(const Key('card_field_focuses')), findsOneWidget);
+    expect(find.byKey(const Key('card_targets')), findsOneWidget);
+  });
+
+  testWidgets('a goal card saved before G1 shows the single legacy row', (tester) async {
+    await pumpCard(tester, legacyGoalEvent());
+
+    expect(find.byKey(const Key('card_field_goal')), findsOneWidget);
+    expect(find.byKey(const Key('card_field_weight_direction')), findsNothing);
+  });
+
   testWidgets('set card shows the exercise and the values', (tester) async {
     await pumpCard(tester, setEvent());
     expect(text(tester, 'card_set_exercise').data, 'Barbell Squat');

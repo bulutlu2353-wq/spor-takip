@@ -15,7 +15,8 @@ void main() {
       doesExercise: true,
       sportType: 'Fitness',
       exerciseDaysPerWeek: 3,
-      goal: Goal.maintain,
+      weightDirection: WeightDirection.maintain,
+      focuses: {GoalFocus.general},
       healthNotes: null,
     );
 
@@ -29,7 +30,10 @@ void main() {
     expect(profile.sportType, 'Fitness');
     expect(profile.exerciseDaysPerWeek, 3);
     expect(profile.dailyCalorieTarget, closeTo(2136.0, 0.01));
-    expect(profile.dailyProteinTargetG, closeTo(136.0, 0.01));
+    expect(profile.dailyProteinTargetG, closeTo(128.0, 0.01));
+    expect(profile.weightDirection, WeightDirection.maintain);
+    expect(profile.pace, isNull);
+    expect(profile.focuses, {GoalFocus.general});
   });
 
   test('buildProfileFromAnswers nulls out sportType when doesExercise is false', () {
@@ -42,7 +46,9 @@ void main() {
       doesExercise: false,
       sportType: null,
       exerciseDaysPerWeek: null,
-      goal: Goal.loseWeight,
+      weightDirection: WeightDirection.lose,
+      pace: Pace.balanced,
+      focuses: {GoalFocus.muscle},
       healthNotes: 'Diz sakatlığı geçmişi',
     );
 
@@ -55,6 +61,43 @@ void main() {
     expect(profile.sportType, isNull);
     expect(profile.exerciseDaysPerWeek, 0);
     expect(profile.healthNotes, 'Diz sakatlığı geçmişi');
+    expect(profile.pace, Pace.balanced);
+    expect(profile.dailyCalorieTarget, closeTo(1590.1375, 0.01));
+    expect(profile.dailyProteinTargetG, closeTo(132.0, 0.01));
+  });
+
+  const goalBase = OnboardingAnswers(
+    weightKg: 80,
+    heightCm: 180,
+    birthYear: 1996,
+    gender: Gender.male,
+    activityLevel: ActivityLevel.sedentary,
+    doesExercise: false,
+  );
+
+  test('buildProfileFromAnswers drops a leftover pace when maintaining', () {
+    final profile = buildProfileFromAnswers(
+      answers: goalBase.copyWith(
+        weightDirection: WeightDirection.maintain,
+        pace: Pace.fast,
+        focuses: {GoalFocus.general},
+      ),
+      userId: 'user-3',
+      currentYear: 2026,
+    );
+    expect(profile.pace, isNull);
+    expect(profile.dailyCalorieTarget, closeTo(2136.0, 0.01));
+  });
+
+  test('isComplete needs a pace unless maintaining, and at least one focus', () {
+    expect(goalBase.isComplete, isFalse);
+    expect(goalBase.copyWith(weightDirection: WeightDirection.lose, focuses: {GoalFocus.muscle}).isComplete, isFalse);
+    expect(
+      goalBase.copyWith(weightDirection: WeightDirection.lose, pace: Pace.slow, focuses: {GoalFocus.muscle}).isComplete,
+      isTrue,
+    );
+    expect(goalBase.copyWith(weightDirection: WeightDirection.maintain).isComplete, isFalse);
+    expect(goalBase.copyWith(weightDirection: WeightDirection.maintain, focuses: {GoalFocus.general}).isComplete, isTrue);
   });
 
   test('OnboardingWizardNotifier starts empty and updates via copyWith', () {
