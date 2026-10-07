@@ -216,4 +216,67 @@ void main() {
     );
     expect(find.byIcon(Icons.star), findsOneWidget);
   });
+
+  testWidgets('ChoiceStepScreen shows a subtitle per option when subtitleOf is given', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        ChoiceStepScreen<String>(
+          title: 'Test',
+          options: const [('a', 'Seçenek A', Icons.star), ('b', 'Seçenek B', Icons.star_border)],
+          subtitleOf: (value) => value == 'a' ? '≈0.6 kg/hafta' : null,
+          selected: null,
+          onSave: (_) {},
+          onNext: () {},
+          onBack: null,
+          stepNumber: 1,
+          totalSteps: 1,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Text>(find.byKey(const Key('choice_subtitle_a'))).data, '≈0.6 kg/hafta');
+    expect(find.byKey(const Key('choice_subtitle_b')), findsNothing);
+  });
+
+  testWidgets('MultiChoiceStepScreen toggles options and needs at least one', (tester) async {
+    var selected = <String>{};
+    await tester.pumpWidget(
+      wrap(
+        StatefulBuilder(
+          builder: (context, setState) => MultiChoiceStepScreen<String>(
+            title: 'Test',
+            hint: 'Birden fazla seçebilirsiniz',
+            options: const [('a', 'Seçenek A', Icons.star), ('b', 'Seçenek B', Icons.star_border)],
+            selected: selected,
+            onChanged: (value) => setState(() => selected = value),
+            onNext: () {},
+            onBack: null,
+            stepNumber: 1,
+            totalSteps: 1,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final nextButton = find.byKey(const Key('wizard_next_button'));
+    expect(tester.widget<Text>(find.byKey(const Key('multi_choice_hint'))).data, 'Birden fazla seçebilirsiniz');
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
+
+    await tester.tap(find.byKey(const Key('choice_option_a')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('choice_option_b')));
+    await tester.pump();
+    expect(selected, {'a', 'b'});
+    expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNotNull);
+
+    await tester.tap(find.byKey(const Key('choice_option_a')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('choice_option_b')));
+    await tester.pump();
+    expect(selected, isEmpty);
+    expect(tester.widget<FilledButton>(nextButton).onPressed, isNull);
+  });
 }

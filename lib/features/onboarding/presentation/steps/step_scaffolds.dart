@@ -216,6 +216,7 @@ class ChoiceStepScreen<T> extends StatelessWidget {
     required this.onBack,
     required this.stepNumber,
     required this.totalSteps,
+    this.subtitleOf,
   });
 
   final String title;
@@ -226,6 +227,9 @@ class ChoiceStepScreen<T> extends StatelessWidget {
   final VoidCallback? onBack;
   final int stepNumber;
   final int totalSteps;
+
+  /// Seçeneğin altındaki küçük açıklama; null dönerse gösterilmez.
+  final String? Function(T value)? subtitleOf;
 
   @override
   Widget build(BuildContext context) {
@@ -245,10 +249,84 @@ class ChoiceStepScreen<T> extends StatelessWidget {
             key: Key('choice_option_$value'),
             label: label,
             icon: icon,
+            subtitle: subtitleOf?.call(value),
+            subtitleKey: Key('choice_subtitle_$value'),
             selected: value == selected,
             onTap: () => onSave(value),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Birden fazla seçilebilen ikonlu kartlar; en az bir seçimde İleri aktif.
+class MultiChoiceStepScreen<T> extends StatelessWidget {
+  const MultiChoiceStepScreen({
+    super.key,
+    required this.title,
+    this.hint,
+    required this.options,
+    required this.selected,
+    required this.onChanged,
+    required this.onNext,
+    required this.onBack,
+    required this.stepNumber,
+    required this.totalSteps,
+  });
+
+  final String title;
+  final String? hint;
+  final List<(T value, String label, IconData icon)> options;
+  final Set<T> selected;
+  final ValueChanged<Set<T>> onChanged;
+  final VoidCallback onNext;
+  final VoidCallback? onBack;
+  final int stepNumber;
+  final int totalSteps;
+
+  void _toggle(T value) {
+    onChanged(selected.contains(value) ? ({...selected}..remove(value)) : {...selected, value});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return WizardStepScaffold(
+      title: title,
+      stepNumber: stepNumber,
+      totalSteps: totalSteps,
+      isValid: selected.isNotEmpty,
+      onBack: onBack,
+      onNext: onNext,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hint != null) ...[
+            Text(
+              hint!,
+              key: const Key('multi_choice_hint'),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Expanded(
+            child: ListView.separated(
+              itemCount: options.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final (value, label, icon) = options[index];
+                return _ChoiceCard(
+                  key: Key('choice_option_$value'),
+                  label: label,
+                  icon: icon,
+                  selected: selected.contains(value),
+                  onTap: () => _toggle(value),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -262,12 +340,16 @@ class _ChoiceCard extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.onTap,
+    this.subtitle,
+    this.subtitleKey,
   });
 
   final String label;
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
+  final String? subtitle;
+  final Key? subtitleKey;
 
   @override
   Widget build(BuildContext context) {
@@ -290,7 +372,21 @@ class _ChoiceCard extends StatelessWidget {
               Icon(icon, color: scheme.primary),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(label, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(label, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        key: subtitleKey,
+                        style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ],
+                ),
               ),
               if (selected) Icon(Icons.check_circle, color: scheme.primary),
             ],
