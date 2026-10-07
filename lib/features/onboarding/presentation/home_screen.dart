@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../shared/day_label.dart';
 import '../../../shared/text_case.dart';
@@ -9,8 +10,6 @@ import '../../nutrition/presentation/widgets/today_nutrition_card.dart';
 import '../../progress/presentation/widgets/home_stat_grid.dart';
 import '../../workout/application/session_providers.dart';
 import '../../workout/presentation/widgets/today_workout_card.dart';
-import '../application/auth_providers.dart';
-import '../application/onboarding_wizard_notifier.dart';
 import '../application/profile_providers.dart';
 import '../domain/home_greeting.dart';
 
@@ -28,12 +27,10 @@ class HomeScreen extends ConsumerWidget {
         title: Text('home.title'.tr()),
         actions: [
           IconButton(
-            key: const Key('home_sign_out_button'),
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.invalidate(onboardingWizardProvider);
-              ref.read(authRepositoryProvider).signOut();
-            },
+            key: const Key('home_settings_button'),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'settings.title'.tr(),
+            onPressed: () => context.push('/home/settings'),
           ),
         ],
       ),

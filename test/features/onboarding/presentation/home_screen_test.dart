@@ -15,15 +15,7 @@ import '../../progress/presentation/test_app.dart';
 void main() {
   setUpAll(initTestLocalization);
 
-  testWidgets('shows the header, nutrition, today\'s workout and four tiles', (tester) async {
-    tester.view.physicalSize = const Size(800, 2000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-
-    await tester.pumpWidget(testApp(
-      const HomeScreen(),
-      scaffold: false,
-      overrides: [
+  List homeOverrides() => [
         nowProvider.overrideWithValue(() => DateTime(2026, 10, 3, 9)),
         profileProvider.overrideWith((ref) async => testProfile),
         todayMealsProvider.overrideWith((ref) async => const []),
@@ -38,13 +30,23 @@ void main() {
             )),
         strengthCardProvider.overrideWith((ref) async => const []),
         measurementsProvider.overrideWith((ref) async => const []),
-      ],
-    ));
+      ];
+
+  void tallView(WidgetTester tester) {
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+  }
+
+  testWidgets('shows the header, nutrition, today\'s workout and four tiles', (tester) async {
+    tallView(tester);
+    await tester.pumpWidget(testApp(const HomeScreen(), scaffold: false, overrides: homeOverrides()));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('home_date')), findsOneWidget);
     expect(find.byKey(const Key('home_greeting')), findsOneWidget);
-    expect(find.byKey(const Key('home_sign_out_button')), findsOneWidget);
+    expect(find.byKey(const Key('home_settings_button')), findsOneWidget);
+    expect(find.byKey(const Key('home_sign_out_button')), findsNothing);
     expect(find.byKey(const Key('today_nutrition_card')), findsOneWidget);
     expect(find.byKey(const Key('today_no_program')), findsOneWidget);
     for (final tile in ['home_tile_weight', 'home_tile_week', 'home_tile_strength', 'home_tile_measurement']) {
@@ -53,6 +55,21 @@ void main() {
     // Eski kartlar yok.
     expect(find.byKey(const Key('home_targets_card')), findsNothing);
     expect(find.byKey(const Key('weight_card')), findsNothing);
+  });
+
+  testWidgets('the settings button opens the settings screen', (tester) async {
+    tallView(tester);
+    await tester.pumpWidget(testApp(
+      const HomeScreen(),
+      scaffold: false,
+      overrides: homeOverrides(),
+      stubRoutes: {'/home/settings': 'settings-stub'},
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('home_settings_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('settings-stub'), findsOneWidget);
   });
 
   testWidgets('without a profile it shows the no-profile message', (tester) async {

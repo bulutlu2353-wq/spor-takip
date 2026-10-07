@@ -421,6 +421,37 @@
       "calf": "Calf"
     }
   },
+  "settings": {
+    "title": "Profile & settings",
+    "section_goal": "Your goal",
+    "section_profile": "Profile",
+    "section_language": "Language",
+    "section_account": "Account",
+    "edit": "Edit",
+    "no_focus": "No focus selected",
+    "protein_unit": "g protein",
+    "row_weight": "Weight",
+    "row_height": "Height",
+    "row_birth_year": "Birth year",
+    "row_gender": "Gender",
+    "row_activity": "Activity",
+    "row_sport": "Sport",
+    "row_health_notes": "Health notes",
+    "sport_none": "None",
+    "sport_summary": "{sport} · {days} days",
+    "new_targets": "New target: {kcal} kcal · {protein} g protein",
+    "save": "Save",
+    "save_error": "Could not save, please try again",
+    "sign_out": "Sign out",
+    "sign_out_confirm": "Do you want to sign out?",
+    "cancel": "Cancel",
+    "goals_title": "My goals",
+    "section_direction": "Weight direction",
+    "section_pace": "Pace",
+    "section_focuses": "Focuses",
+    "language_tr": "Türkçe",
+    "language_en": "English"
+  },
   "coach": {
     "card": {
       "apply": "Confirm",

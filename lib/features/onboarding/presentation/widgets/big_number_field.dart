@@ -44,10 +44,13 @@ class BigNumberField extends StatelessWidget {
         ),
         if (unit != null) ...[
           const SizedBox(width: 8),
-          Text(
-            unit!,
-            key: const Key('numeric_step_unit'),
-            style: theme.textTheme.titleLarge?.copyWith(color: scheme.onSurfaceVariant),
+          Flexible(
+            child: Text(
+              unit!,
+              key: const Key('numeric_step_unit'),
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleLarge?.copyWith(color: scheme.onSurfaceVariant),
+            ),
           ),
         ],
       ],

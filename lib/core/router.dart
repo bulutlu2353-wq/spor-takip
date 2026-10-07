@@ -13,6 +13,7 @@ import '../features/onboarding/presentation/register_screen.dart';
 import '../features/progress/presentation/measurements_screen.dart';
 import '../features/progress/presentation/strength_screen.dart';
 import '../features/progress/presentation/weight_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/workout/presentation/exercise_picker_screen.dart';
 import '../features/workout/presentation/history_detail_screen.dart';
 import '../features/workout/presentation/history_screen.dart';
@@ -76,6 +77,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'weight', builder: (context, state) => const WeightScreen()),
                   GoRoute(path: 'strength', builder: (context, state) => const StrengthScreen()),
                   GoRoute(path: 'measurements', builder: (context, state) => const MeasurementsScreen()),
+                  GoRoute(path: 'settings', builder: (context, state) => const SettingsScreen()),
                 ],
               ),
             ],

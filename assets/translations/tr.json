@@ -421,6 +421,37 @@
       "calf": "Baldır"
     }
   },
+  "settings": {
+    "title": "Profil ve ayarlar",
+    "section_goal": "Hedefin",
+    "section_profile": "Profil",
+    "section_language": "Dil",
+    "section_account": "Hesap",
+    "edit": "Düzenle",
+    "no_focus": "Odak seçilmedi",
+    "protein_unit": "g protein",
+    "row_weight": "Kilo",
+    "row_height": "Boy",
+    "row_birth_year": "Doğum yılı",
+    "row_gender": "Cinsiyet",
+    "row_activity": "Aktivite",
+    "row_sport": "Spor",
+    "row_health_notes": "Sağlık notları",
+    "sport_none": "Yapmıyor",
+    "sport_summary": "{sport} · {days} gün",
+    "new_targets": "Yeni hedef: {kcal} kcal · {protein} g protein",
+    "save": "Kaydet",
+    "save_error": "Kaydedilemedi, tekrar deneyin",
+    "sign_out": "Çıkış yap",
+    "sign_out_confirm": "Hesabından çıkış yapmak istiyor musun?",
+    "cancel": "İptal",
+    "goals_title": "Hedeflerim",
+    "section_direction": "Kilo yönü",
+    "section_pace": "Hız",
+    "section_focuses": "Odaklar",
+    "language_tr": "Türkçe",
+    "language_en": "English"
+  },
   "coach": {
     "card": {
       "apply": "Onayla",
