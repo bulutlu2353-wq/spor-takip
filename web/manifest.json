@@ -1,11 +1,11 @@
 {
-    "name": "spor_takip",
-    "short_name": "spor_takip",
+    "name": "LevelUp Fit",
+    "short_name": "LevelUp",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0E0F12",
+    "theme_color": "#0E0F12",
+    "description": "Antrenman, beslenme ve ilerleme takibi",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

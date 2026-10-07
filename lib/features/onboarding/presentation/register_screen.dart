@@ -79,7 +79,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AuthHeader(title: 'app.title'.tr(), tagline: 'auth.register_tagline'.tr()),
+                  AuthHeader(tagline: 'auth.register_tagline'.tr()),
                   const SizedBox(height: 32),
                   TextField(
                     key: const Key('register_email_field'),

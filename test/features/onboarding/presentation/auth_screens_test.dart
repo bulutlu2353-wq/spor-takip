@@ -10,14 +10,15 @@ import '../../progress/presentation/test_app.dart';
 void main() {
   setUpAll(initTestLocalization);
 
-  testWidgets('AuthHeader shows the first title word plain and the rest in the accent', (tester) async {
-    await tester.pumpWidget(testApp(const AuthHeader(title: 'Spor Takip', tagline: 'Slogan')));
+  testWidgets('AuthHeader shows the logo and the LEVELUP FIT wordmark', (tester) async {
+    await tester.pumpWidget(testApp(const AuthHeader(tagline: 'Slogan')));
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('auth_logo')), findsOneWidget);
     final title = tester.widget<Text>(find.byKey(const Key('auth_header_title')));
     final spans = (title.textSpan! as TextSpan).children!.cast<TextSpan>();
-    expect(spans.first.text, 'SPOR');
-    expect(spans.last.text, anyOf(' TAKİP', ' TAKIP'));
+    expect(spans.first.text, 'LEVELUP');
+    expect(spans.last.text, ' FIT');
     expect(spans.last.style!.color, AppColors.accent);
     expect(find.text('Slogan'), findsOneWidget);
   });

@@ -102,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AuthHeader(title: 'app.title'.tr(), tagline: 'auth.login_tagline'.tr()),
+                  AuthHeader(tagline: 'auth.login_tagline'.tr()),
                   const SizedBox(height: 32),
                   TextField(
                     key: const Key('login_email_field'),

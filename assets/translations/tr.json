@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Spor Takip"
+    "title": "LevelUp Fit"
   },
   "auth": {
     "email_label": "E-posta",
@@ -73,7 +73,7 @@
     "health_notes_hint": "Varsa yaz, yoksa boş bırakıp devam edebilirsin"
   },
   "home": {
-    "title": "Spor Takip",
+    "title": "LevelUp Fit",
     "no_profile": "Profil bulunamadı",
     "load_error": "Profil yüklenemedi",
     "greeting_morning": "Günaydın",
