@@ -12,7 +12,7 @@ Deno.test('localDate uses the device offset', () => {
 Deno.test('context lists profile, targets and today meals with local times and totals', () => {
   const text = buildContextText(sampleContext(), 180);
   assertStringIncludes(text, 'weight_kg: 80, height_cm: 180, birth_year: 1996, gender: male');
-  assertStringIncludes(text, 'goal: gain_muscle, daily_calorie_target: 2700 kcal, daily_protein_target_g: 176');
+  assertStringIncludes(text, 'goal: maintain, focuses: muscle, daily_calorie_target: 2700 kcal, daily_protein_target_g: 176');
   assertStringIncludes(text, "## Today's meals (2026-10-01)");
   assertStringIncludes(text, '- lunch 12:30: Tavuk 200 g, Pilav 150 g (525 kcal)');
   assertStringIncludes(text, 'totals: 525 kcal, protein 66.1 g, carbs 42 g, fat 7.7 g');

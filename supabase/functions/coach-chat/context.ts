@@ -48,8 +48,10 @@ export function buildContextText(data: ContextData, utcOffsetMinutes: number): s
       `activity_level: ${p.activity_level}, does_exercise: ${p.does_exercise}, sport_type: ${p.sport_type ?? '-'}, ` +
         `exercise_days_per_week: ${p.exercise_days_per_week}`,
     );
+    const goal = p.pace ? `${p.weight_direction}/${p.pace}` : p.weight_direction;
     lines.push(
-      `goal: ${p.goal}, daily_calorie_target: ${Math.round(p.daily_calorie_target)} kcal, ` +
+      `goal: ${goal}, focuses: ${p.focuses.length > 0 ? p.focuses.join(',') : '-'}, ` +
+        `daily_calorie_target: ${Math.round(p.daily_calorie_target)} kcal, ` +
         `daily_protein_target_g: ${Math.round(p.daily_protein_target_g)}`,
     );
     if (p.health_notes) lines.push(`health_notes: ${p.health_notes}`);

@@ -64,6 +64,10 @@ const unusedTools: ToolDeps = {
 
 const NOW = new Date('2026-09-30T22:30:00Z');
 
+const LOSE = { weight_direction: 'lose', pace: 'balanced', focuses: ['muscle'] };
+const GENERAL = { weight_direction: 'maintain', focuses: ['general'] };
+const CURRENT = { weight_direction: 'maintain', focuses: ['muscle'] };
+
 function setup(responses: Array<LlmResponse | Error>) {
   const store = new FakeStore();
   const llm = new ScriptedLlm(responses);
@@ -124,38 +128,38 @@ Deno.test('history is passed before the new message', async () => {
 });
 
 Deno.test('a valid tool call becomes a pending event with a base snapshot', async () => {
-  const { store, deps } = setup([{ type: 'tool_call', name: 'set_goal', args: { goal: 'lose_weight' }, text: '' }]);
+  const { store, deps } = setup([{ type: 'tool_call', name: 'set_goal', args: LOSE, text: '' }]);
   const result = await handleChatRequest({ ...request, message: 'kilo vermek istiyorum' }, deps);
 
   assertEquals(result.status, 200);
-  assertEquals(store.snapshots, [{ tool: 'set_goal', payload: { goal: 'lose_weight' } }]);
+  assertEquals(store.snapshots, [{ tool: 'set_goal', payload: LOSE }]);
   assertEquals(store.saved[0], {
     userText: 'kilo vermek istiyorum',
-    assistantText: 'Amaç değişikliği: Kilo vermek',
-    event: { tool: 'set_goal', summary: 'Amaç değişikliği: Kilo vermek', payload: { goal: 'lose_weight' }, base: { snapshot: 'set_goal' } },
+    assistantText: 'Amaç değişikliği: Kilo vermek (dengeli) · Kas',
+    event: { tool: 'set_goal', summary: 'Amaç değişikliği: Kilo vermek (dengeli) · Kas', payload: LOSE, base: { snapshot: 'set_goal' } },
   });
 });
 
 Deno.test('the model text accompanies the card when present', async () => {
-  const { store, deps } = setup([{ type: 'tool_call', name: 'set_goal', args: { goal: 'maintain' }, text: 'Şunu önereyim:' }]);
+  const { store, deps } = setup([{ type: 'tool_call', name: 'set_goal', args: GENERAL, text: 'Şunu önereyim:' }]);
   await handleChatRequest(request, deps);
   assertEquals(store.saved[0].assistantText, 'Şunu önereyim:');
 });
 
 Deno.test('an invalid tool call is sent back to the model with the error, then corrected', async () => {
-  const raw = { functionCall: { name: 'set_goal', args: { goal: 'gain_muscle' } }, thoughtSignature: 'SIG' };
+  const raw = { functionCall: { name: 'set_goal', args: CURRENT }, thoughtSignature: 'SIG' };
   const { store, llm, deps } = setup([
-    { type: 'tool_call', name: 'set_goal', args: { goal: 'gain_muscle' }, text: '', raw },
-    { type: 'tool_call', name: 'set_goal', args: { goal: 'maintain' }, text: '' },
+    { type: 'tool_call', name: 'set_goal', args: CURRENT, text: '', raw },
+    { type: 'tool_call', name: 'set_goal', args: GENERAL, text: '' },
   ]);
   await handleChatRequest(request, deps);
 
   assertEquals(llm.requests.length, 2);
   assertEquals(llm.requests[1].messages.slice(-2), [
-    { role: 'assistant_tool_call', name: 'set_goal', args: { goal: 'gain_muscle' }, raw },
-    { role: 'tool_result', name: 'set_goal', result: { error: 'goal is already gain_muscle', candidates: [] } },
+    { role: 'assistant_tool_call', name: 'set_goal', args: CURRENT, raw },
+    { role: 'tool_result', name: 'set_goal', result: { error: 'goal is already the current goal', candidates: [] } },
   ]);
-  assertEquals(store.saved[0].event?.payload, { goal: 'maintain' });
+  assertEquals(store.saved[0].event?.payload, { weight_direction: 'maintain', pace: null, focuses: ['general'] });
 });
 
 Deno.test('after three invalid calls a fixed reply is saved without an event', async () => {

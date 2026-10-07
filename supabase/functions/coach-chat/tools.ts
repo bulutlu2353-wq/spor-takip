@@ -27,7 +27,9 @@ export type PreparedTool =
 
 type Args = Record<string, unknown>;
 
-const GOALS = ['lose_weight', 'gain_muscle', 'maintain'] as const;
+const DIRECTIONS = ['lose', 'maintain', 'gain'] as const;
+const PACES = ['slow', 'balanced', 'fast'] as const;
+const FOCUSES = ['muscle', 'strength', 'endurance', 'general'] as const;
 const ACTIVITY_LEVELS = ['sedentary', 'light', 'moderate', 'active', 'very_active'] as const;
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 const PROGRAM_OPS = ['add_exercise', 'remove_exercise', 'modify_exercise', 'rename_workout'] as const;
@@ -64,11 +66,16 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: 'set_goal',
-    description: "Change the user's goal. The app recalculates the calorie/protein targets.",
+    description: "Replace the user's whole goal: weight direction, pace (only when losing or gaining weight) and " +
+      'one or more focuses. The app recalculates the calorie/protein targets.',
     parameters: {
       type: 'object',
-      properties: { goal: { type: 'string', enum: [...GOALS] } },
-      required: ['goal'],
+      properties: {
+        weight_direction: { type: 'string', enum: [...DIRECTIONS] },
+        pace: { type: 'string', enum: [...PACES], description: 'Required for lose/gain; omit for maintain.' },
+        focuses: { type: 'array', items: { type: 'string', enum: [...FOCUSES] } },
+      },
+      required: ['weight_direction', 'focuses'],
     },
   },
   {
@@ -146,7 +153,9 @@ const LABELS = {
     program: 'Program düzenleme',
     changes: 'değişiklik',
     set: (name: string, n: number, kg: number, reps: number) => `Set kaydı: ${name} ${n}. set — ${kg} kg × ${reps}`,
-    goals: { lose_weight: 'Kilo vermek', gain_muscle: 'Kas kazanmak', maintain: 'Formda kalmak' },
+    directions: { lose: 'Kilo vermek', maintain: 'Kilomu korumak', gain: 'Kilo almak' },
+    paces: { slow: 'yavaş', balanced: 'dengeli', fast: 'hızlı' },
+    focuses: { muscle: 'Kas', strength: 'Güç', endurance: 'Dayanıklılık', general: 'Genel sağlık' },
     meals: { breakfast: 'Kahvaltı', lunch: 'Öğle', dinner: 'Akşam', snack: 'Atıştırmalık' },
     fields: {
       height_cm: 'boy', activity_level: 'aktivite', does_exercise: 'spor yapma', sport_type: 'spor türü',
@@ -161,7 +170,9 @@ const LABELS = {
     program: 'Edit program',
     changes: 'changes',
     set: (name: string, n: number, kg: number, reps: number) => `Log set: ${name} set ${n} — ${kg} kg × ${reps}`,
-    goals: { lose_weight: 'Lose weight', gain_muscle: 'Gain muscle', maintain: 'Stay fit' },
+    directions: { lose: 'Lose weight', maintain: 'Maintain weight', gain: 'Gain weight' },
+    paces: { slow: 'slow', balanced: 'balanced', fast: 'fast' },
+    focuses: { muscle: 'Muscle', strength: 'Strength', endurance: 'Endurance', general: 'General health' },
     meals: { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' },
     fields: {
       height_cm: 'height', activity_level: 'activity', does_exercise: 'exercising', sport_type: 'sport',
@@ -307,10 +318,35 @@ function prepareProfile(args: Args, ctx: ToolContext): PreparedTool {
 }
 
 function prepareGoal(args: Args, ctx: ToolContext): PreparedTool {
-  const goal = oneOf(args, 'goal', GOALS);
-  if (ctx.data.profile?.goal === goal) throw new ToolArgError(`goal is already ${goal}`);
+  const direction = oneOf(args, 'weight_direction', DIRECTIONS);
+  let pace: (typeof PACES)[number] | null = null;
+  if (direction === 'maintain') {
+    if (present(args, 'pace')) throw new ToolArgError('pace must be omitted when maintaining weight');
+  } else {
+    pace = oneOf(args, 'pace', PACES);
+  }
+  if (!Array.isArray(args.focuses) || args.focuses.length === 0) {
+    throw new ToolArgError('focuses must be a non-empty array');
+  }
+  for (const value of args.focuses) {
+    if (typeof value !== 'string' || !(FOCUSES as readonly string[]).includes(value)) {
+      throw new ToolArgError(`focuses must be among: ${FOCUSES.join(', ')}`);
+    }
+  }
+  // Tekrarlar düşer, sıra sabitlenir (DB ve kart karşılaştırmaları için).
+  const focuses = FOCUSES.filter((f) => (args.focuses as string[]).includes(f));
+  const p = ctx.data.profile;
+  if (p && p.weight_direction === direction && p.pace === pace && p.focuses.join() === focuses.join()) {
+    throw new ToolArgError('goal is already the current goal');
+  }
   const labels = LABELS[ctx.locale];
-  return { ok: true, tool: 'set_goal', summary: `${labels.goal}: ${labels.goals[goal]}`, payload: { goal } };
+  const head = labels.directions[direction] + (pace ? ` (${labels.paces[pace]})` : '');
+  return {
+    ok: true,
+    tool: 'set_goal',
+    summary: `${labels.goal}: ${head} · ${focuses.map((f) => labels.focuses[f]).join(', ')}`,
+    payload: { weight_direction: direction, pace, focuses },
+  };
 }
 
 /** Bugünün yerel saati (HH:MM) → UTC ISO; saat yoksa şimdi. */

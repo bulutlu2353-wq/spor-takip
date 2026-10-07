@@ -82,10 +82,32 @@ Deno.test('update_profile rejects weight and empty changes', async () => {
   assertEquals(days, { ok: false, error: 'exercise_days_per_week must be an integer' });
 });
 
-Deno.test('set_goal rejects the current goal and summarizes in the locale', async () => {
-  assertEquals(await prepareToolCall('set_goal', { goal: 'gain_muscle' }, ctx(), deps()), { ok: false, error: 'goal is already gain_muscle' });
-  assertEquals(await prepareToolCall('set_goal', { goal: 'lose_weight' }, ctx({ locale: 'en' }), deps()), {
-    ok: true, tool: 'set_goal', summary: 'Change goal: Lose weight', payload: { goal: 'lose_weight' },
+Deno.test('set_goal validates pace and focuses, rejects the current goal and summarizes in the locale', async () => {
+  const goal = (args: Record<string, unknown>, locale: 'tr' | 'en' = 'tr') =>
+    prepareToolCall('set_goal', args, ctx({ locale }), deps());
+
+  assertEquals(await goal({ weight_direction: 'maintain', focuses: ['muscle'] }), {
+    ok: false, error: 'goal is already the current goal',
+  });
+  assertEquals(await goal({ weight_direction: 'lose', focuses: ['muscle'] }), {
+    ok: false, error: 'pace must be one of: slow, balanced, fast',
+  });
+  assertEquals(await goal({ weight_direction: 'maintain', pace: 'fast', focuses: ['muscle'] }), {
+    ok: false, error: 'pace must be omitted when maintaining weight',
+  });
+  assertEquals(await goal({ weight_direction: 'gain', pace: 'slow', focuses: [] }), {
+    ok: false, error: 'focuses must be a non-empty array',
+  });
+  assertEquals(await goal({ weight_direction: 'gain', pace: 'slow', focuses: ['yoga'] }), {
+    ok: false, error: 'focuses must be among: muscle, strength, endurance, general',
+  });
+  assertEquals(await goal({ weight_direction: 'lose', pace: 'balanced', focuses: ['strength', 'muscle', 'muscle'] }), {
+    ok: true, tool: 'set_goal', summary: 'Amaç değişikliği: Kilo vermek (dengeli) · Kas, Güç',
+    payload: { weight_direction: 'lose', pace: 'balanced', focuses: ['muscle', 'strength'] },
+  });
+  assertEquals(await goal({ weight_direction: 'maintain', focuses: ['general'] }, 'en'), {
+    ok: true, tool: 'set_goal', summary: 'Change goal: Maintain weight · General health',
+    payload: { weight_direction: 'maintain', pace: null, focuses: ['general'] },
   });
 });
 

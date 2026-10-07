@@ -13,8 +13,9 @@ export function systemPrompt(locale: Locale, context: string): string {
       'you will do the next one after it is confirmed.',
     '- Never calculate calories or macros yourself. To log food use create_meal with food names, grams and an ' +
       'English USDA search query that says whether the food is raw or cooked.',
-    '- Body weight changes only through log_body_weight. The goal (lose_weight / gain_muscle / maintain) ' +
-      'changes only through set_goal.',
+    '- Body weight changes only through log_body_weight. The goal changes only through set_goal, which always ' +
+      'sends the whole goal: weight_direction (lose / maintain / gain), pace (slow / balanced / fast, only when ' +
+      'losing or gaining) and one or more focuses (muscle / strength / endurance / general).',
     "- edit_program edits only the active program and only if it is the user's own program. If it is built-in, " +
       'tell the user to copy it in the Workout tab first. Use English exercise names.',
     '- log_set works only on the in-progress workout listed below.',

@@ -8,7 +8,7 @@ export type EventStatus = 'pending' | 'applied' | 'cancelled' | 'undone' | 'stal
 export interface StoredEvent { id: string; tool: ToolName; status: EventStatus; summary: string; payload: Record<string, unknown>; base: unknown }
 export interface StoredMessage { id: string; role: 'user' | 'assistant'; content: string; created_at: string; event: StoredEvent | null }
 export interface NewEvent { tool: ToolName; summary: string; payload: Record<string, unknown>; base: unknown }
-export interface ProfileRow { weight_kg: number; height_cm: number; birth_year: number; gender: string; activity_level: string; does_exercise: boolean; sport_type: string | null; exercise_days_per_week: number; goal: string; health_notes: string | null; daily_calorie_target: number; daily_protein_target_g: number; active_program_id: string | null }
+export interface ProfileRow { weight_kg: number; height_cm: number; birth_year: number; gender: string; activity_level: string; does_exercise: boolean; sport_type: string | null; exercise_days_per_week: number; weight_direction: string; pace: string | null; focuses: string[]; health_notes: string | null; daily_calorie_target: number; daily_protein_target_g: number; active_program_id: string | null }
 export interface MealItemRow { name: string; grams: number; calories: number; protein_g: number; carbs_g: number; fat_g: number }
 export interface MealRow { meal_type: string; logged_at: string; items: MealItemRow[] }
 export interface SetRow { exercise_name: string; weight_kg: number | null; reps: number | null }
