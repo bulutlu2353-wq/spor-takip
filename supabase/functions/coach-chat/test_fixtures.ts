@@ -19,6 +19,7 @@ export function sampleContext(): ContextData {
       health_notes: null,
       daily_calorie_target: 2700.4,
       daily_protein_target_g: 176,
+      calorie_adjustment_kcal: 0,
       active_program_id: 'prog-1',
     },
     todayMeals: [

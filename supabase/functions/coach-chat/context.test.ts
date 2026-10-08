@@ -65,3 +65,10 @@ Deno.test('system prompt sets the reply language and embeds the context', () => 
   assertEquals(fallbackReply('tr'), 'Bunu tam anlayamadım, biraz daha açık yazar mısın?');
   assertEquals(fallbackReply('en'), "I couldn't quite understand that. Could you say it a bit more clearly?");
 });
+
+Deno.test('context shows a non-zero calorie adjustment', () => {
+  const data = sampleContext();
+  data.profile!.calorie_adjustment_kcal = -160.4;
+  const text = buildContextText(data, 180);
+  assertStringIncludes(text, 'daily_protein_target_g: 176, calorie_adjustment_kcal: -160 (already included in the target)');
+});

@@ -52,7 +52,10 @@ export function buildContextText(data: ContextData, utcOffsetMinutes: number): s
     lines.push(
       `goal: ${goal}, focuses: ${p.focuses.length > 0 ? p.focuses.join(',') : '-'}, ` +
         `daily_calorie_target: ${Math.round(p.daily_calorie_target)} kcal, ` +
-        `daily_protein_target_g: ${Math.round(p.daily_protein_target_g)}`,
+        `daily_protein_target_g: ${Math.round(p.daily_protein_target_g)}` +
+        (p.calorie_adjustment_kcal
+          ? `, calorie_adjustment_kcal: ${Math.round(p.calorie_adjustment_kcal)} (already included in the target)`
+          : ''),
     );
     if (p.health_notes) lines.push(`health_notes: ${p.health_notes}`);
   } else {
