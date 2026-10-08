@@ -9,11 +9,14 @@ import '../../../shared/widgets/section_header.dart';
 import '../../onboarding/application/profile_providers.dart';
 import '../../onboarding/domain/profile.dart';
 import '../../workout/application/session_providers.dart';
+import '../application/calorie_suggestion_provider.dart';
 import '../application/today_meals_provider.dart';
+import '../domain/adaptive_tdee.dart';
 import '../domain/food_item.dart';
 import '../domain/macro_totals.dart';
 import '../domain/meal.dart';
 import '../domain/meal_type.dart';
+import 'widgets/calorie_suggestion_card.dart';
 import 'widgets/remaining_calories_card.dart';
 
 /// Beslenme ekranı (R2 spec §3): tarih, kalan kalori kartı, öğün tipi başına
@@ -27,6 +30,8 @@ class NutritionScreen extends ConsumerWidget {
     // Profil henüz yüklenmediyse kart "hedefsiz" (YENEN) durumunda görünür.
     final profile = ref.watch(profileProvider).value;
     final now = ref.watch(nowProvider)();
+    // Yüklenirken ya da hata olursa kart gösterilmez (G3 spec §4.4).
+    final suggestion = ref.watch(calorieSuggestionProvider).value;
 
     return Scaffold(
       key: const Key('nutrition_screen'),
@@ -38,7 +43,7 @@ class NutritionScreen extends ConsumerWidget {
         child: const Icon(Icons.add_a_photo_outlined),
       ),
       body: mealsAsync.when(
-        data: (meals) => _NutritionBody(meals: meals, profile: profile, now: now),
+        data: (meals) => _NutritionBody(meals: meals, profile: profile, now: now, suggestion: suggestion),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('nutrition.load_error'.tr())),
       ),
@@ -47,11 +52,12 @@ class NutritionScreen extends ConsumerWidget {
 }
 
 class _NutritionBody extends StatelessWidget {
-  const _NutritionBody({required this.meals, required this.profile, required this.now});
+  const _NutritionBody({required this.meals, required this.profile, required this.now, this.suggestion});
 
   final List<Meal> meals;
   final Profile? profile;
   final DateTime now;
+  final CalorieSuggestion? suggestion;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +73,7 @@ class _NutritionBody extends StatelessWidget {
           style: theme.textTheme.labelMedium?.copyWith(color: muted, letterSpacing: 1),
         ),
         const SizedBox(height: 12),
+        if (suggestion != null) CalorieSuggestionCard(suggestion: suggestion!),
         RemainingCaloriesCard(
           eaten: sumMealMacros(meals),
           calorieTarget: profile?.dailyCalorieTarget ?? 0,

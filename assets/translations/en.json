@@ -158,7 +158,20 @@
     "grams_hint": "Enter grams",
     "needs_review_short": "Check",
     "row_summary": "{grams} g · P {protein} g",
-    "total": "Total"
+    "total": "Total",
+    "suggestion_title": "UPDATE YOUR TARGET",
+    "suggestion_lost": "In the last {days} days you lost {kg} kg a week",
+    "suggestion_gained": "In the last {days} days you gained {kg} kg a week",
+    "suggestion_stable": "In the last {days} days your weight held steady",
+    "suggestion_goal_lose": "your goal is to lose {kg} kg a week.",
+    "suggestion_goal_gain": "your goal is to gain {kg} kg a week.",
+    "suggestion_goal_maintain": "your goal is to maintain.",
+    "suggestion_question": "Update your daily target?",
+    "suggestion_method_energy": "Based on your meal logs and weight trend",
+    "suggestion_method_trend": "Based on your weight trend (few meal logs)",
+    "suggestion_snooze": "Not now",
+    "suggestion_apply": "Apply",
+    "suggestion_applied": "Target is now {kcal} kcal"
   },
   "nav": {
     "home": "Home",
@@ -450,7 +463,12 @@
     "section_pace": "Pace",
     "section_focuses": "Focuses",
     "language_tr": "Türkçe",
-    "language_en": "English"
+    "language_en": "English",
+    "adjustment_line": "Adapted: {kcal} kcal · {date}",
+    "adjustment_line_short": "Adapted: {kcal} kcal",
+    "adjustment_reset": "Reset adaptation",
+    "adjustment_reset_confirm": "Reset the adaptation? Your calorie target will be recalculated from the formula.",
+    "adjustment_reset_button": "Reset"
   },
   "coach": {
     "card": {

@@ -158,7 +158,20 @@
     "grams_hint": "Gram gir",
     "needs_review_short": "Kontrol",
     "row_summary": "{grams} g · P {protein} g",
-    "total": "Toplam"
+    "total": "Toplam",
+    "suggestion_title": "HEDEFİNİ GÜNCELLE",
+    "suggestion_lost": "Son {days} günde haftada {kg} kg verdin",
+    "suggestion_gained": "Son {days} günde haftada {kg} kg aldın",
+    "suggestion_stable": "Son {days} günde kilon sabit kaldı",
+    "suggestion_goal_lose": "hedefin haftada {kg} kg vermek.",
+    "suggestion_goal_gain": "hedefin haftada {kg} kg almak.",
+    "suggestion_goal_maintain": "hedefin kilonu korumak.",
+    "suggestion_question": "Günlük hedefini güncelleyelim mi?",
+    "suggestion_method_energy": "Öğün kayıtların ve kilo trendinle hesaplandı",
+    "suggestion_method_trend": "Kilo trendinle hesaplandı (öğün kaydı az)",
+    "suggestion_snooze": "Şimdi değil",
+    "suggestion_apply": "Uygula",
+    "suggestion_applied": "Hedef {kcal} kcal oldu"
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -450,7 +463,12 @@
     "section_pace": "Hız",
     "section_focuses": "Odaklar",
     "language_tr": "Türkçe",
-    "language_en": "English"
+    "language_en": "English",
+    "adjustment_line": "Uyarlandı: {kcal} kcal · {date}",
+    "adjustment_line_short": "Uyarlandı: {kcal} kcal",
+    "adjustment_reset": "Uyarlamayı sıfırla",
+    "adjustment_reset_confirm": "Uyarlama sıfırlansın mı? Kalori hedefin yeniden formülle hesaplanır.",
+    "adjustment_reset_button": "Sıfırla"
   },
   "coach": {
     "card": {

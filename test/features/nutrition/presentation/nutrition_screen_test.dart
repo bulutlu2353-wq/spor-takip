@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spor_takip/features/nutrition/application/calorie_suggestion_provider.dart';
 import 'package:spor_takip/features/nutrition/application/today_meals_provider.dart';
+import 'package:spor_takip/features/nutrition/domain/adaptive_tdee.dart';
 import 'package:spor_takip/features/nutrition/domain/food_item.dart';
 import 'package:spor_takip/features/nutrition/domain/meal.dart';
 import 'package:spor_takip/features/nutrition/domain/meal_type.dart';
@@ -33,7 +35,7 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
-  Widget wrap(Widget child, {required List<Meal> meals}) {
+  Widget wrap(Widget child, {required List<Meal> meals, CalorieSuggestion? suggestion}) {
     final router = GoRouter(routes: [
       GoRoute(path: '/', builder: (context, state) => child),
       GoRoute(path: '/nutrition/capture', builder: (context, state) => const SizedBox()),
@@ -46,6 +48,7 @@ void main() {
         overrides: [
           todayMealsProvider.overrideWith((ref) async => meals),
           profileProvider.overrideWith((ref) async => _profile()),
+          calorieSuggestionProvider.overrideWith((ref) async => suggestion),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -106,5 +109,33 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('meal_capture_screen')), findsNothing); // gerçek ekran değil, route stub'ı
+  });
+
+  testWidgets('shows the calorie suggestion above the remaining card', (tester) async {
+    const suggestion = CalorieSuggestion(
+      method: SuggestionMethod.energyBalance,
+      windowDays: 21,
+      currentTarget: 2500,
+      newTarget: 2300,
+      newProteinTargetG: 150,
+      newAdjustmentKcal: -200,
+      observedWeeklyKg: 0.1,
+      expectedWeeklyKg: 0,
+    );
+    await tester.pumpWidget(wrap(const NutritionScreen(), meals: const [], suggestion: suggestion));
+    await tester.pumpAndSettle();
+
+    final card = find.byKey(const Key('calorie_suggestion_card'));
+    expect(card, findsOneWidget);
+    expect(
+      tester.getTopLeft(card).dy,
+      lessThan(tester.getTopLeft(find.byKey(const Key('remaining_calories_card'))).dy),
+    );
+  });
+
+  testWidgets('without a suggestion there is no card', (tester) async {
+    await tester.pumpWidget(wrap(const NutritionScreen(), meals: const []));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('calorie_suggestion_card')), findsNothing);
   });
 }
