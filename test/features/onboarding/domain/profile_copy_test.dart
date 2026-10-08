@@ -50,4 +50,19 @@ void main() {
     expect(focusesToDb({GoalFocus.strength, GoalFocus.muscle}), ['muscle', 'strength']);
     expect(focusesFromDb(['general', 'endurance']), {GoalFocus.general, GoalFocus.endurance});
   });
+
+  test('copyWith keeps and replaces the adaptive calorie fields', () {
+    final adapted = testProfile.copyWith(
+      calorieAdjustmentKcal: -160,
+      calorieAdjustedAt: DateTime(2026, 10, 8),
+      calorieSuggestionSnoozedUntil: DateTime(2026, 10, 15),
+      goalsChangedAt: DateTime(2026, 9, 1),
+    );
+    final copy = adapted.copyWith(heightCm: 181);
+    expect(copy.calorieAdjustmentKcal, -160);
+    expect(copy.calorieAdjustedAt, DateTime(2026, 10, 8));
+    expect(copy.calorieSuggestionSnoozedUntil, DateTime(2026, 10, 15));
+    expect(copy.goalsChangedAt, DateTime(2026, 9, 1));
+    expect(adapted.copyWith(calorieAdjustmentKcal: 0).calorieAdjustmentKcal, 0);
+  });
 }

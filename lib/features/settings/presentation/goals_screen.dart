@@ -91,9 +91,10 @@ class _GoalsEditorState extends ConsumerState<_GoalsEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final year = ref.watch(nowProvider)().year;
+    final now = ref.watch(nowProvider)();
+    final year = now.year;
     final draft = _draft;
-    final changes = profileChanges(widget.profile, draft, currentYear: year);
+    final changes = profileChanges(widget.profile, draft, now: now);
     final targets = targetsFor(draft, currentYear: year);
     final canSave = changes.isNotEmpty && _focuses.isNotEmpty;
     return Column(

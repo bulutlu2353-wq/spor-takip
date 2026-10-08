@@ -90,6 +90,7 @@ void main() {
       'focuses': ['muscle', 'strength'],
       'daily_calorie_target': targets.calorieTarget,
       'daily_protein_target_g': targets.proteinTargetG,
+      'goals_changed_at': DateTime(2026, 10, 7, 9).toUtc().toIso8601String(),
     });
   });
 }

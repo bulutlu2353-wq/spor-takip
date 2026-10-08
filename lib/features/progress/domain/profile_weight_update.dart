@@ -32,6 +32,7 @@ ProfileWeightUpdate profileWeightUpdate(
     weightDirection: profile.weightDirection,
     pace: profile.pace,
     focuses: profile.focuses,
+    adjustmentKcal: profile.calorieAdjustmentKcal,
   );
   return ProfileWeightUpdate(
     weightKg: weightKg,

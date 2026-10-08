@@ -6,20 +6,24 @@ import 'package:spor_takip/features/settings/domain/profile_edit.dart';
 import '../../progress/fixtures.dart';
 
 void main() {
-  Map<String, dynamic> changes(Profile after) => profileChanges(testProfile, after, currentYear: 2026);
+  final now = DateTime(2026, 10, 8, 9);
+  final stamp = now.toUtc().toIso8601String();
+  Map<String, dynamic> changes(Profile after, {Profile before = testProfile}) =>
+      profileChanges(before, after, now: now);
 
   test('no change gives an empty map', () {
     expect(changes(testProfile), isEmpty);
     expect(changes(testProfile.copyWith(heightCm: 180)), isEmpty);
   });
 
-  test('a target-affecting change adds both new targets', () {
+  test('a target-affecting change adds both new targets and the change time', () {
     final after = testProfile.copyWith(heightCm: 182);
     final targets = targetsFor(after, currentYear: 2026);
     expect(changes(after), {
       'height_cm': 182.0,
       'daily_calorie_target': targets.calorieTarget,
       'daily_protein_target_g': targets.proteinTargetG,
+      'goals_changed_at': stamp,
     });
   });
 
@@ -38,12 +42,48 @@ void main() {
       clearPace: true,
       focuses: {GoalFocus.strength, GoalFocus.muscle},
     );
-    final result = profileChanges(losing, after, currentYear: 2026);
+    final result = changes(after, before: losing);
     expect(result['weight_direction'], 'maintain');
     expect(result.containsKey('pace'), isTrue);
     expect(result['pace'], isNull);
     expect(result['focuses'], ['muscle', 'strength']);
     expect(result['daily_calorie_target'], targetsFor(after, currentYear: 2026).calorieTarget);
+  });
+
+  test('a goal change keeps the adjustment in the new target', () {
+    final adapted = testProfile.copyWith(calorieAdjustmentKcal: -200);
+    final after = adapted.copyWith(weightDirection: WeightDirection.lose, pace: Pace.balanced);
+    final result = changes(after, before: adapted);
+    expect(result.containsKey('calorie_adjustment_kcal'), isFalse);
+    expect(result['daily_calorie_target'], targetsFor(after, currentYear: 2026).calorieTarget);
+    expect(
+      result['daily_calorie_target'],
+      closeTo(targetsFor(after.copyWith(calorieAdjustmentKcal: 0), currentYear: 2026).calorieTarget - 200, 0.01),
+    );
+  });
+
+  test('an activity change resets the adjustment and computes targets without it', () {
+    final adapted = testProfile.copyWith(calorieAdjustmentKcal: -200);
+    final after = adapted.copyWith(activityLevel: ActivityLevel.active);
+    final result = changes(after, before: adapted);
+    expect(result['calorie_adjustment_kcal'], 0.0);
+    expect(
+      result['daily_calorie_target'],
+      targetsFor(after.copyWith(calorieAdjustmentKcal: 0), currentYear: 2026).calorieTarget,
+    );
+    expect(result['goals_changed_at'], stamp);
+  });
+
+  test('resetAdjustmentFields zeroes the adjustment and recomputes the targets', () {
+    final adapted = testProfile.copyWith(calorieAdjustmentKcal: -160);
+    final targets = targetsFor(testProfile, currentYear: 2026);
+    expect(resetAdjustmentFields(adapted, now: now), {
+      'calorie_adjustment_kcal': 0.0,
+      'calorie_adjusted_at': stamp,
+      'goals_changed_at': stamp,
+      'daily_calorie_target': targets.calorieTarget,
+      'daily_protein_target_g': targets.proteinTargetG,
+    });
   });
 
   test('targetsFor runs the TdeeCalculator on every profile field', () {
@@ -57,8 +97,9 @@ void main() {
       weightDirection: WeightDirection.maintain,
       pace: null,
       focuses: {GoalFocus.muscle},
+      adjustmentKcal: -50,
     );
-    final targets = targetsFor(testProfile, currentYear: 2026);
+    final targets = targetsFor(testProfile.copyWith(calorieAdjustmentKcal: -50), currentYear: 2026);
     expect(targets.calorieTarget, expected.calorieTarget);
     expect(targets.proteinTargetG, expected.proteinTargetG);
   });

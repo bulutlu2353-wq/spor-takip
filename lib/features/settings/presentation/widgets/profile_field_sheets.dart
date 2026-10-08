@@ -53,11 +53,11 @@ class _SheetFrameState extends ConsumerState<SheetFrame> {
 
   @override
   Widget build(BuildContext context) {
-    final year = ref.watch(nowProvider)().year;
+    final now = ref.watch(nowProvider)();
     final draft = widget.draft;
     final changes = draft == null
         ? const <String, dynamic>{}
-        : profileChanges(widget.profile, draft, currentYear: year);
+        : profileChanges(widget.profile, draft, now: now);
     final calories = changes['daily_calorie_target'] as double?;
     final protein = changes['daily_protein_target_g'] as double?;
     return SingleChildScrollView(

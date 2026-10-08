@@ -17,6 +17,7 @@ TdeeResult targetsFor(
     weightDirection: profile.weightDirection,
     pace: profile.pace,
     focuses: profile.focuses,
+    adjustmentKcal: profile.calorieAdjustmentKcal,
   );
 }
 
@@ -39,25 +40,47 @@ const _editableColumns = [
 const _targetColumns = {'height_cm', 'birth_year', 'gender', 'activity_level', 'weight_direction', 'pace', 'focuses'};
 
 /// [before] → [after] arasında değişen sütunlar (DB adları, `toJson` biçimi);
-/// hedefi etkileyen bir sütun değiştiyse yeni hedefler de eklenir. Değişiklik yoksa boş.
+/// hedefi etkileyen bir sütun değiştiyse yeni hedefler ve değişiklik zamanı da eklenir.
+/// Aktivite değişince uyarlama payı sıfırlanır (G3 spec §4.2). Değişiklik yoksa boş.
 Map<String, dynamic> profileChanges(
   Profile before,
   Profile after, {
-  required int currentYear,
+  required DateTime now,
   TdeeCalculator calculator = const TdeeCalculator(),
 }) {
   final old = before.toJson();
-  final now = after.toJson();
+  final next = after.toJson();
   final changes = <String, dynamic>{
     for (final column in _editableColumns)
-      if (!_same(old[column], now[column])) column: now[column],
+      if (!_same(old[column], next[column])) column: next[column],
   };
   if (changes.keys.any(_targetColumns.contains)) {
-    final targets = targetsFor(after, currentYear: currentYear, calculator: calculator);
+    final activityChanged = changes.containsKey('activity_level');
+    final target = activityChanged ? after.copyWith(calorieAdjustmentKcal: 0) : after;
+    final targets = targetsFor(target, currentYear: now.year, calculator: calculator);
     changes['daily_calorie_target'] = targets.calorieTarget;
     changes['daily_protein_target_g'] = targets.proteinTargetG;
+    changes['goals_changed_at'] = now.toUtc().toIso8601String();
+    if (activityChanged) changes['calorie_adjustment_kcal'] = 0.0;
   }
   return changes;
+}
+
+/// "Uyarlamayı sıfırla" (G3 spec §5.2): pay 0, hedefler formülle, pencere yeniden başlar.
+Map<String, dynamic> resetAdjustmentFields(
+  Profile profile, {
+  required DateTime now,
+  TdeeCalculator calculator = const TdeeCalculator(),
+}) {
+  final targets = targetsFor(profile.copyWith(calorieAdjustmentKcal: 0), currentYear: now.year, calculator: calculator);
+  final stamp = now.toUtc().toIso8601String();
+  return {
+    'calorie_adjustment_kcal': 0.0,
+    'calorie_adjusted_at': stamp,
+    'goals_changed_at': stamp,
+    'daily_calorie_target': targets.calorieTarget,
+    'daily_protein_target_g': targets.proteinTargetG,
+  };
 }
 
 /// `focuses` dizisi değer olarak karşılaştırılır.

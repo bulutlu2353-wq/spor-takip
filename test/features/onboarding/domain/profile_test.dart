@@ -69,4 +69,42 @@ void main() {
     expect(profile.focuses, isEmpty);
     expect(profile.toJson(), json);
   });
+
+  test('Profile.fromJson reads the adaptive calorie fields and defaults them when absent', () {
+    final base = {
+      'user_id': 'user-3',
+      'weight_kg': 80,
+      'height_cm': 180,
+      'birth_year': 1996,
+      'gender': 'male',
+      'activity_level': 'moderate',
+      'does_exercise': true,
+      'sport_type': null,
+      'exercise_days_per_week': 3,
+      'weight_direction': 'maintain',
+      'pace': null,
+      'focuses': <String>[],
+      'health_notes': null,
+      'daily_calorie_target': 2759,
+      'daily_protein_target_g': 128,
+    };
+    final plain = Profile.fromJson(base);
+    expect(plain.calorieAdjustmentKcal, 0);
+    expect(plain.calorieAdjustedAt, isNull);
+    expect(plain.calorieSuggestionSnoozedUntil, isNull);
+    expect(plain.goalsChangedAt, isNull);
+
+    final adapted = Profile.fromJson({
+      ...base,
+      'calorie_adjustment_kcal': -160,
+      'calorie_adjusted_at': '2026-10-08T07:00:00+00:00',
+      'calorie_suggestion_snoozed_until': '2026-10-15T07:00:00+00:00',
+      'goals_changed_at': '2026-09-01T07:00:00+00:00',
+    });
+    expect(adapted.calorieAdjustmentKcal, -160);
+    expect(adapted.calorieAdjustedAt, DateTime.utc(2026, 10, 8, 7).toLocal());
+    expect(adapted.calorieSuggestionSnoozedUntil, DateTime.utc(2026, 10, 15, 7).toLocal());
+    expect(adapted.goalsChangedAt, DateTime.utc(2026, 9, 1, 7).toLocal());
+    expect(adapted.toJson().containsKey('calorie_adjustment_kcal'), isFalse);
+  });
 }

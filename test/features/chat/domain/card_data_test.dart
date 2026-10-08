@@ -96,4 +96,13 @@ void main() {
   test('program change labels come from the payload', () {
     expect(programChangeLabels(programEvent()), ['+ A: Barbell Deadlift 1×5', '− A: Barbell Squat']);
   });
+
+  test('a coach activity change resets the adjustment; other tools keep it', () {
+    final adapted = testProfile.copyWith(calorieAdjustmentKcal: -120);
+    expect(profileAfter(adapted, profileEvent()).calorieAdjustmentKcal, 0);
+    expect(profileAfter(adapted, weightEvent(kg: 82)).calorieAdjustmentKcal, -120);
+    final kept = targetsAfter(adapted, weightEvent(kg: 82), currentYear: 2026)!;
+    final plain = targetsAfter(testProfile, weightEvent(kg: 82), currentYear: 2026)!;
+    expect(kept.calorieTarget, closeTo(plain.calorieTarget - 120, 0.01));
+  });
 }

@@ -56,6 +56,8 @@ Profile profileAfter(Profile profile, ChatEvent event) {
         activityLevel: activity == null ? null : activityLevelFromDb(activity),
         doesExercise: changes['does_exercise'] as bool?,
         exerciseDaysPerWeek: changes['exercise_days_per_week'] as int?,
+        // Aktivite değişince uyarlama payı geçersiz (G3 spec §3.1); SQL de 0 yazar.
+        calorieAdjustmentKcal: activity == null ? null : 0,
       );
     case ChatTool.createMeal || ChatTool.logSet || ChatTool.editProgram:
       return profile;
@@ -81,6 +83,7 @@ TdeeResult? targetsAfter(
     weightDirection: after.weightDirection,
     pace: after.pace,
     focuses: after.focuses,
+    adjustmentKcal: after.calorieAdjustmentKcal,
   );
 }
 

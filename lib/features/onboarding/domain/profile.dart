@@ -28,6 +28,10 @@ class Profile {
     this.healthNotes,
     required this.dailyCalorieTarget,
     required this.dailyProteinTargetG,
+    this.calorieAdjustmentKcal = 0,
+    this.calorieAdjustedAt,
+    this.calorieSuggestionSnoozedUntil,
+    this.goalsChangedAt,
   });
 
   final String userId;
@@ -46,6 +50,15 @@ class Profile {
   final double dailyCalorieTarget;
   final double dailyProteinTargetG;
 
+  /// Formül bakım kalorisine eklenen uyarlama payı (G3 spec §3.2). Bu dört alan
+  /// `toJson`'a girmez; açık alan haritalarıyla yazılır.
+  final double calorieAdjustmentKcal;
+  final DateTime? calorieAdjustedAt;
+  final DateTime? calorieSuggestionSnoozedUntil;
+
+  /// Hedefi etkileyen son profil değişikliği; öneri penceresi bundan sonra başlar.
+  final DateTime? goalsChangedAt;
+
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
       userId: json['user_id'] as String,
@@ -63,6 +76,10 @@ class Profile {
       healthNotes: json['health_notes'] as String?,
       dailyCalorieTarget: (json['daily_calorie_target'] as num).toDouble(),
       dailyProteinTargetG: (json['daily_protein_target_g'] as num).toDouble(),
+      calorieAdjustmentKcal: (json['calorie_adjustment_kcal'] as num?)?.toDouble() ?? 0,
+      calorieAdjustedAt: _parseTime(json['calorie_adjusted_at']),
+      calorieSuggestionSnoozedUntil: _parseTime(json['calorie_suggestion_snoozed_until']),
+      goalsChangedAt: _parseTime(json['goals_changed_at']),
     );
   }
 
@@ -103,6 +120,10 @@ class Profile {
     Pace? pace,
     bool clearPace = false,
     Set<GoalFocus>? focuses,
+    double? calorieAdjustmentKcal,
+    DateTime? calorieAdjustedAt,
+    DateTime? calorieSuggestionSnoozedUntil,
+    DateTime? goalsChangedAt,
   }) {
     return Profile(
       userId: userId,
@@ -120,6 +141,10 @@ class Profile {
       healthNotes: clearHealthNotes ? null : healthNotes ?? this.healthNotes,
       dailyCalorieTarget: dailyCalorieTarget,
       dailyProteinTargetG: dailyProteinTargetG,
+      calorieAdjustmentKcal: calorieAdjustmentKcal ?? this.calorieAdjustmentKcal,
+      calorieAdjustedAt: calorieAdjustedAt ?? this.calorieAdjustedAt,
+      calorieSuggestionSnoozedUntil: calorieSuggestionSnoozedUntil ?? this.calorieSuggestionSnoozedUntil,
+      goalsChangedAt: goalsChangedAt ?? this.goalsChangedAt,
     );
   }
 }
@@ -164,3 +189,5 @@ Set<GoalFocus> focusesFromDb(List<dynamic> values) =>
 /// Enum sırasıyla; aynı küme hep aynı diziyi verir.
 List<String> focusesToDb(Set<GoalFocus> focuses) =>
     [for (final focus in GoalFocus.values) if (focuses.contains(focus)) focus.name];
+
+DateTime? _parseTime(Object? value) => value == null ? null : DateTime.parse(value as String).toLocal();

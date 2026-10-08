@@ -23,4 +23,10 @@ void main() {
     expect(update.proteinTargetG, expected.proteinTargetG);
     expect(update.calorieTarget, isNot(testProfile.dailyCalorieTarget));
   });
+
+  test('the adjustment is kept when a new weight recomputes the targets', () {
+    final update = profileWeightUpdate(testProfile.copyWith(calorieAdjustmentKcal: -150), 82, currentYear: 2026);
+    final plain = profileWeightUpdate(testProfile, 82, currentYear: 2026);
+    expect(update.calorieTarget, closeTo(plain.calorieTarget - 150, 0.01));
+  });
 }

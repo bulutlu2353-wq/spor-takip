@@ -87,6 +87,7 @@ void main() {
       'height_cm': 182.0,
       'daily_calorie_target': targets.calorieTarget,
       'daily_protein_target_g': targets.proteinTargetG,
+      'goals_changed_at': DateTime(2026, 10, 7, 9).toUtc().toIso8601String(),
     });
     expect(find.byKey(const Key('settings_sheet_save')), findsNothing);
   });

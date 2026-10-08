@@ -51,6 +51,19 @@ class TdeeCalculator {
     }
   }
 
+  /// Bakım kalorisi (BMR × aktivite), uyarlama payı hariç.
+  double maintenance({
+    required double weightKg,
+    required double heightCm,
+    required int birthYear,
+    required int currentYear,
+    required Gender gender,
+    required ActivityLevel activityLevel,
+  }) {
+    final bmr = _bmr(weightKg: weightKg, heightCm: heightCm, age: currentYear - birthYear, gender: gender);
+    return bmr * _activityMultipliers[activityLevel]!;
+  }
+
   /// Kilo verirken kası korumak için en yüksek; kas/güç odağında orta; diğerlerinde 1.6.
   double _proteinPerKg(WeightDirection direction, Set<GoalFocus> focuses) {
     if (direction == WeightDirection.lose) return 2.2;
@@ -68,20 +81,22 @@ class TdeeCalculator {
     required WeightDirection weightDirection,
     required Pace? pace,
     required Set<GoalFocus> focuses,
+    double adjustmentKcal = 0,
   }) {
-    final age = currentYear - birthYear;
-    final bmr = _bmr(
+    final formula = maintenance(
       weightKg: weightKg,
       heightCm: heightCm,
-      age: age,
+      birthYear: birthYear,
+      currentYear: currentYear,
       gender: gender,
+      activityLevel: activityLevel,
     );
-    final tdee = bmr * _activityMultipliers[activityLevel]!;
+    final tdee = formula + adjustmentKcal;
     final dailyDelta = weeklyChangeKg(weightKg, weightDirection, pace) * _kcalPerKg / 7;
     final signedDelta = weightDirection == WeightDirection.lose ? -dailyDelta : dailyDelta;
     final floor = gender == Gender.male ? 1500.0 : 1200.0;
-    // Taban açığı sınırlar ama hedefi TDEE'nin üstüne çıkarmaz.
-    final calorieTarget = math.max(tdee + signedDelta, math.min(tdee, floor));
+    // Taban açığı ve negatif payı sınırlar ama hedefi formül bakımının üstüne çıkarmaz (G3 spec §4.1).
+    final calorieTarget = math.max(tdee + signedDelta, math.min(formula, floor));
     final proteinTargetG = weightKg * _proteinPerKg(weightDirection, focuses);
     return TdeeResult(calorieTarget: calorieTarget, proteinTargetG: proteinTargetG);
   }

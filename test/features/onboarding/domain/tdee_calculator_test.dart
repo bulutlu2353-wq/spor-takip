@@ -14,6 +14,7 @@ void main() {
     WeightDirection weightDirection = WeightDirection.maintain,
     Pace? pace,
     Set<GoalFocus> focuses = const {GoalFocus.general},
+    double adjustmentKcal = 0,
   }) {
     return calculator.calculate(
       weightKg: weightKg,
@@ -25,6 +26,7 @@ void main() {
       weightDirection: weightDirection,
       pace: pace,
       focuses: focuses,
+      adjustmentKcal: adjustmentKcal,
     );
   }
 
@@ -121,5 +123,37 @@ void main() {
     expect(weeklyChangeKg(80, WeightDirection.gain, Pace.fast), closeTo(0.4, 1e-9));
     expect(weeklyChangeKg(80, WeightDirection.maintain, null), 0);
     expect(weeklyChangeKg(80, WeightDirection.lose, null), 0);
+  });
+
+  test('adjustment shifts maintenance; protein is unchanged', () {
+    final result = calc(adjustmentKcal: -100);
+    expect(result.calorieTarget, closeTo(2036.0, 0.01));
+    expect(result.proteinTargetG, closeTo(128.0, 0.01));
+    expect(
+      calculator.maintenance(
+        weightKg: 80,
+        heightCm: 180,
+        birthYear: 1996,
+        currentYear: 2026,
+        gender: Gender.male,
+        activityLevel: ActivityLevel.sedentary,
+      ),
+      closeTo(2136.0, 0.01),
+    );
+  });
+
+  test('a negative adjustment never pushes the target below the gender floor', () {
+    // Kadın, 50 kg, 160 cm, 26 yaş, hareketsiz: bakım 1450.8; yavaş verme −275 → taban 1200.
+    TdeeResult female(double adjustment) => calc(
+          weightKg: 50,
+          heightCm: 160,
+          birthYear: 2000,
+          gender: Gender.female,
+          weightDirection: WeightDirection.lose,
+          pace: Pace.slow,
+          adjustmentKcal: adjustment,
+        );
+    expect(female(0).calorieTarget, closeTo(1200.0, 0.01));
+    expect(female(-250).calorieTarget, closeTo(1200.0, 0.01));
   });
 }
