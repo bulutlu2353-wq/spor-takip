@@ -249,6 +249,8 @@
     "picker_search": "Hareket ara (İngilizce)",
     "picker_load_error": "Hareketler yüklenemedi",
     "picker_no_results": "Sonuç yok",
+    "picker_count": "{n} hareket",
+    "picker_search_clear": "Aramayı temizle",
     "picker_select": "Seç",
     "picker_primary_muscles": "Ana kaslar",
     "picker_instructions": "Nasıl yapılır",
@@ -257,6 +259,7 @@
     "custom_exercise_muscle": "Ana kas grubu",
     "custom_exercise_equipment": "Ekipman",
     "custom_exercise_badge": "Senin hareketin",
+    "custom_badge_short": "Özel",
     "custom_delete_title": "Hareket silinsin mi?",
     "exercise_in_use": "Bu hareket bir programında veya antrenman kayıtlarında kullanılıyor.",
     "muscle_map": {
@@ -267,7 +270,11 @@
       "count": "{n} hareket",
       "include_secondary": "İkincil dahil",
       "empty": "Bu kas için hareket yok",
-      "pick_from_map": "Haritadan seç"
+      "pick_from_map": "Haritadan seç",
+      "pick_title": "Kas seç",
+      "sheet_hint": "Bir kasa dokun — liste o kasa süzülür",
+      "figure_male": "Erkek figürü",
+      "figure_female": "Kadın figürü"
     },
     "muscle": {
       "abdominals": "Karın",

@@ -249,6 +249,8 @@
     "picker_search": "Search exercises",
     "picker_load_error": "Could not load exercises",
     "picker_no_results": "No results",
+    "picker_count": "{n} exercises",
+    "picker_search_clear": "Clear search",
     "picker_select": "Select",
     "picker_primary_muscles": "Primary muscles",
     "picker_instructions": "Instructions",
@@ -257,6 +259,7 @@
     "custom_exercise_muscle": "Primary muscle group",
     "custom_exercise_equipment": "Equipment",
     "custom_exercise_badge": "Your exercise",
+    "custom_badge_short": "Custom",
     "custom_delete_title": "Delete this exercise?",
     "exercise_in_use": "This exercise is used in one of your programs or workout logs.",
     "muscle_map": {
@@ -267,7 +270,11 @@
       "count": "{n} exercises",
       "include_secondary": "Include secondary",
       "empty": "No exercises for this muscle",
-      "pick_from_map": "Pick on map"
+      "pick_from_map": "Pick on map",
+      "pick_title": "Pick a muscle",
+      "sheet_hint": "Tap a muscle — the list filters to it",
+      "figure_male": "Male figure",
+      "figure_female": "Female figure"
     },
     "muscle": {
       "abdominals": "Abdominals",

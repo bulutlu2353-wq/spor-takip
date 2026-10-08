@@ -134,3 +134,140 @@ class BodyViewToggle extends StatelessWidget {
     );
   }
 }
+
+/// ♂ / ♀ figür anahtarı.
+class FigureToggle extends StatelessWidget {
+  const FigureToggle({super.key, required this.figure, required this.onChanged});
+
+  final BodyFigure figure;
+  final ValueChanged<BodyFigure> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<BodyFigure>(
+      key: const Key('figure_toggle'),
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(
+          value: BodyFigure.male,
+          tooltip: 'workout.muscle_map.figure_male'.tr(),
+          label: Icon(Icons.male, key: const Key('figure_toggle_male'), semanticLabel: 'workout.muscle_map.figure_male'.tr()),
+        ),
+        ButtonSegment(
+          value: BodyFigure.female,
+          tooltip: 'workout.muscle_map.figure_female'.tr(),
+          label: Icon(
+            Icons.female,
+            key: const Key('figure_toggle_female'),
+            semanticLabel: 'workout.muscle_map.figure_female'.tr(),
+          ),
+        ),
+      ],
+      selected: {figure},
+      onSelectionChanged: (selection) => onChanged(selection.first),
+    );
+  }
+}
+
+/// Solda ÖN/ARKA, sağda ♂/♀ (ekran ve alt sayfa ortak).
+class MuscleMapControls extends StatelessWidget {
+  const MuscleMapControls({
+    super.key,
+    required this.view,
+    required this.onViewChanged,
+    required this.figure,
+    required this.onFigureChanged,
+  });
+
+  final BodyView view;
+  final ValueChanged<BodyView> onViewChanged;
+  final BodyFigure figure;
+  final ValueChanged<BodyFigure> onFigureChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Dar ekranda (ya da uzun çeviride) taşmak yerine küçülür.
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: BodyViewToggle(view: view, onChanged: onViewChanged),
+          ),
+        ),
+        const SizedBox(width: 12),
+        FigureToggle(figure: figure, onChanged: onFigureChanged),
+      ],
+    );
+  }
+}
+
+/// Figürü saran noktalı koyu kart; [label] sol üstte seçili kas hapı. Sınırlı yükseklik ister.
+class MuscleMapCard extends StatelessWidget {
+  const MuscleMapCard({super.key, required this.child, this.label});
+
+  final Widget child;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final label = this.label;
+    return ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      child: ColoredBox(
+        color: theme.cardTheme.color ?? scheme.surfaceContainer,
+        child: Stack(
+          children: [
+            Positioned.fill(child: CustomPaint(painter: _DotGridPainter(scheme.outlineVariant))),
+            Positioned.fill(child: Padding(padding: const EdgeInsets.all(12), child: child)),
+            if (label != null)
+              Positioned(
+                left: 12,
+                top: 12,
+                child: Container(
+                  key: const Key('muscle_map_card_label'),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(999)),
+                    border: Border.all(color: scheme.primary.withValues(alpha: 0.6)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.circle, size: 8, color: scheme.primary),
+                      const SizedBox(width: 8),
+                      Text(label, style: theme.textTheme.labelLarge),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DotGridPainter extends CustomPainter {
+  _DotGridPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color.withValues(alpha: 0.5);
+    for (var y = 8.0; y < size.height; y += 16) {
+      for (var x = 8.0; x < size.width; x += 16) {
+        canvas.drawCircle(Offset(x, y), 1, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DotGridPainter old) => old.color != color;
+}
