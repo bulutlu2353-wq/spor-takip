@@ -10,6 +10,7 @@ import '../domain/exercise.dart';
 import '../domain/exercise_filter.dart';
 import '../domain/exercise_taxonomy.dart';
 import 'widgets/exercise_detail_sheet.dart';
+import 'widgets/muscle_map_sheet.dart';
 
 class ExercisePickerScreen extends ConsumerStatefulWidget {
   const ExercisePickerScreen({super.key});
@@ -29,6 +30,11 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
   Future<void> _openDetail(Exercise exercise) async {
     final selected = await showExerciseDetailSheet(context, exercise);
     if (selected == true && mounted) context.pop(exercise);
+  }
+
+  Future<void> _pickFromMap() async {
+    final muscle = await showMuscleMapSheet(context, selected: _muscle);
+    if (muscle != null && mounted) setState(() => _muscle = muscle);
   }
 
   Future<void> _createCustom() async {
@@ -108,6 +114,12 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
             keyPrefix: 'muscle_filter_',
             label: (m) => muscleLabelKey(m).tr(),
             onSelected: (m) => setState(() => _muscle = m),
+            leading: AccentChip(
+              key: const Key('muscle_filter_map'),
+              label: 'workout.muscle_map.pick_from_map'.tr(),
+              selected: false,
+              onSelected: (_) => _pickFromMap(),
+            ),
           ),
           _chipRow(
             rowKey: 'equipment_filter_row',
@@ -162,6 +174,7 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
     required String keyPrefix,
     required String Function(String) label,
     required void Function(String?) onSelected,
+    Widget? leading,
   }) {
     return SizedBox(
       height: 48,
@@ -170,6 +183,7 @@ class _ExercisePickerScreenState extends ConsumerState<ExercisePickerScreen> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         children: [
+          if (leading != null) Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: leading),
           for (final v in values)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),

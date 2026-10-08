@@ -7,9 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
+import 'package:spor_takip/features/workout/domain/muscle_map.dart';
 import 'package:spor_takip/features/workout/presentation/exercise_picker_screen.dart';
 
 import '../fakes.dart';
+import '../muscle_map_points.dart';
 
 const _squat = Exercise(
   id: 'Barbell_Squat',
@@ -92,6 +94,33 @@ void main() {
 
     expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsOneWidget);
     expect(find.byKey(const Key('exercise_tile_Pushups')), findsNothing);
+  });
+
+  testWidgets('picking a muscle on the map filters the list', (tester) async {
+    await openPicker(tester);
+
+    await tester.tap(find.byKey(const Key('muscle_filter_map')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_sheet_hint')), findsOneWidget);
+
+    await tester.tapAt(screenPointFor(tester, find.byKey(const Key('muscle_map_front')), BodyView.front, 'chest'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('muscle_map_sheet_hint')), findsNothing);
+    expect(find.byKey(const Key('exercise_tile_Pushups')), findsOneWidget);
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsNothing);
+  });
+
+  testWidgets('closing the map sheet keeps the current filter', (tester) async {
+    await openPicker(tester);
+
+    await tester.tap(find.byKey(const Key('muscle_filter_map')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(5, 5)); // alt sayfanın dışı
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('exercise_tile_Pushups')), findsOneWidget);
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsOneWidget);
   });
 
   testWidgets('detail sheet shows a fallback when the image fails and select returns the exercise',
