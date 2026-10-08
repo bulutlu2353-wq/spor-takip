@@ -46,6 +46,7 @@ void main() {
       GoRoute(path: '/', builder: (context, state) => const ProgramsScreen()),
       GoRoute(path: '/workout/new', builder: (context, state) => const Text('EDITOR_NEW')),
       GoRoute(path: '/workout/history', builder: (context, state) => const Text('HISTORY')),
+      GoRoute(path: '/workout/muscles', builder: (context, state) => const Text('MUSCLES')),
       GoRoute(
         path: '/workout/program/:id',
         builder: (context, state) => Text('DETAIL_${state.pathParameters['id']}'),
@@ -130,5 +131,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HISTORY'), findsOneWidget);
+  });
+
+  testWidgets('muscle map button opens the muscle map', (tester) async {
+    await tester.pumpWidget(wrap(programs: [_stronglifts]));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('programs_muscle_map_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('MUSCLES'), findsOneWidget);
   });
 }

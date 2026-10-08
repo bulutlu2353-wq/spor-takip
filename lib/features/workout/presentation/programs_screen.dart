@@ -34,6 +34,12 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
         title: Text('workout.programs_title'.tr()),
         actions: [
           IconButton(
+            key: const Key('programs_muscle_map_button'),
+            icon: const Icon(Icons.accessibility_new),
+            tooltip: 'workout.muscle_map.title'.tr(),
+            onPressed: () => context.push('/workout/muscles'),
+          ),
+          IconButton(
             key: const Key('programs_history_button'),
             icon: const Icon(Icons.history),
             tooltip: 'workout.history.title'.tr(),

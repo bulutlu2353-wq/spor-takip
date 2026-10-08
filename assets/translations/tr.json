@@ -259,6 +259,16 @@
     "custom_exercise_badge": "Senin hareketin",
     "custom_delete_title": "Hareket silinsin mi?",
     "exercise_in_use": "Bu hareket bir programında veya antrenman kayıtlarında kullanılıyor.",
+    "muscle_map": {
+      "title": "Kas haritası",
+      "front": "ÖN",
+      "back": "ARKA",
+      "hint": "Bir kasa dokun",
+      "count": "{n} hareket",
+      "include_secondary": "İkincil dahil",
+      "empty": "Bu kas için hareket yok",
+      "pick_from_map": "Haritadan seç"
+    },
     "muscle": {
       "abdominals": "Karın",
       "abductors": "Kalça dışı (abduktör)",

@@ -259,6 +259,16 @@
     "custom_exercise_badge": "Your exercise",
     "custom_delete_title": "Delete this exercise?",
     "exercise_in_use": "This exercise is used in one of your programs or workout logs.",
+    "muscle_map": {
+      "title": "Muscle map",
+      "front": "FRONT",
+      "back": "BACK",
+      "hint": "Tap a muscle",
+      "count": "{n} exercises",
+      "include_secondary": "Include secondary",
+      "empty": "No exercises for this muscle",
+      "pick_from_map": "Pick on map"
+    },
     "muscle": {
       "abdominals": "Abdominals",
       "abductors": "Abductors",
