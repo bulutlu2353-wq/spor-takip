@@ -1,19 +1,27 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../onboarding/domain/profile.dart';
 import 'muscle_map_data.dart';
 
-export 'muscle_map_data.dart' show BodyView;
+export 'muscle_map_data.dart' show BodyFigure, BodyView;
 
-/// İki görünümde de figürün göründüğü tuval alanı (spec §4).
-const bodyCrop = Rect.fromLTWH(40, 120, 644, 1250);
+/// Figürün iki görünümde de göründüğü tuval alanı (K1 spec §4, K2 spec §4).
+const bodyCrops = <BodyFigure, Rect>{
+  BodyFigure.male: Rect.fromLTWH(40, 120, 644, 1250),
+  BodyFigure.female: Rect.fromLTWH(-10, 78, 661, 1365),
+};
 
-/// [bodyCrop]'u bir boyuta oranı koruyarak ortalar: yerel = tuval × [scale] + [offset].
+/// Profil cinsiyetinden varsayılan figür: kadın → kadın; erkek, belirtilmemiş ve null → erkek.
+BodyFigure figureFor(Gender? gender) => gender == Gender.female ? BodyFigure.female : BodyFigure.male;
+
+/// Figürün kırpma alanını bir boyuta oranı koruyarak ortalar: yerel = tuval × [scale] + [offset].
 class BodyFit {
-  factory BodyFit(Size size) {
-    final scale = math.min(size.width / bodyCrop.width, size.height / bodyCrop.height);
-    final pad = Offset((size.width - bodyCrop.width * scale) / 2, (size.height - bodyCrop.height * scale) / 2);
-    return BodyFit._(scale, pad - bodyCrop.topLeft * scale);
+  factory BodyFit(Size size, BodyFigure figure) {
+    final crop = bodyCrops[figure]!;
+    final scale = math.min(size.width / crop.width, size.height / crop.height);
+    final pad = Offset((size.width - crop.width * scale) / 2, (size.height - crop.height * scale) / 2);
+    return BodyFit._(scale, pad - crop.topLeft * scale);
   }
 
   const BodyFit._(this.scale, this.offset);
@@ -55,23 +63,24 @@ Path buildPath(List<double> commands) {
   return path;
 }
 
-final _muscleCache = <BodyView, List<(String?, Path)>>{};
-final _silhouetteCache = <BodyView, Path>{};
+final _muscleCache = <(BodyFigure, BodyView), List<(String?, Path)>>{};
+final _silhouetteCache = <(BodyFigure, BodyView), Path>{};
 
 /// Görünümün şekilleri, kaynak (çizim) sırasıyla; süs parçalarında kas null.
-List<(String?, Path)> musclePaths(BodyView view) => _muscleCache.putIfAbsent(
-      view,
-      () => [for (final s in muscleShapes[view]!) (s.muscle, buildPath(s.commands))],
+List<(String?, Path)> musclePaths(BodyFigure figure, BodyView view) => _muscleCache.putIfAbsent(
+      (figure, view),
+      () => [for (final s in muscleShapes[figure]![view]!) (s.muscle, buildPath(s.commands))],
     );
 
-Path silhouettePath(BodyView view) => _silhouetteCache.putIfAbsent(view, () => buildPath(bodySilhouettes[view]!));
+Path silhouettePath(BodyFigure figure, BodyView view) =>
+    _silhouetteCache.putIfAbsent((figure, view), () => buildPath(bodySilhouettes[figure]![view]!));
 
 /// Tuval noktasındaki kas: üstte çizilen (sondaki) şekil önce; süs parçaları atlanır.
-String? muscleAt(BodyView view, Offset canvasPoint) {
-  for (final (muscle, path) in musclePaths(view).reversed) {
+String? muscleAt(BodyFigure figure, BodyView view, Offset canvasPoint) {
+  for (final (muscle, path) in musclePaths(figure, view).reversed) {
     if (muscle != null && path.contains(canvasPoint)) return muscle;
   }
   return null;
 }
 
-Set<String> musclesIn(BodyView view) => {for (final s in muscleShapes[view]!) ?s.muscle};
+Set<String> musclesIn(BodyFigure figure, BodyView view) => {for (final s in muscleShapes[figure]![view]!) ?s.muscle};

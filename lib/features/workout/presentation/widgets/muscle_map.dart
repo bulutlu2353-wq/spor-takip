@@ -14,9 +14,16 @@ typedef _MapColors = ({
 
 /// Ön ya da arka vücut figürü; kasa dokununca [onSelected]. Sınırlı boyut ister.
 class MuscleMap extends StatelessWidget {
-  const MuscleMap({super.key, required this.view, this.selected, required this.onSelected});
+  const MuscleMap({
+    super.key,
+    required this.view,
+    this.figure = BodyFigure.male,
+    this.selected,
+    required this.onSelected,
+  });
 
   final BodyView view;
+  final BodyFigure figure;
   final String? selected;
   final ValueChanged<String> onSelected;
 
@@ -41,10 +48,13 @@ class MuscleMap extends StatelessWidget {
             key: Key('muscle_map_${view.name}'),
             behavior: HitTestBehavior.opaque,
             onTapUp: (details) {
-              final muscle = muscleAt(view, BodyFit(size).toCanvas(details.localPosition));
+              final muscle = muscleAt(figure, view, BodyFit(size, figure).toCanvas(details.localPosition));
               if (muscle != null) onSelected(muscle);
             },
-            child: CustomPaint(size: size, painter: _MuscleMapPainter(view: view, selected: selected, colors: colors)),
+            child: CustomPaint(
+              size: size,
+              painter: _MuscleMapPainter(figure: figure, view: view, selected: selected, colors: colors),
+            ),
           );
         },
       ),
@@ -53,20 +63,21 @@ class MuscleMap extends StatelessWidget {
 }
 
 class _MuscleMapPainter extends CustomPainter {
-  _MuscleMapPainter({required this.view, required this.selected, required this.colors});
+  _MuscleMapPainter({required this.figure, required this.view, required this.selected, required this.colors});
 
+  final BodyFigure figure;
   final BodyView view;
   final String? selected;
   final _MapColors colors;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final fit = BodyFit(size);
+    final fit = BodyFit(size, figure);
     canvas.save();
     canvas.translate(fit.offset.dx, fit.offset.dy);
     canvas.scale(fit.scale);
 
-    final silhouette = silhouettePath(view);
+    final silhouette = silhouettePath(figure, view);
     canvas.drawPath(silhouette, Paint()..color = colors.silhouette);
     canvas.drawPath(
       silhouette,
@@ -80,7 +91,7 @@ class _MuscleMapPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5
       ..color = colors.edge;
-    for (final (muscle, path) in musclePaths(view)) {
+    for (final (muscle, path) in musclePaths(figure, view)) {
       final isSelected = muscle != null && muscle == selected;
       if (isSelected) {
         canvas.drawPath(
@@ -98,7 +109,8 @@ class _MuscleMapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_MuscleMapPainter old) => old.view != view || old.selected != selected || old.colors != colors;
+  bool shouldRepaint(_MuscleMapPainter old) =>
+      old.figure != figure || old.view != view || old.selected != selected || old.colors != colors;
 }
 
 /// ÖN / ARKA anahtarı (ekran ve alt sayfa ortak).

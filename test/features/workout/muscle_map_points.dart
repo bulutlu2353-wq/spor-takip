@@ -15,19 +15,19 @@ Iterable<Offset> _grid(Rect bounds) sync* {
 }
 
 /// [muscle]'a düşen bir tuval noktası (önce şeklin merkezi, sonra 4 birimlik ızgara).
-Offset? canvasPointFor(BodyView view, String muscle) {
-  for (final (m, path) in musclePaths(view)) {
+Offset? canvasPointFor(BodyView view, String muscle, {BodyFigure figure = BodyFigure.male}) {
+  for (final (m, path) in musclePaths(figure, view)) {
     if (m != muscle) continue;
     for (final p in _grid(path.getBounds())) {
-      if (path.contains(p) && muscleAt(view, p) == muscle) return p;
+      if (path.contains(p) && muscleAt(figure, view, p) == muscle) return p;
     }
   }
   return null;
 }
 
 /// Bir süs parçasının (baş, el, diz…) içinde olup hiçbir kas şeklinde olmayan nokta.
-Offset? decorPoint(BodyView view) {
-  final paths = musclePaths(view);
+Offset? decorPoint(BodyView view, {BodyFigure figure = BodyFigure.male}) {
+  final paths = musclePaths(figure, view);
   for (final (m, path) in paths) {
     if (m != null) continue;
     for (final p in _grid(path.getBounds())) {
@@ -38,7 +38,13 @@ Offset? decorPoint(BodyView view) {
 }
 
 /// [map] (MuscleMap içindeki `muscle_map_<view>` kutusu) üzerinde [muscle]'a dokunulacak genel ekran noktası.
-Offset screenPointFor(WidgetTester tester, Finder map, BodyView view, String muscle) {
+Offset screenPointFor(
+  WidgetTester tester,
+  Finder map,
+  BodyView view,
+  String muscle, {
+  BodyFigure figure = BodyFigure.male,
+}) {
   final rect = tester.getRect(map);
-  return rect.topLeft + BodyFit(rect.size).toLocal(canvasPointFor(view, muscle)!);
+  return rect.topLeft + BodyFit(rect.size, figure).toLocal(canvasPointFor(view, muscle, figure: figure)!);
 }

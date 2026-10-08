@@ -1,4 +1,4 @@
-"""Kas haritası yollarını üretir (K1 spec §3.2).
+"""Kas haritası yollarını üretir (K1 spec §3.2, K2 spec §3.2: erkek + kadın figürü).
 
 Proje kökünden: python tool/generate_muscle_paths.py
 Kaynak: tool/body_highlighter/ (react-native-body-highlighter, MIT, © 2022 ELABBASSI Hicham).
@@ -12,7 +12,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / 'tool' / 'body_highlighter'
 OUT = ROOT / 'lib' / 'features' / 'workout' / 'domain' / 'muscle_map_data.dart'
-BACK_SHIFT = 724.0
+# Figür → (görünüm → (kaynak dosya, x kaydırması)), siluet dosyası. Arka görünüm ön görünümün x aralığına kaydırılır.
+FIGURES = {
+    'male': ({'front': ('bodyFront.ts', 0.0), 'back': ('bodyBack.ts', 724.0)}, 'SvgMaleWrapper.tsx'),
+    'female': ({'front': ('bodyFemaleFront.ts', 0.0), 'back': ('bodyFemaleBack.ts', 822.0)}, 'SvgFemaleWrapper.tsx'),
+}
+# Bölme eşiğine bundan yakın yükseklik → kaynak değişmiş olabilir, dur.
+SPLIT_MARGIN = 0.25
 TOLERANCE = 2.0
 
 M, L, C, Q, Z = 0, 1, 2, 3, 4
@@ -316,6 +322,8 @@ def muscle_for(view, slug, height):
         return table[slug]
     if view == 'back' and slug in BACK_SPLIT:
         limit, tall, short = BACK_SPLIT[slug]
+        if abs(height - limit) < SPLIT_MARGIN:
+            raise SystemExit(f'{view}/{slug}: height {height:.2f} too close to split {limit}')
         return tall if height > limit else short
     raise SystemExit(f'unknown slug for {view}: {slug}')
 
@@ -353,44 +361,52 @@ def fmt_list(cmds):
 
 
 def main():
-    front_ts = (SRC / 'bodyFront.ts').read_text(encoding='utf-8')
-    back_ts = (SRC / 'bodyBack.ts').read_text(encoding='utf-8')
-    wrapper = (SRC / 'SvgMaleWrapper.tsx').read_text(encoding='utf-8')
-    views = {
-        'front': (shapes_for('front', front_ts, 0.0), silhouette(wrapper, 'front', 0.0)),
-        'back': (shapes_for('back', back_ts, BACK_SHIFT), silhouette(wrapper, 'back', BACK_SHIFT)),
-    }
+    figures = {}
+    for figure, (views, wrapper_file) in FIGURES.items():
+        wrapper = (SRC / wrapper_file).read_text(encoding='utf-8')
+        figures[figure] = {}
+        for view, (ts_file, shift) in views.items():
+            ts_text = (SRC / ts_file).read_text(encoding='utf-8')
+            figures[figure][view] = (shapes_for(view, ts_text, shift), silhouette(wrapper, view, shift))
     lines = [
         '// OTOMATİK ÜRETİLDİ — tool/generate_muscle_paths.py. Elle düzenleme.',
         '// Vücut yolları: react-native-body-highlighter, MIT License, Copyright (c) 2022 ELABBASSI Hicham.',
+        '',
+        'enum BodyFigure { male, female }',
         '',
         'enum BodyView { front, back }',
         '',
         '/// Komut kodları: 0 = M (x y), 1 = L (x y), 2 = C (x1 y1 x2 y2 x y), 3 = Q (x1 y1 x y), 4 = Z.',
         'class MuscleShape {',
         '  const MuscleShape(this.muscle, this.commands);',
-        '  final String? muscle; // muscleGroups\'tan biri; süs parçalarında null',
+        "  final String? muscle; // muscleGroups'tan biri; süs parçalarında null",
         '  final List<double> commands;',
         '}',
         '',
         'const bodyCanvasWidth = 724.0;',
         'const bodyCanvasHeight = 1448.0;',
         '',
-        'const Map<BodyView, List<double>> bodySilhouettes = {',
+        'const Map<BodyFigure, Map<BodyView, List<double>>> bodySilhouettes = {',
     ]
-    for view, (_, outline) in views.items():
-        lines.append(f'  BodyView.{view}: <double>[{fmt_list(outline)}],')
-    lines += ['};', '', 'const Map<BodyView, List<MuscleShape>> muscleShapes = {']
-    for view, (shapes, _) in views.items():
-        lines.append(f'  BodyView.{view}: [')
-        for muscle, cmds, slug in shapes:
-            name = 'null' if muscle is None else f"'{muscle}'"
-            lines.append(f'    // {slug}')
-            lines.append(f'    MuscleShape({name}, <double>[{fmt_list(cmds)}]),')
-        lines.append('  ],')
+    for figure, views in figures.items():
+        lines.append(f'  BodyFigure.{figure}: {{')
+        for view, (_, outline) in views.items():
+            lines.append(f'    BodyView.{view}: <double>[{fmt_list(outline)}],')
+        lines.append('  },')
+    lines += ['};', '', 'const Map<BodyFigure, Map<BodyView, List<MuscleShape>>> muscleShapes = {']
+    for figure, views in figures.items():
+        lines.append(f'  BodyFigure.{figure}: {{')
+        for view, (shapes, _) in views.items():
+            lines.append(f'    BodyView.{view}: [')
+            for muscle, cmds, slug in shapes:
+                name = 'null' if muscle is None else f"'{muscle}'"
+                lines.append(f'      // {slug}')
+                lines.append(f'      MuscleShape({name}, <double>[{fmt_list(cmds)}]),')
+            lines.append('    ],')
+        lines.append('  },')
     lines += ['};', '']
     OUT.write_text('\n'.join(lines), encoding='utf-8', newline='\n')
-    counts = {v: len(s) for v, (s, _) in views.items()}
+    counts = {f'{f}/{v}': len(s) for f, views in figures.items() for v, (s, _) in views.items()}
     print(f'wrote {OUT.relative_to(ROOT)}: {counts}')
 
 
