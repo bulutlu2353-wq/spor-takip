@@ -26,4 +26,17 @@ void main() {
     expect(muscleLabelKey('lower back'), 'workout.muscle.lower_back');
     expect(equipmentLabelKey('e-z curl bar'), 'workout.equipment.e_z_curl_bar');
   });
+
+  test('exercisesForMuscle lists primary movers by name, secondary ones after', () {
+    const all = [
+      Exercise(id: 'pu', name: 'pushups', primaryMuscles: ['chest'], secondaryMuscles: ['triceps']),
+      Exercise(id: 'dp', name: 'Dips', primaryMuscles: ['triceps'], secondaryMuscles: ['chest']),
+      Exercise(id: 'bp', name: 'Bench Press', primaryMuscles: ['chest']),
+      Exercise(id: 'cf', name: 'Cable Fly', primaryMuscles: ['shoulders'], secondaryMuscles: ['chest']),
+      Exercise(id: 'sq', name: 'Squat', primaryMuscles: ['quadriceps']),
+    ];
+    expect(exercisesForMuscle(all, 'chest').map((e) => e.id), ['bp', 'pu']);
+    expect(exercisesForMuscle(all, 'chest', includeSecondary: true).map((e) => e.id), ['bp', 'pu', 'cf', 'dp']);
+    expect(exercisesForMuscle(all, 'lats'), isEmpty);
+  });
 }
