@@ -89,6 +89,32 @@ class _GoalsEditorState extends ConsumerState<_GoalsEditor> {
     }
   }
 
+  Future<void> _resetAdjustment() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text('settings.adjustment_reset_confirm'.tr()),
+        actions: [
+          TextButton(
+            key: const Key('goals_reset_cancel'),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('settings.cancel'.tr()),
+          ),
+          FilledButton(
+            key: const Key('goals_reset_confirm'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('settings.adjustment_reset_button'.tr()),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final ok = await saveProfileChanges(ref, resetAdjustmentFields(widget.profile, now: ref.read(nowProvider)()));
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('settings.save_error'.tr())));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = ref.watch(nowProvider)();
@@ -147,6 +173,16 @@ class _GoalsEditorState extends ConsumerState<_GoalsEditor> {
                     ),
                 ],
               ),
+              if (widget.profile.calorieAdjustmentKcal != 0) ...[
+                const SizedBox(height: 24),
+                Center(
+                  child: TextButton(
+                    key: const Key('goals_reset_adjustment'),
+                    onPressed: _saving ? null : _resetAdjustment,
+                    child: Text('settings.adjustment_reset'.tr()),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

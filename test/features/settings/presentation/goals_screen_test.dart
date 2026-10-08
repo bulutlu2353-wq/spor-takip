@@ -18,7 +18,7 @@ void main() {
 
   setUp(() => repo = FakeProfileRepository());
 
-  Future<void> pump(WidgetTester tester) async {
+  Future<void> pump(WidgetTester tester, {Profile profile = testProfile}) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -27,7 +27,7 @@ void main() {
       scaffold: false,
       overrides: [
         // testProfile: koru, odak {kas}.
-        profileProvider.overrideWith((ref) async => testProfile),
+        profileProvider.overrideWith((ref) async => profile),
         profileRepositoryProvider.overrideWithValue(repo),
         authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
         nowProvider.overrideWithValue(() => DateTime(2026, 10, 7, 9)),
@@ -92,5 +92,27 @@ void main() {
       'daily_protein_target_g': targets.proteinTargetG,
       'goals_changed_at': DateTime(2026, 10, 7, 9).toUtc().toIso8601String(),
     });
+  });
+
+  testWidgets('reset is hidden without an adjustment', (tester) async {
+    await pump(tester);
+    expect(find.byKey(const Key('goals_reset_adjustment')), findsNothing);
+  });
+
+  testWidgets('reset asks first, then zeroes the adjustment', (tester) async {
+    final adapted = testProfile.copyWith(calorieAdjustmentKcal: -160);
+    await pump(tester, profile: adapted);
+
+    await tester.tap(find.byKey(const Key('goals_reset_adjustment')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('goals_reset_cancel')));
+    await tester.pumpAndSettle();
+    expect(repo.updates, isEmpty);
+
+    await tester.tap(find.byKey(const Key('goals_reset_adjustment')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('goals_reset_confirm')));
+    await tester.pumpAndSettle();
+    expect(repo.updates.single, resetAdjustmentFields(adapted, now: DateTime(2026, 10, 7, 9)));
   });
 }

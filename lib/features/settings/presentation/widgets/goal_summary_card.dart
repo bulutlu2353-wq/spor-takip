@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_fonts.dart';
+import '../../../../shared/date_label.dart';
 import '../../../onboarding/domain/profile.dart';
 import '../../../onboarding/domain/tdee_calculator.dart';
 import '../../../progress/domain/progress_format.dart';
@@ -54,6 +55,14 @@ class GoalSummaryCard extends StatelessWidget {
                 key: const Key('settings_goal_detail'),
                 style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
               ),
+              if (profile.calorieAdjustmentKcal != 0) ...[
+                const SizedBox(height: 4),
+                Text(
+                  _adjustmentLine(),
+                  key: const Key('settings_goal_adjustment'),
+                  style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+              ],
               const SizedBox(height: 12),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -70,6 +79,16 @@ class GoalSummaryCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// "Uyarlandı: −160 kcal · 8 Ekim" (G3 spec §5.2).
+  String _adjustmentLine() {
+    final value = profile.calorieAdjustmentKcal.round();
+    final kcal = value > 0 ? '+$value' : '−${value.abs()}';
+    final at = profile.calorieAdjustedAt;
+    return at == null
+        ? 'settings.adjustment_line_short'.tr(namedArgs: {'kcal': kcal})
+        : 'settings.adjustment_line'.tr(namedArgs: {'kcal': kcal, 'date': shortDateLabel(at, DateTime.now())});
   }
 
   Widget _number(BuildContext context, double value, String unit) {
