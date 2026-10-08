@@ -10,6 +10,7 @@ import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
 import 'package:spor_takip/features/workout/domain/muscle_map.dart';
 import 'package:spor_takip/features/workout/presentation/exercise_picker_screen.dart';
+import 'package:spor_takip/features/workout/presentation/widgets/exercise_icon_badge.dart';
 
 import '../fakes.dart';
 import '../muscle_map_points.dart';
@@ -202,6 +203,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('exercise_tile_Pushups')), findsOneWidget);
     expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsNothing);
+  });
+
+  testWidgets('the clear button empties the search', (tester) async {
+    await openPicker(tester);
+    expect(find.byKey(const Key('exercise_search_clear')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('exercise_search_field')), 'push');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('exercise_search_clear')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('exercise_search_clear')), findsNothing);
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsOneWidget);
+    expect(tester.widget<TextField>(find.byKey(const Key('exercise_search_field'))).controller!.text, isEmpty);
+  });
+
+  testWidgets('the count follows the filtered list', (tester) async {
+    await openPicker(tester);
+    expect(find.byKey(const Key('exercise_picker_count')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('exercise_search_field')), 'zzz');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('exercise_picker_count')), findsNothing);
+    expect(find.text('workout.picker_no_results'), findsOneWidget);
+  });
+
+  testWidgets('rows show an equipment icon and only custom ones a badge', (tester) async {
+    await openPicker(tester);
+    final squat = find.byKey(const Key('exercise_tile_Barbell_Squat'));
+    expect(find.descendant(of: squat, matching: find.byType(ExerciseIconBadge)), findsOneWidget);
+    expect(find.byKey(const Key('exercise_custom_badge_custom-0')), findsOneWidget);
+    expect(find.byKey(const Key('exercise_custom_badge_Barbell_Squat')), findsNothing);
+    expect(find.text('workout.custom_exercise_badge'), findsNothing);
   });
 }
 
