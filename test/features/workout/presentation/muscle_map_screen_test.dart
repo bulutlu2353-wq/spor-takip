@@ -2,11 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
+import 'package:spor_takip/features/onboarding/domain/profile.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
 import 'package:spor_takip/features/workout/domain/muscle_map.dart';
 import 'package:spor_takip/features/workout/presentation/muscle_map_screen.dart';
+import 'package:spor_takip/features/workout/presentation/widgets/exercise_icon_badge.dart';
+import 'package:spor_takip/features/workout/presentation/widgets/muscle_map.dart';
 
+import '../../progress/fixtures.dart';
 import '../../progress/presentation/test_app.dart';
 import '../muscle_map_points.dart';
 
@@ -30,17 +35,26 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
-  Future<void> pumpScreen(WidgetTester tester, {Future<List<Exercise>> Function()? load}) async {
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    Future<List<Exercise>> Function()? load,
+    Profile? profile = testProfile,
+  }) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(testApp(
       const MuscleMapScreen(),
       scaffold: false,
-      overrides: [exercisesProvider.overrideWith((ref) => (load ?? () async => _all)())],
+      overrides: [
+        exercisesProvider.overrideWith((ref) => (load ?? () async => _all)()),
+        profileProvider.overrideWith((ref) async => profile),
+      ],
     ));
     await tester.pumpAndSettle();
   }
+
+  BodyFigure shownFigure(WidgetTester tester) => tester.widget<MuscleMap>(find.byType(MuscleMap)).figure;
 
   Future<void> tapMuscle(WidgetTester tester, BodyView view, String muscle) async {
     await tester.tapAt(screenPointFor(tester, find.byKey(Key('muscle_map_${view.name}')), view, muscle));
@@ -111,5 +125,40 @@ void main() {
     await tester.tap(find.byKey(const Key('muscle_map_retry')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('muscle_map_exercise_bench')), findsOneWidget);
+  });
+
+  testWidgets('a female profile opens the female figure', (tester) async {
+    await pumpScreen(tester, profile: testProfile.copyWith(gender: Gender.female));
+    expect(shownFigure(tester), BodyFigure.female);
+
+    await tester.tapAt(screenPointFor(
+      tester,
+      find.byKey(const Key('muscle_map_front')),
+      BodyView.front,
+      'chest',
+      figure: BodyFigure.female,
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_exercise_bench')), findsOneWidget);
+  });
+
+  testWidgets('the figure toggle switches figures and keeps the selection', (tester) async {
+    await pumpScreen(tester);
+    expect(shownFigure(tester), BodyFigure.male);
+    await tapMuscle(tester, BodyView.front, 'chest');
+
+    await tester.tap(find.byKey(const Key('figure_toggle_female')));
+    await tester.pumpAndSettle();
+    expect(shownFigure(tester), BodyFigure.female);
+    expect(find.byKey(const Key('muscle_map_selected')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_map_exercise_bench')), findsOneWidget);
+  });
+
+  testWidgets('exercise rows lead with an equipment icon', (tester) async {
+    await pumpScreen(tester);
+    await tapMuscle(tester, BodyView.front, 'chest');
+    final row = find.byKey(const Key('muscle_map_exercise_bench'));
+    expect(find.descendant(of: row, matching: find.byType(ExerciseIconBadge)), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.byIcon(Icons.fitness_center)), findsOneWidget);
   });
 }

@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/accent_chip.dart';
+import '../application/muscle_map_providers.dart';
 import '../application/workout_providers.dart';
 import '../domain/exercise.dart';
 import '../domain/exercise_filter.dart';
 import '../domain/exercise_taxonomy.dart';
 import '../domain/muscle_map.dart';
 import 'widgets/exercise_detail_sheet.dart';
+import 'widgets/exercise_icon_badge.dart';
 import 'widgets/muscle_map.dart';
 
 /// Kas haritası: kasa dokun → o kası çalıştıran hareketler (yalnız göz atma).
@@ -28,21 +30,43 @@ class _MuscleMapScreenState extends ConsumerState<MuscleMapScreen> {
   @override
   Widget build(BuildContext context) {
     final muscle = _muscle;
+    final figure = ref.watch(mapFigureProvider);
+    final lang = context.locale.languageCode;
     return Scaffold(
       key: const Key('muscle_map_screen'),
-      appBar: AppBar(title: Text('workout.muscle_map.title'.tr())),
+      appBar: AppBar(
+        title: Text(
+          upperCaseFor('workout.muscle_map.title'.tr(), lang),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+        ),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             sliver: SliverToBoxAdapter(
-              child: Center(child: BodyViewToggle(view: _view, onChanged: (v) => setState(() => _view = v))),
+              child: MuscleMapControls(
+                view: _view,
+                onViewChanged: (v) => setState(() => _view = v),
+                figure: figure,
+                onFigureChanged: (f) => ref.read(mapFigureChoiceProvider.notifier).choose(f),
+              ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.45,
-              child: MuscleMap(view: _view, selected: muscle, onSelected: (m) => setState(() => _muscle = m)),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.45,
+                child: MuscleMapCard(
+                  child: MuscleMap(
+                    view: _view,
+                    figure: figure,
+                    selected: muscle,
+                    onSelected: (m) => setState(() => _muscle = m),
+                  ),
+                ),
+              ),
             ),
           ),
           if (muscle == null)
@@ -108,7 +132,7 @@ class _MuscleMapScreenState extends ConsumerState<MuscleMapScreen> {
                     ),
                     sliver: SliverList.separated(
                       itemCount: list.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
+                      separatorBuilder: (context, index) => const Divider(height: 1, indent: 72, endIndent: 16),
                       itemBuilder: (context, index) => _row(context, list[index]),
                     ),
                   ),
@@ -121,26 +145,32 @@ class _MuscleMapScreenState extends ConsumerState<MuscleMapScreen> {
   Widget _header(BuildContext context, String muscle, int count) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Wrap(
+              spacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.end,
               children: [
                 Text(
                   upperCaseFor(muscleLabelKey(muscle).tr(), context.locale.languageCode),
                   key: const Key('muscle_map_selected'),
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
                 ),
-                Text(
-                  'workout.muscle_map.count'.tr(namedArgs: {'n': '$count'}),
-                  key: const Key('muscle_map_count'),
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    'workout.muscle_map.count'.tr(namedArgs: {'n': '$count'}),
+                    key: const Key('muscle_map_count'),
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           AccentChip(
             key: const Key('muscle_map_secondary_chip'),
             label: 'workout.muscle_map.include_secondary'.tr(),
@@ -160,6 +190,7 @@ class _MuscleMapScreenState extends ConsumerState<MuscleMapScreen> {
     ].join(' · ');
     return ListTile(
       key: Key('muscle_map_exercise_${e.id}'),
+      leading: ExerciseIconBadge(equipment: e.equipment),
       title: Text(e.name),
       subtitle: subtitle.isEmpty ? null : Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
