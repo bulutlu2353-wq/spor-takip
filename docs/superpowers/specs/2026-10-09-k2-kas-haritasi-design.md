@@ -66,15 +66,15 @@ Kaynakta ölçülen değerler (2026-10-09):
   - `enum BodyFigure { male, female }`
   - `bodySilhouettes`: `Map<BodyFigure, Map<BodyView, List<double>>>`
   - `muscleShapes`: `Map<BodyFigure, Map<BodyView, List<MuscleShape>>>`
-  - `bodyCanvasWidth` ve `bodyCanvasHeight` kullanılmıyorsa kaldırılır; kullanılıyorsa figür başına tanımlanır. Plan aşamasında kontrol edilir.
-- **Erkek verisinin korunması:** Erkek figürünün komut listeleri K1 çıktısıyla birebir aynı kalmalı. Plan bunu yeniden üretip farkı karşılaştırarak doğrular.
-- **Çıktı satırı:** Figür ve görünüm başına şekil sayısı. Erkek ön 88, erkek arka 69; kadın değerleri plan sırasında yazılır.
+  - **Erkek verisinin korunması:** Erkek figürünün komut listeleri K1 çıktısıyla birebir aynı kalmalı. Plan bunu yeniden üretip farkı karşılaştırarak doğrular.
+- **Çıktı satırı:** Figür ve görünüm başına şekil sayısı: erkek ön 88, erkek arka 69, kadın ön 90, kadın arka 64 (plan yazılırken gerçek kaynakla doğrulandı). Üretilen dosya yaklaşık 92 KB'tan 186 KB'a çıkar.
+- `bodyCanvasWidth` / `bodyCanvasHeight` (724 × 1448) iki figür için de geçerli kalır; kaydırılmış kadın yolları bu tuvalin içindedir.
 
 ## 4. Domain (`muscle_map.dart`)
 
 - `bodyCrops`: `Map<BodyFigure, Rect>`.
   - Erkek: `Rect.fromLTWH(40, 120, 644, 1250)`, değişmez.
-  - Kadın: kaydırılmış iki görünümün siluetlerini kapsayan dikdörtgen. Ölçülen yaklaşık aralık x 0–641, y 88–1433; 5–10 birim pay bırakılır. Kesin değeri plan, gerçek çıktıdan ölçerek sabitler.
+  - Kadın: `Rect.fromLTWH(-10, 78, 661, 1365)`. Kaydırılmış siluetler x 0–641, y 88–1433 aralığında; her yanda 10 birim pay.
 - `BodyFit(Size size, BodyFigure figure)`: figürün kırpma alanını kullanır.
 - `musclePaths(figure, view)`, `silhouettePath(figure, view)`, `muscleAt(figure, view, canvasPoint)`, `musclesIn(figure, view)`: önbellek anahtarı `(figure, view)`.
 - `BodyFigure figureFor(Gender? gender)`: `Gender.female` → `female`, diğer her durum (null dahil) → `male`.
@@ -84,7 +84,7 @@ Kaynakta ölçülen değerler (2026-10-09):
 
 ### 5.1 Ortak parçalar
 
-- **`MuscleMap`:** Zorunlu bir `figure` parametresi alır. Seçili kas lime dolguyla çizilir; altına aynı yolun blur'lu (`MaskFilter.blur`) yarı saydam lime kopyası parlama olarak çizilir.
+- **`MuscleMap`:** Bir `figure` parametresi alır (varsayılan `BodyFigure.male`). Seçili kas lime dolguyla çizilir; altına aynı yolun blur'lu (`MaskFilter.blur`) yarı saydam lime kopyası parlama olarak çizilir.
 - **`FigureToggle`:** ♂/♀ simgeli iki parçalı hap.
   - Anahtarlar: `figure_toggle_male`, `figure_toggle_female`.
   - Erişilebilirlik etiketleri: `workout.muscle_map.figure_male` / `figure_female`.
@@ -142,7 +142,7 @@ Kas seçili değilken ipucu (`muscle_map_hint`) gösterilir; boş, yükleniyor v
   - Başında `ExerciseIconBadge`
   - Hareket adı
   - Alt yazı: birincil kaslar ` · ` ile
-  - Özel harekette adın yanında küçük "ÖZEL" rozeti (lime çerçeve ve metin; çeviri `workout.custom_exercise_badge`, büyük harfle). Bu rozet alt yazıdaki "özel" ekinin yerini alır.
+  - Özel harekette adın yanında küçük "ÖZEL" rozeti (lime çerçeve ve metin; yeni çeviri `workout.custom_badge_short`, büyük harfle; anahtar `exercise_custom_badge_<id>`). Bu rozet alt yazıdaki "Senin hareketin" ekinin yerini alır.
   - Sonda ok işareti
 - Dokununca detay, uzun basınca (özel harekette) silme ve FAB aynı kalır.
 
@@ -163,6 +163,7 @@ Kas seçili değilken ipucu (`muscle_map_hint`) gösterilir; boş, yükleniyor v
 |---|---|---|
 | `picker_count` | "{n} hareket" | "{n} exercises" |
 | `picker_search_clear` | "Aramayı temizle" | "Clear search" |
+| `custom_badge_short` | "Özel" | "Custom" |
 
 ## 6. Hata ve kenar durumları
 
