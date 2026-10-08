@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/licenses.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerLicenses();
   await EasyLocalization.ensureInitialized();
   try {
     await dotenv.load(fileName: '.env');

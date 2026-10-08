@@ -69,6 +69,7 @@ flutter:
   assets:
     - .env
     - assets/translations/
+    - LICENSES/body-highlighter.txt
 
   fonts:
     - family: Montserrat
