@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
 import 'package:spor_takip/features/workout/domain/muscle_map.dart';
@@ -50,6 +51,7 @@ void main() {
         overrides: [
           isLoggedInProvider.overrideWithValue(true),
           exerciseRepositoryProvider.overrideWithValue(repo),
+          profileProvider.overrideWith((ref) async => null),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -162,6 +164,44 @@ void main() {
 
     expect(repo.deletedIds, isEmpty);
     expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  testWidgets('the map sheet shows the current muscle and closes with its button', (tester) async {
+    await openPicker(tester);
+    await tester.tap(find.byKey(const Key('muscle_filter_map')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_card_label')), findsNothing);
+
+    await tester.tapAt(screenPointFor(tester, find.byKey(const Key('muscle_map_front')), BodyView.front, 'chest'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('muscle_filter_map')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_card_label')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('muscle_map_sheet_close')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_sheet_hint')), findsNothing);
+    expect(find.byKey(const Key('exercise_tile_Pushups')), findsOneWidget);
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsNothing);
+  });
+
+  testWidgets('the map sheet can switch to the female figure', (tester) async {
+    await openPicker(tester);
+    await tester.tap(find.byKey(const Key('muscle_filter_map')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('figure_toggle_female')));
+    await tester.pumpAndSettle();
+    await tester.tapAt(screenPointFor(
+      tester,
+      find.byKey(const Key('muscle_map_front')),
+      BodyView.front,
+      'chest',
+      figure: BodyFigure.female,
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('exercise_tile_Pushups')), findsOneWidget);
+    expect(find.byKey(const Key('exercise_tile_Barbell_Squat')), findsNothing);
   });
 }
 
