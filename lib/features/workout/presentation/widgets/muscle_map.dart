@@ -340,61 +340,70 @@ class HeatLegend extends StatelessWidget {
   }
 }
 
-/// Program detayındaki "Çalışan kaslar" kartı: ön ve arka figür yan yana, ısı tonlarıyla.
-/// Figürler dokunuş yakalamaz; kartın tamamı [onTap].
+/// Ön ve arka figür yan yana, ısı tonlarıyla. Figürler dokunuş yakalamaz; [onTap]
+/// verilirse kartın tamamı dokunulabilir ve sağ üstte ok görünür (program detayı);
+/// verilmezse düz kart (arkadaş profili). [showTitle] "Çalışan kaslar" başlığını gösterir.
 class MiniMuscleMapCard extends StatelessWidget {
-  const MiniMuscleMapCard({super.key, required this.figure, required this.heat, required this.onTap});
+  const MiniMuscleMapCard({
+    super.key,
+    required this.figure,
+    required this.heat,
+    this.onTap,
+    this.showTitle = true,
+  });
 
   final BodyFigure figure;
   final Map<String, HeatTier> heat;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final heading = theme.textTheme.titleSmall?.copyWith(fontFamily: AppFonts.heading, fontWeight: FontWeight.w800);
+    final onTap = this.onTap;
+    final content = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showTitle) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    upperCaseFor('workout.muscle_map.program_card_title'.tr(), context.locale.languageCode),
+                    style: heading,
+                  ),
+                ),
+                if (onTap != null) Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          SizedBox(
+            height: 180,
+            child: Row(
+              children: [
+                Expanded(child: MuscleMap(view: BodyView.front, figure: figure, heat: heat)),
+                const SizedBox(width: 12),
+                Expanded(child: MuscleMap(view: BodyView.back, figure: figure, heat: heat)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Uzun çeviride taşmak yerine küçülür.
+          const Align(
+            alignment: Alignment.centerRight,
+            child: FittedBox(fit: BoxFit.scaleDown, child: HeatLegend()),
+          ),
+        ],
+      ),
+    );
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      upperCaseFor('workout.muscle_map.program_card_title'.tr(), context.locale.languageCode),
-                      style: heading,
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 180,
-                child: Row(
-                  children: [
-                    Expanded(child: MuscleMap(view: BodyView.front, figure: figure, heat: heat)),
-                    const SizedBox(width: 12),
-                    Expanded(child: MuscleMap(view: BodyView.back, figure: figure, heat: heat)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Uzun çeviride taşmak yerine küçülür.
-              const Align(
-                alignment: Alignment.centerRight,
-                child: FittedBox(fit: BoxFit.scaleDown, child: HeatLegend()),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }
 }
