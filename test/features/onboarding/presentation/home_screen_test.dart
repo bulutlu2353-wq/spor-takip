@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/features/gamification/application/gamification_providers.dart';
+import 'package:spor_takip/features/gamification/domain/player_summary.dart';
 import 'package:spor_takip/features/nutrition/application/today_meals_provider.dart';
 import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/onboarding/presentation/home_screen.dart';
@@ -30,6 +32,7 @@ void main() {
             )),
         strengthCardProvider.overrideWith((ref) async => const []),
         measurementsProvider.overrideWith((ref) async => const []),
+        playerSummaryProvider.overrideWith((ref) async => playerSummary(const [], const [], const {})),
       ];
 
   void tallView(WidgetTester tester) {
@@ -81,5 +84,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('home_list')), findsNothing);
+  });
+
+  testWidgets('the level badge shows the level and opens the level screen', (tester) async {
+    tallView(tester);
+    await tester.pumpWidget(testApp(
+      const HomeScreen(),
+      scaffold: false,
+      overrides: homeOverrides(),
+      stubRoutes: {'/home/levels': 'levels-stub'},
+    ));
+    await tester.pumpAndSettle();
+
+    final badge = find.byKey(const Key('home_level_badge'));
+    expect(badge, findsOneWidget);
+    expect(find.descendant(of: badge, matching: find.text('gamification.level_short')), findsOneWidget);
+    await tester.tap(badge);
+    await tester.pumpAndSettle();
+    expect(find.text('levels-stub'), findsOneWidget);
   });
 }

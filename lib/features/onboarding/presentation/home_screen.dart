@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/day_label.dart';
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../gamification/presentation/widgets/home_level_badge.dart';
 import '../../nutrition/presentation/widgets/today_nutrition_card.dart';
 import '../../progress/presentation/widgets/home_stat_grid.dart';
 import '../../workout/application/session_providers.dart';
@@ -26,6 +27,8 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text('home.title'.tr()),
         actions: [
+          const HomeLevelBadge(),
+          const SizedBox(width: 4),
           IconButton(
             key: const Key('home_settings_button'),
             icon: const Icon(Icons.settings_outlined),
