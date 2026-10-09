@@ -386,7 +386,11 @@ class MiniMuscleMapCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Align(alignment: Alignment.centerRight, child: HeatLegend()),
+              // Uzun çeviride taşmak yerine küçülür.
+              const Align(
+                alignment: Alignment.centerRight,
+                child: FittedBox(fit: BoxFit.scaleDown, child: HeatLegend()),
+              ),
             ],
           ),
         ),

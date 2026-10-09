@@ -4,13 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_fonts.dart';
+import '../application/muscle_heat_providers.dart';
+import '../application/muscle_map_providers.dart';
 import '../application/workout_providers.dart';
 import '../domain/block_grouping.dart';
+import '../domain/muscle_heat.dart';
 import '../domain/program.dart';
 import '../domain/schedule_mode.dart';
 import 'one_rep_max_sheet.dart';
 import 'start_workout.dart';
 import 'widgets/exercise_group_tile.dart';
+import 'widgets/muscle_map.dart';
 import 'widgets/program_card.dart';
 
 /// Programı aktif yapar; yüzdelik programlarda önce 1RM panelini gösterir
@@ -163,6 +167,7 @@ class ProgramDetailScreen extends ConsumerWidget {
                     ),
                 ],
               ),
+              _ProgramMuscleMap(program: program),
               if (program.workouts.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
@@ -214,6 +219,30 @@ class ProgramDetailScreen extends ConsumerWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// "Çalışan kaslar" kartı; hareketler yüklenmediyse ya da hiçbiri bir kasa eşlenmiyorsa gizli (K3 spec §5.3).
+class _ProgramMuscleMap extends ConsumerWidget {
+  const _ProgramMuscleMap({required this.program});
+
+  final Program program;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final exercisesById = ref.watch(exercisesByIdProvider).value;
+    if (exercisesById == null) return const SizedBox.shrink();
+    final load = programMuscleLoad(program, exercisesById);
+    if (load.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: MiniMuscleMapCard(
+        key: const Key('program_muscle_map_card'),
+        figure: ref.watch(mapFigureProvider),
+        heat: heatTiers(load),
+        onTap: () => context.push('/workout/muscles?program=${program.id}'),
       ),
     );
   }

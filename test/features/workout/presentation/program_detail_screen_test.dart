@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
+import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
+import 'package:spor_takip/features/workout/domain/exercise.dart';
 import 'package:spor_takip/features/workout/domain/program.dart';
 import 'package:spor_takip/features/workout/domain/program_workout.dart';
 import 'package:spor_takip/features/workout/domain/schedule_mode.dart';
@@ -14,6 +16,7 @@ import 'package:spor_takip/features/workout/domain/workout_exercise.dart';
 import 'package:spor_takip/features/workout/domain/workout_session.dart';
 import 'package:spor_takip/features/workout/presentation/program_detail_screen.dart';
 
+import '../../progress/fixtures.dart';
 import '../fakes.dart';
 
 const _squat5 = WorkoutExercise(
@@ -66,6 +69,7 @@ void main() {
   late FakeProgramRepository repo;
   late FakeOneRepMaxRepository oneRepMaxRepo;
   late FakeSessionRepository sessionRepo;
+  late List<Exercise> exercises;
 
   Widget wrap(String programId) {
     final router = GoRouter(initialLocation: '/workout', routes: [
@@ -82,6 +86,10 @@ void main() {
                 builder: (context, state) => Text('EDITOR_${state.pathParameters['id']}'),
               ),
             ],
+          ),
+          GoRoute(
+            path: 'muscles',
+            builder: (context, state) => Text('MUSCLES_${state.uri.queryParameters['program']}'),
           ),
         ],
       ),
@@ -100,7 +108,8 @@ void main() {
           programRepositoryProvider.overrideWithValue(repo),
           oneRepMaxRepositoryProvider.overrideWithValue(oneRepMaxRepo),
           sessionRepositoryProvider.overrideWithValue(sessionRepo),
-          exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository()),
+          exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(exercises)),
+          profileProvider.overrideWith((ref) async => testProfile),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -118,6 +127,7 @@ void main() {
     repo = FakeProgramRepository(programs: [_builtIn, _mine]);
     oneRepMaxRepo = FakeOneRepMaxRepository();
     sessionRepo = FakeSessionRepository();
+    exercises = [];
   });
 
   testWidgets('groups consecutive blocks and shows percentages without a 1RM', (tester) async {
@@ -216,5 +226,23 @@ void main() {
 
     expect(sessionRepo.sessions.containsKey('cur'), isFalse);
     expect(find.text('SESSION_session-0'), findsOneWidget);
+  });
+
+  testWidgets('shows the muscles worked card, which opens the map in program mode', (tester) async {
+    exercises = [const Exercise(id: 'Barbell_Squat', name: 'Barbell Squat', primaryMuscles: ['quadriceps'])];
+    await open(tester, 'mine');
+
+    final card = find.byKey(const Key('program_muscle_map_card'));
+    expect(card, findsOneWidget);
+    await tester.ensureVisible(card);
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    expect(find.text('MUSCLES_mine'), findsOneWidget);
+  });
+
+  testWidgets('hides the card when no exercise maps to a muscle', (tester) async {
+    exercises = [const Exercise(id: 'Barbell_Squat', name: 'Barbell Squat')];
+    await open(tester, 'mine');
+    expect(find.byKey(const Key('program_muscle_map_card')), findsNothing);
   });
 }
