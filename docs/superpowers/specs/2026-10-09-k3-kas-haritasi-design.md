@@ -26,7 +26,7 @@ Mevcut kod:
 4. **Program mini haritası: planlı set ısısı + ekranı aç.** Programdaki tüm günlerin planlı setleri aynı ağırlıklarla toplanır. Kartın tamamına dokununca kas haritası ekranı program modunda açılır.
 5. **Veri kaynağı: yaklaşım A.** Isı, mevcut `sessionHistoryProvider` listesinden süzülür. Yeni sorgu, migration ya da deploy yok. Sınır: 30 günde 100'den fazla bitmiş oturum olursa en eskileri sayılmaz; kabul edildi.
 6. **Mutlak eşikler.** Renk kademesi haftalık set yüküne göre belirlenir, göreli ölçek kullanılmaz (tek hareket yapıldığında her şey "en yüksek" görünmesin diye).
-7. **Stitch taslakları:** `.superpowers/brainstorm/k3-stitch/` altında (git'e girmez): `heat_map_mode.png`, `program_mini_map.png`. Stitch projeleri: 11672867956091631031 (ısı modu), 15210191598326549152 (mini harita). Figür her zaman body-highlighter verisinden çizilir.
+7. **Stitch taslakları:** Stitch projeleri 11672867956091631031 (ısı modu) ve 15210191598326549152 (mini harita) üretildi. API yalnızca figür küçük resimlerini veriyor (`.superpowers/brainstorm/k3-stitch/`, git'e girmez). Yerleşimin bağlayıcı tarifi bu spec'in §5 bölümüdür. Figür her zaman body-highlighter verisinden çizilir.
 
 ## 3. Domain (`lib/features/workout/domain/muscle_heat.dart`, yeni)
 
