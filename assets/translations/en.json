@@ -274,7 +274,21 @@
       "pick_title": "Pick a muscle",
       "sheet_hint": "Tap a muscle — the list filters to it",
       "figure_male": "Male figure",
-      "figure_female": "Female figure"
+      "figure_female": "Female figure",
+      "mode_explore": "EXPLORE",
+      "mode_heat": "HEAT",
+      "period_days": "{n} DAYS",
+      "legend_low": "Low",
+      "legend_high": "High",
+      "heat_summary": "{sets} sets · last {n} days",
+      "heat_summary_program": "{sets} sets · program",
+      "heat_empty": "No finished workouts in the last {n} days",
+      "heat_muscle_empty": "You haven't trained this muscle in the last {n} days",
+      "heat_program_muscle_empty": "This program doesn't train this muscle",
+      "heat_row_sets": "{n} sets",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "program_card_title": "Muscles worked"
     },
     "muscle": {
       "abdominals": "Abdominals",

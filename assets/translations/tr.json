@@ -274,7 +274,21 @@
       "pick_title": "Kas seç",
       "sheet_hint": "Bir kasa dokun — liste o kasa süzülür",
       "figure_male": "Erkek figürü",
-      "figure_female": "Kadın figürü"
+      "figure_female": "Kadın figürü",
+      "mode_explore": "KEŞFET",
+      "mode_heat": "ISI",
+      "period_days": "{n} GÜN",
+      "legend_low": "Az",
+      "legend_high": "Çok",
+      "heat_summary": "{sets} set · son {n} gün",
+      "heat_summary_program": "{sets} set · program",
+      "heat_empty": "Son {n} günde biten antrenman yok",
+      "heat_muscle_empty": "Bu kası son {n} günde çalıştırmadın",
+      "heat_program_muscle_empty": "Bu program bu kası çalıştırmıyor",
+      "heat_row_sets": "{n} set",
+      "primary": "Birincil",
+      "secondary": "İkincil",
+      "program_card_title": "Çalışan kaslar"
     },
     "muscle": {
       "abdominals": "Karın",

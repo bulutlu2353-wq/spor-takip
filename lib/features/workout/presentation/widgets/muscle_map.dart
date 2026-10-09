@@ -1,6 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_fonts.dart';
+import '../../../../shared/text_case.dart';
+import '../../domain/muscle_heat.dart';
 import '../../domain/muscle_map.dart';
 
 typedef _MapColors = ({
@@ -12,20 +16,23 @@ typedef _MapColors = ({
   Color edge,
 });
 
-/// Ön ya da arka vücut figürü; kasa dokununca [onSelected]. Sınırlı boyut ister.
+/// Ön ya da arka vücut figürü; kasa dokununca [onSelected] (null → dokunuş üst widget'a geçer).
+/// [heat] verilirse kaslar kademeye göre vurgu rengiyle tonlanır. Sınırlı boyut ister.
 class MuscleMap extends StatelessWidget {
   const MuscleMap({
     super.key,
     required this.view,
     this.figure = BodyFigure.male,
     this.selected,
-    required this.onSelected,
+    this.onSelected,
+    this.heat = const {},
   });
 
   final BodyView view;
   final BodyFigure figure;
   final String? selected;
-  final ValueChanged<String> onSelected;
+  final ValueChanged<String>? onSelected;
+  final Map<String, HeatTier> heat;
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +46,26 @@ class MuscleMap extends StatelessWidget {
       selected: scheme.primary,
       edge: theme.scaffoldBackgroundColor,
     );
+    final onSelected = this.onSelected;
     return Semantics(
       label: 'workout.muscle_map.title'.tr(),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
+          final paint = CustomPaint(
+            size: size,
+            painter: _MuscleMapPainter(figure: figure, view: view, selected: selected, heat: heat, colors: colors),
+          );
+          final key = Key('muscle_map_${view.name}');
+          if (onSelected == null) return KeyedSubtree(key: key, child: paint);
           return GestureDetector(
-            key: Key('muscle_map_${view.name}'),
+            key: key,
             behavior: HitTestBehavior.opaque,
             onTapUp: (details) {
               final muscle = muscleAt(figure, view, BodyFit(size, figure).toCanvas(details.localPosition));
               if (muscle != null) onSelected(muscle);
             },
-            child: CustomPaint(
-              size: size,
-              painter: _MuscleMapPainter(figure: figure, view: view, selected: selected, colors: colors),
-            ),
+            child: paint,
           );
         },
       ),
@@ -62,12 +73,28 @@ class MuscleMap extends StatelessWidget {
   }
 }
 
+const _heatAlpha = {HeatTier.low: 0.25, HeatTier.medium: 0.45, HeatTier.optimal: 0.7, HeatTier.high: 1.0};
+
+/// Kademenin dolgu rengi; `none` → null (kas gri kalır).
+Color? heatColor(Color accent, HeatTier tier) {
+  final alpha = _heatAlpha[tier];
+  if (alpha == null) return null;
+  return alpha == 1.0 ? accent : accent.withValues(alpha: alpha);
+}
+
 class _MuscleMapPainter extends CustomPainter {
-  _MuscleMapPainter({required this.figure, required this.view, required this.selected, required this.colors});
+  _MuscleMapPainter({
+    required this.figure,
+    required this.view,
+    required this.selected,
+    required this.heat,
+    required this.colors,
+  });
 
   final BodyFigure figure;
   final BodyView view;
   final String? selected;
+  final Map<String, HeatTier> heat;
   final _MapColors colors;
 
   @override
@@ -101,7 +128,11 @@ class _MuscleMapPainter extends CustomPainter {
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
         );
       }
-      final fill = isSelected ? colors.selected : (muscle == null ? colors.decor : colors.muscle);
+      final fill = isSelected
+          ? colors.selected
+          : muscle == null
+              ? colors.decor
+              : heatColor(colors.selected, heat[muscle] ?? HeatTier.none) ?? colors.muscle;
       canvas.drawPath(path, Paint()..color = fill);
       canvas.drawPath(path, edge);
     }
@@ -110,7 +141,11 @@ class _MuscleMapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MuscleMapPainter old) =>
-      old.figure != figure || old.view != view || old.selected != selected || old.colors != colors;
+      old.figure != figure ||
+      old.view != view ||
+      old.selected != selected ||
+      old.colors != colors ||
+      !mapEquals(old.heat, heat);
 }
 
 /// ÖN / ARKA anahtarı (ekran ve alt sayfa ortak).
@@ -270,4 +305,92 @@ class _DotGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DotGridPainter old) => old.color != color;
+}
+
+/// Az → Çok arası dört ton karesi.
+class HeatLegend extends StatelessWidget {
+  const HeatLegend({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final style = theme.textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant);
+    return Row(
+      key: const Key('muscle_heat_legend'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('workout.muscle_map.legend_low'.tr(), style: style),
+        const SizedBox(width: 6),
+        for (final tier in const [HeatTier.low, HeatTier.medium, HeatTier.optimal, HeatTier.high])
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: heatColor(scheme.primary, tier),
+                borderRadius: const BorderRadius.all(Radius.circular(3)),
+              ),
+              child: const SizedBox(width: 12, height: 12),
+            ),
+          ),
+        const SizedBox(width: 6),
+        Text('workout.muscle_map.legend_high'.tr(), style: style),
+      ],
+    );
+  }
+}
+
+/// Program detayındaki "Çalışan kaslar" kartı: ön ve arka figür yan yana, ısı tonlarıyla.
+/// Figürler dokunuş yakalamaz; kartın tamamı [onTap].
+class MiniMuscleMapCard extends StatelessWidget {
+  const MiniMuscleMapCard({super.key, required this.figure, required this.heat, required this.onTap});
+
+  final BodyFigure figure;
+  final Map<String, HeatTier> heat;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final heading = theme.textTheme.titleSmall?.copyWith(fontFamily: AppFonts.heading, fontWeight: FontWeight.w800);
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      upperCaseFor('workout.muscle_map.program_card_title'.tr(), context.locale.languageCode),
+                      style: heading,
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 180,
+                child: Row(
+                  children: [
+                    Expanded(child: MuscleMap(view: BodyView.front, figure: figure, heat: heat)),
+                    const SizedBox(width: 12),
+                    Expanded(child: MuscleMap(view: BodyView.back, figure: figure, heat: heat)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Align(alignment: Alignment.centerRight, child: HeatLegend()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

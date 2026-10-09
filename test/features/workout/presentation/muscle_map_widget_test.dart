@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spor_takip/features/workout/domain/muscle_heat.dart';
 import 'package:spor_takip/features/workout/domain/muscle_map.dart';
 import 'package:spor_takip/features/workout/presentation/widgets/exercise_icon_badge.dart';
 import 'package:spor_takip/features/workout/presentation/widgets/muscle_map.dart';
@@ -119,5 +120,73 @@ void main() {
     expect(equipmentIcon('body only'), Icons.accessibility_new);
     expect(equipmentIcon(null), Icons.fitness_center);
     expect(equipmentIcon('unknown'), Icons.fitness_center);
+  });
+
+  testWidgets('without onSelected the map lets taps reach its parent', (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(testApp(
+      Scaffold(
+        body: Center(
+          child: InkWell(
+            onTap: () => taps++,
+            child: const SizedBox(width: 300, height: 500, child: MuscleMap(view: BodyView.front)),
+          ),
+        ),
+      ),
+      scaffold: false,
+    ));
+    await tester.pumpAndSettle();
+    await tester.tapAt(screenPointFor(tester, find.byKey(const Key('muscle_map_front')), BodyView.front, 'chest'));
+    expect(taps, 1);
+  });
+
+  testWidgets('a heat map paints without errors', (tester) async {
+    await tester.pumpWidget(testApp(
+      const Scaffold(
+        body: SizedBox(
+          width: 300,
+          height: 500,
+          child: MuscleMap(view: BodyView.front, heat: {'chest': HeatTier.high, 'abdominals': HeatTier.low}),
+        ),
+      ),
+      scaffold: false,
+    ));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(tester.widget<MuscleMap>(find.byType(MuscleMap)).heat['chest'], HeatTier.high);
+  });
+
+  test('heatColor fades the accent by tier', () {
+    const accent = Color(0xFFC6FF00);
+    expect(heatColor(accent, HeatTier.none), isNull);
+    expect(heatColor(accent, HeatTier.low)!.a, closeTo(0.25, 0.01));
+    expect(heatColor(accent, HeatTier.medium)!.a, closeTo(0.45, 0.01));
+    expect(heatColor(accent, HeatTier.optimal)!.a, closeTo(0.7, 0.01));
+    expect(heatColor(accent, HeatTier.high), accent);
+  });
+
+  testWidgets('the legend shows four swatches between low and high', (tester) async {
+    await tester.pumpWidget(testApp(const HeatLegend()));
+    await tester.pumpAndSettle();
+    final legend = find.byKey(const Key('muscle_heat_legend'));
+    expect(legend, findsOneWidget);
+    expect(find.descendant(of: legend, matching: find.text('workout.muscle_map.legend_low')), findsOneWidget);
+    expect(find.descendant(of: legend, matching: find.text('workout.muscle_map.legend_high')), findsOneWidget);
+    expect(find.descendant(of: legend, matching: find.byType(DecoratedBox)), findsNWidgets(4));
+  });
+
+  testWidgets('the mini card shows both views and reports a tap anywhere', (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(testApp(
+      MiniMuscleMapCard(figure: BodyFigure.female, heat: const {'chest': HeatTier.medium}, onTap: () => taps++),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('muscle_map_front')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_map_back')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_heat_legend')), findsOneWidget);
+    expect(find.textContaining('PROGRAM_CARD_T'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('muscle_map_front')));
+    expect(taps, 1);
   });
 }
