@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/chat/presentation/coach_screen.dart';
+import '../features/gamification/presentation/level_screen.dart';
 import '../features/nutrition/presentation/meal_capture_screen.dart';
 import '../features/nutrition/presentation/nutrition_screen.dart';
 import '../features/onboarding/application/auth_providers.dart';
@@ -79,6 +80,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'weight', builder: (context, state) => const WeightScreen()),
                   GoRoute(path: 'strength', builder: (context, state) => const StrengthScreen()),
                   GoRoute(path: 'measurements', builder: (context, state) => const MeasurementsScreen()),
+                  GoRoute(path: 'levels', builder: (context, state) => const LevelScreen()),
                   GoRoute(
                     path: 'settings',
                     builder: (context, state) => const SettingsScreen(),
