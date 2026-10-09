@@ -16,6 +16,9 @@ import '../features/progress/presentation/strength_screen.dart';
 import '../features/progress/presentation/weight_screen.dart';
 import '../features/settings/presentation/goals_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/social/presentation/friend_profile_screen.dart';
+import '../features/social/presentation/social_screen.dart';
+import '../features/social/presentation/social_settings_screen.dart';
 import '../features/workout/presentation/exercise_picker_screen.dart';
 import '../features/workout/presentation/history_detail_screen.dart';
 import '../features/workout/presentation/history_screen.dart';
@@ -146,6 +149,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(path: '/coach', builder: (context, state) => const CoachScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/social',
+                builder: (context, state) => const SocialScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'friend/:id',
+                    builder: (context, state) => FriendProfileScreen(friendId: state.pathParameters['id']!),
+                  ),
+                  GoRoute(path: 'settings', builder: (context, state) => const SocialSettingsScreen()),
+                ],
+              ),
             ],
           ),
         ],
