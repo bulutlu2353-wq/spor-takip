@@ -163,7 +163,7 @@ class PlayerStats {
       activeTitle: active == null ? null : SharedTitle.fromJson(active),
       titles: [
         for (final t in json['titles'] as List? ?? const [])
-          if (SharedTitle.fromJson(t as Map<String, dynamic>) case final title?) title,
+          ?SharedTitle.fromJson(t as Map<String, dynamic>),
       ],
       weekly: weekly == null ? null : WeeklyStats.fromJson(weekly),
       recent: recent == null
@@ -173,7 +173,7 @@ class PlayerStats {
           ? null
           : {
               for (final MapEntry(key: muscle, value: tier) in heat.entries)
-                if (HeatTier.values.asNameMap()[tier] case final known?) muscle: known,
+                muscle: ?HeatTier.values.asNameMap()[tier],
             },
       updatedAt: updatedAt == null ? null : DateTime.parse(updatedAt).toLocal(),
     );
