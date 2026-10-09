@@ -33,9 +33,9 @@ class MuscleMap extends StatelessWidget {
     final scheme = theme.colorScheme;
     final _MapColors colors = (
       silhouette: scheme.surfaceContainerLowest,
-      outline: scheme.outlineVariant,
-      decor: scheme.surfaceContainer,
-      muscle: scheme.surfaceContainerHighest,
+      outline: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+      decor: scheme.onSurfaceVariant.withValues(alpha: 0.25),
+      muscle: scheme.onSurfaceVariant.withValues(alpha: 0.5),
       selected: scheme.primary,
       edge: theme.scaffoldBackgroundColor,
     );
