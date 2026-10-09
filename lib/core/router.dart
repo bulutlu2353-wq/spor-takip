@@ -110,7 +110,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(path: 'new', builder: (context, state) => const ProgramEditorScreen()),
                   GoRoute(path: 'exercises', builder: (context, state) => const ExercisePickerScreen()),
-                  GoRoute(path: 'muscles', builder: (context, state) => const MuscleMapScreen()),
+                  GoRoute(
+                    path: 'muscles',
+                    builder: (context, state) => MuscleMapScreen(programId: state.uri.queryParameters['program']),
+                  ),
                   GoRoute(
                     path: 'history',
                     builder: (context, state) => const HistoryScreen(),

@@ -4,15 +4,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/onboarding/application/profile_providers.dart';
 import 'package:spor_takip/features/onboarding/domain/profile.dart';
+import 'package:spor_takip/features/workout/application/session_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 import 'package:spor_takip/features/workout/domain/exercise.dart';
+import 'package:spor_takip/features/workout/domain/muscle_heat.dart';
 import 'package:spor_takip/features/workout/domain/muscle_map.dart';
+import 'package:spor_takip/features/workout/domain/program.dart';
+import 'package:spor_takip/features/workout/domain/workout_session.dart';
 import 'package:spor_takip/features/workout/presentation/muscle_map_screen.dart';
 import 'package:spor_takip/features/workout/presentation/widgets/exercise_icon_badge.dart';
 import 'package:spor_takip/features/workout/presentation/widgets/muscle_map.dart';
 
 import '../../progress/fixtures.dart';
 import '../../progress/presentation/test_app.dart';
+import '../fakes.dart';
+import '../heat_fixtures.dart';
 import '../muscle_map_points.dart';
 
 const _bench = Exercise(
@@ -39,18 +45,29 @@ void main() {
     WidgetTester tester, {
     Future<List<Exercise>> Function()? load,
     Profile? profile = testProfile,
+    List<WorkoutSession> sessions = const [],
+    String? programId,
+    List<Program> programs = const [],
   }) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(testApp(
-      const MuscleMapScreen(),
+      MuscleMapScreen(programId: programId),
       scaffold: false,
       overrides: [
         exercisesProvider.overrideWith((ref) => (load ?? () async => _all)()),
         profileProvider.overrideWith((ref) async => profile),
+        nowProvider.overrideWithValue(() => heatNow),
+        sessionRepositoryProvider.overrideWithValue(FakeSessionRepository(sessions: sessions)),
+        programRepositoryProvider.overrideWithValue(FakeProgramRepository(programs: programs)),
       ],
     ));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> tapKey(WidgetTester tester, String key) async {
+    await tester.tap(find.byKey(Key(key)));
     await tester.pumpAndSettle();
   }
 
@@ -160,5 +177,82 @@ void main() {
     final row = find.byKey(const Key('muscle_map_exercise_bench'));
     expect(find.descendant(of: row, matching: find.byType(ExerciseIconBadge)), findsOneWidget);
     expect(find.descendant(of: row, matching: find.byIcon(Icons.fitness_center)), findsOneWidget);
+  });
+
+  testWidgets('opens in explore mode; heat mode shows the period and legend and hides the secondary chip',
+      (tester) async {
+    await pumpScreen(tester, sessions: heatSessions);
+    expect(find.byKey(const Key('muscle_map_mode_toggle')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_heat_legend')), findsNothing);
+    expect(tester.widget<MuscleMap>(find.byType(MuscleMap)).heat, isEmpty);
+
+    await tapKey(tester, 'muscle_map_mode_heat');
+    expect(find.byKey(const Key('muscle_heat_period_7')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_heat_legend')), findsOneWidget);
+    expect(tester.widget<MuscleMap>(find.byType(MuscleMap)).heat, {'chest': HeatTier.medium, 'triceps': HeatTier.low});
+
+    await tapMuscle(tester, BodyView.front, 'chest');
+    expect(find.byKey(const Key('muscle_map_secondary_chip')), findsNothing);
+    expect(find.byKey(const Key('muscle_heat_summary')), findsOneWidget);
+  });
+
+  testWidgets('heat mode lists the exercises done for a muscle with their set counts', (tester) async {
+    await pumpScreen(tester, sessions: heatSessions);
+    await tapKey(tester, 'muscle_map_mode_heat');
+    await tapMuscle(tester, BodyView.front, 'chest');
+
+    expect(find.byKey(const Key('muscle_heat_row_bench')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_heat_row_pushups')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_map_exercise_bench')), findsNothing);
+    final bench = find.byKey(const Key('muscle_heat_row_bench'));
+    expect(find.descendant(of: bench, matching: find.text('workout.muscle_map.primary')), findsOneWidget);
+    expect(find.descendant(of: bench, matching: find.text('workout.muscle_map.heat_row_sets')), findsOneWidget);
+  });
+
+  testWidgets('30 days reaches older sessions', (tester) async {
+    await pumpScreen(tester, sessions: heatSessions);
+    await tapKey(tester, 'muscle_map_mode_heat');
+    await tapMuscle(tester, BodyView.front, 'quadriceps');
+    expect(find.byKey(const Key('muscle_heat_muscle_empty')), findsOneWidget);
+
+    await tapKey(tester, 'muscle_heat_period_30');
+    expect(find.byKey(const Key('muscle_heat_row_squat')), findsOneWidget);
+    expect(tester.widget<MuscleMap>(find.byType(MuscleMap)).heat['quadriceps'], HeatTier.low);
+  });
+
+  testWidgets('heat mode without finished workouts says so', (tester) async {
+    await pumpScreen(tester);
+    await tapKey(tester, 'muscle_map_mode_heat');
+    expect(find.byKey(const Key('muscle_heat_empty')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_map_hint')), findsNothing);
+  });
+
+  testWidgets('switching modes keeps the chosen muscle', (tester) async {
+    await pumpScreen(tester, sessions: heatSessions);
+    await tapMuscle(tester, BodyView.front, 'chest');
+    await tapKey(tester, 'muscle_map_mode_heat');
+    expect(find.byKey(const Key('muscle_heat_row_bench')), findsOneWidget);
+
+    await tapKey(tester, 'muscle_map_mode_explore');
+    expect(find.byKey(const Key('muscle_map_exercise_bench')), findsOneWidget);
+  });
+
+  testWidgets('program mode shows the program heat and its exercises for a muscle', (tester) async {
+    await pumpScreen(tester, programId: 'prog', programs: [heatProgram]);
+    expect(find.byKey(const Key('muscle_map_program_name')), findsOneWidget);
+    expect(find.text('5x5'), findsOneWidget);
+    expect(find.byKey(const Key('muscle_map_mode_toggle')), findsNothing);
+    expect(find.byKey(const Key('muscle_heat_period_7')), findsNothing);
+    expect(find.byKey(const Key('muscle_heat_legend')), findsOneWidget);
+    expect(tester.widget<MuscleMap>(find.byType(MuscleMap)).heat['chest'], HeatTier.medium);
+
+    await tapMuscle(tester, BodyView.front, 'chest');
+    expect(find.byKey(const Key('muscle_heat_row_bench')), findsOneWidget);
+    expect(find.byKey(const Key('muscle_heat_row_dips')), findsOneWidget);
+    final dips = find.byKey(const Key('muscle_heat_row_dips'));
+    expect(find.descendant(of: dips, matching: find.text('workout.muscle_map.secondary')), findsOneWidget);
+
+    await tapMuscle(tester, BodyView.front, 'abdominals');
+    expect(find.byKey(const Key('muscle_heat_program_muscle_empty')), findsOneWidget);
   });
 }
