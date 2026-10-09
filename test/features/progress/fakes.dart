@@ -85,4 +85,7 @@ class FakeProgressDataRepository implements ProgressDataRepository {
         for (final m in meals)
           if (!m.loggedAt.isBefore(from) && m.loggedAt.isBefore(to)) m,
       ];
+
+  @override
+  Future<List<DateTime>> fetchMealTimes() async => [for (final m in meals) m.loggedAt]..sort();
 }

@@ -63,6 +63,12 @@ final weeklyMealsProvider = FutureProvider.autoDispose<List<Meal>>((ref) async {
       );
 });
 
+/// Tüm öğünlerin kayıt zamanları (oyunlaştırma öğün günleri); öğün kaydedilince invalidate edilir.
+final mealTimesProvider = FutureProvider.autoDispose<List<DateTime>>((ref) async {
+  if (!ref.watch(isLoggedInProvider)) return const [];
+  return ref.watch(progressDataRepositoryProvider).fetchMealTimes();
+});
+
 final weeklySummaryProvider = FutureProvider.autoDispose<WeeklySummary>((ref) async {
   final now = ref.watch(nowProvider)();
   final (sessions, meals, weights) = await (

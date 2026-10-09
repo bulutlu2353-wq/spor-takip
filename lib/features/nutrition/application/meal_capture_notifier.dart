@@ -129,6 +129,7 @@ class MealCaptureNotifier extends Notifier<MealCaptureState> {
       state = const MealCaptureSaved();
       ref.invalidate(todayMealsProvider);
       ref.invalidate(weeklyMealsProvider); // F4b haftalık özet
+      ref.invalidate(mealTimesProvider); // oyunlaştırma öğün günleri
     } catch (_) {
       state = current;
     }

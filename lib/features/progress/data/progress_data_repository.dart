@@ -11,6 +11,9 @@ abstract interface class ProgressDataRepository {
 
   /// `[from, to)` aralığında kaydedilmiş öğünler (kalemleriyle).
   Future<List<Meal>> fetchMeals({required DateTime from, required DateTime to});
+
+  /// Tüm öğünlerin kayıt zamanları (yerel), eskiden yeniye; oyunlaştırmadaki öğün günleri için.
+  Future<List<DateTime>> fetchMealTimes();
 }
 
 class SupabaseProgressDataRepository implements ProgressDataRepository {
@@ -41,5 +44,11 @@ class SupabaseProgressDataRepository implements ProgressDataRepository {
         .lt('logged_at', to.toUtc().toIso8601String())
         .order('logged_at');
     return [for (final row in rows) Meal.fromJson(row)];
+  }
+
+  @override
+  Future<List<DateTime>> fetchMealTimes() async {
+    final rows = await _client.from('meals').select('logged_at').order('logged_at');
+    return [for (final row in rows) DateTime.parse(row['logged_at'] as String).toLocal()];
   }
 }

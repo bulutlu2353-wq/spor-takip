@@ -21,7 +21,8 @@ void refreshAfterChatChange(Ref ref, ChatEvent event) {
     case ChatTool.createMeal:
       ref
         ..invalidate(todayMealsProvider)
-        ..invalidate(weeklyMealsProvider);
+        ..invalidate(weeklyMealsProvider)
+        ..invalidate(mealTimesProvider);
     case ChatTool.logSet:
       ref
         ..invalidate(inProgressSessionProvider)
