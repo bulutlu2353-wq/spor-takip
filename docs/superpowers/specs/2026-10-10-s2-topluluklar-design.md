@@ -208,7 +208,7 @@ Profil varken gövde `DefaultTabController(length: 3)`: `TabBar` (`social_tab_fr
 - Başlık kartı (`community_header`): ad, açıklama, "{n} üye", "AÇIK/KAPALI" etiketi, davet kodu + kopyala (`community_copy_code`).
 - `SegmentedButton` HAFTA / AY (`period_week`, `period_month`).
 - "Geçen haftanın / ayın şampiyonları" (`community_titles`): `PeriodTitlesList` — satır `title_<category>`: kupa ikonu, unvan adı, sahip(ler) adı ve değer ("1.240 XP" / "22 set"). Boşsa `community_titles_empty`.
-- "Bu hafta / bu ay · canlı" (`community_standings`): `StandingsList` — satır `standing_<userId>`: sıra (ilk üç lime madalya), avatar, ad, "Sv n", XP; benim satırım lime çerçeveli. Altında açılır "Kas liderleri" (`community_muscle_leaders`): bu dönemin `periodTitles` (XP hariç).
+- "Bu hafta / bu ay · canlı" (`community_standings`): başlığın sağında dönem bitişine kalan süre (`period_remaining`: 24 saatten azsa "{n} saat kaldı", değilse "{n} gün kaldı"; `PeriodKey` aralık sonundan hesaplanır). `StandingsList` — satır `standing_<userId>`: sıra (ilk üç lime madalya), avatar, ad, "Sv n", XP; benim satırım lime çerçeveli ve üstünde "SENİN SIRAN" etiketi. Altında açılır "Kas liderleri" (`community_muscle_leaders`): bu dönemin `periodTitles` (XP hariç).
 - **Üye yönetimi** (`ManageMembersSheet`): üye satırları `manage_<userId>` + "Çıkar" (`manage_remove_<id>`) ve "Yasakla" (`manage_ban_<id>`), onaylı; kendim ve sahip için düğme yok.
 
 ### 6.4 Genel sekmesi (`GlobalTab`)
@@ -216,7 +216,7 @@ Profil varken gövde `DefaultTabController(length: 3)`: `TabBar` (`social_tab_fr
 - HAFTA / AY (`global_period_week`, `global_period_month`).
 - `compete_globally` kapalıysa üstte `global_opted_out` metni + ayarlara bağlantı (`global_open_settings`).
 - "Geçen haftanın / ayın genel şampiyonları" (`global_titles`): `PeriodTitlesList` (sahip @kullanıcıadı ile).
-- "Bu hafta / bu ay · ilk 50" (`global_standings`): `StandingsList`; benim satırım vurgulu.
+- "Bu hafta / bu ay · ilk 50" (`global_standings`): başlıkta `period_remaining`; `StandingsList` ad altında @kullanıcıadı ile; benim satırım (ilk 50'deysem) vurgulu.
 - Yükleniyor / hata (`global_retry`).
 
 ### 6.5 Sosyal ayarlar
@@ -262,6 +262,7 @@ Manuel kontrol (iki hesap):
 ## 10. Kapsam dışı
 
 - Şikâyet / moderatör ekranı.
+- Genel sekmesinde ilk 50 dışındaysam kendi sıramın altta sabit gösterimi ve "+3 sıra" gibi değişim göstergesi (Stitch taslağında var; sunucuda ayrı sıra sorgusu ve geçmiş sıra gerektirir).
 - Kazanılan dönem unvanlarının profilde veya arkadaş listesinde gösterimi; unvan geçmişi (dondurma).
 - Topluluk sohbeti, gönderiler, bildirimler.
 - Hareket bazlı dönem unvanları.
