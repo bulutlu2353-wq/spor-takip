@@ -1165,18 +1165,18 @@ void main() {
 
   test('titles: XP first then muscle order; all holders on a tie; zero values left out', () {
     final titles = periodTitles(_members, PeriodKind.week, '2026-W41');
-    expect([for (final t in titles) (t.category, t.holders, t.value)], [
-      ('xp', ['ayse'], 1420.0),
-      ('chest', ['ayse'], 9.0),
-      ('lats', ['ayse', 'burak'], 14.5),
+    expect([for (final t in titles) (t.category, t.holders.join(','), t.value)], [
+      ('xp', 'ayse', 1420.0),
+      ('chest', 'ayse', 9.0),
+      ('lats', 'ayse,burak', 14.5),
     ]);
   });
 
   test('previous week titles', () {
     final titles = periodTitles(_members, PeriodKind.week, '2026-W40');
-    expect([for (final t in titles) (t.category, t.holders)], [
-      ('xp', ['ayse', 'burak']),
-      ('chest', ['burak']),
+    expect([for (final t in titles) (t.category, t.holders.join(','))], [
+      ('xp', 'ayse,burak'),
+      ('chest', 'burak'),
     ]);
     expect(periodTitles(const {}, PeriodKind.week, '2026-W40'), isEmpty);
   });

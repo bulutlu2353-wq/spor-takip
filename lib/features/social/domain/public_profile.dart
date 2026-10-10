@@ -19,6 +19,7 @@ class PublicProfile {
     this.shareWeekly = true,
     this.shareWorkouts = true,
     this.shareHeat = true,
+    this.competeGlobally = true,
   });
 
   final String userId;
@@ -28,6 +29,9 @@ class PublicProfile {
   final bool shareWeekly;
   final bool shareWorkouts;
   final bool shareHeat;
+
+  /// Genel sıralamada ve genel unvanlarda yer alır (S2 spec §2.6).
+  final bool competeGlobally;
 
   String get initials => initialsOf(displayName, username);
 
@@ -39,6 +43,7 @@ class PublicProfile {
         shareWeekly: json['share_weekly'] as bool? ?? true,
         shareWorkouts: json['share_workouts'] as bool? ?? true,
         shareHeat: json['share_heat'] as bool? ?? true,
+        competeGlobally: json['compete_globally'] as bool? ?? true,
       );
 
   PublicProfile copyWith({
@@ -47,6 +52,7 @@ class PublicProfile {
     bool? shareWeekly,
     bool? shareWorkouts,
     bool? shareHeat,
+    bool? competeGlobally,
   }) =>
       PublicProfile(
         userId: userId,
@@ -56,6 +62,7 @@ class PublicProfile {
         shareWeekly: shareWeekly ?? this.shareWeekly,
         shareWorkouts: shareWorkouts ?? this.shareWorkouts,
         shareHeat: shareHeat ?? this.shareHeat,
+        competeGlobally: competeGlobally ?? this.competeGlobally,
       );
 }
 

@@ -1,6 +1,7 @@
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/titles.dart';
 import 'package:spor_takip/features/social/domain/friendship.dart';
+import 'package:spor_takip/features/social/domain/period_stats.dart';
 import 'package:spor_takip/features/social/domain/player_stats.dart';
 import 'package:spor_takip/features/social/domain/public_profile.dart';
 import 'package:spor_takip/features/workout/domain/muscle_heat.dart';
@@ -43,4 +44,27 @@ PlayerStats socialStats({
           : null,
       heat: withSections ? const {'lats': HeatTier.high, 'quadriceps': HeatTier.medium} : null,
       updatedAt: updatedAt ?? DateTime(2026, 10, 9, 9),
+    );
+
+/// `now = 2026-10-09` için dönem özeti: W41 / W40 / 2026-10 / 2026-09.
+PeriodStats socialPeriod({
+  int level = 31,
+  Rank rank = Rank.determined,
+  int week = 0,
+  Map<String, double> weekMuscles = const {},
+  String weekSlotKey = '2026-W41',
+  int prevWeek = 0,
+  Map<String, double> prevWeekMuscles = const {},
+  int month = 0,
+  int prevMonth = 0,
+  SharedTitle? activeTitle,
+}) =>
+    PeriodStats(
+      level: level,
+      rank: rank,
+      activeTitle: activeTitle,
+      week: PeriodSlot(key: weekSlotKey, xp: week, muscles: weekMuscles),
+      prevWeek: PeriodSlot(key: '2026-W40', xp: prevWeek, muscles: prevWeekMuscles),
+      month: PeriodSlot(key: '2026-10', xp: month),
+      prevMonth: PeriodSlot(key: '2026-09', xp: prevMonth),
     );
