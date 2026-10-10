@@ -155,6 +155,7 @@ create policy "Profiles visible to self and connections"
     or public.shares_community(auth.uid(), user_id)
   );
 
+drop policy if exists "Period stats visible to self, friends and community members" on public.period_stats;
 create policy "Period stats visible to self, friends and community members"
   on public.period_stats for select
   using (
@@ -163,19 +164,23 @@ create policy "Period stats visible to self, friends and community members"
     or public.shares_community(auth.uid(), user_id)
   );
 
+drop policy if exists "Users insert own period stats" on public.period_stats;
 create policy "Users insert own period stats"
   on public.period_stats for insert
   with check (user_id = auth.uid());
 
+drop policy if exists "Users update own period stats" on public.period_stats;
 create policy "Users update own period stats"
   on public.period_stats for update
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
 
+drop policy if exists "Public or joined communities are visible" on public.communities;
 create policy "Public or joined communities are visible"
   on public.communities for select
   using (is_public or public.is_member(auth.uid(), id));
 
+drop policy if exists "Owners update their community" on public.communities;
 create policy "Owners update their community"
   on public.communities for update
   using (owner = auth.uid())
@@ -186,10 +191,12 @@ revoke update on public.communities from anon, authenticated;
 grant update (name, description, is_public) on public.communities to authenticated;
 
 -- Üyelik ve yasak yazımı yalnız fonksiyonlarla.
+drop policy if exists "Members see their community's members" on public.community_members;
 create policy "Members see their community's members"
   on public.community_members for select
   using (public.is_member(auth.uid(), community_id));
 
+drop policy if exists "Owners see their community's bans" on public.community_bans;
 create policy "Owners see their community's bans"
   on public.community_bans for select
   using (exists (select 1 from public.communities c where c.id = community_id and c.owner = auth.uid()));
@@ -407,7 +414,7 @@ $$;
 
 -- Genel yarıştakiler arasında dönem XP'sine göre ilk 50 (> 0); eşit XP aynı sıra.
 create or replace function public.global_leaderboard(p_kind text, p_key text)
-returns table (position int, user_id uuid, username text, display_name text, level int, rank text,
+returns table ("position" int, user_id uuid, username text, display_name text, level int, rank text,
                active_title jsonb, xp int)
 language sql stable security definer set search_path = public
 as $$
