@@ -155,6 +155,6 @@ void main() {
 
     await tester.tap(find.byKey(const Key('social_tab_global')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('communities_tab')), findsNothing);
+    expect(find.byKey(const Key('global_tab')), findsOneWidget);
   });
 }

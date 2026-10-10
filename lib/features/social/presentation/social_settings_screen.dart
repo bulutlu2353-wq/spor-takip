@@ -135,6 +135,14 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
         ),
         const SizedBox(height: 8),
         Text('social.privacy_note'.tr(), style: TextStyle(color: scheme.onSurfaceVariant)),
+        SectionHeader('social.compete_title'.tr()),
+        SwitchListTile(
+          key: const Key('compete_globally'),
+          title: Text('social.compete_globally'.tr()),
+          subtitle: Text('social.compete_globally_note'.tr()),
+          value: me.competeGlobally,
+          onChanged: (v) => runSocialAction(context, () => actions.updateProfile(competeGlobally: v)),
+        ),
       ],
     );
   }

@@ -16,6 +16,7 @@ import '../domain/public_profile.dart';
 import '../domain/username.dart';
 import 'add_friend_sheet.dart';
 import 'communities_tab.dart';
+import 'global_tab.dart';
 import 'widgets/social_avatar.dart';
 import 'widgets/username_field.dart';
 
@@ -84,8 +85,7 @@ class _Tabs extends StatelessWidget {
               children: [
                 _Overview(me: me),
                 const CommunitiesTab(),
-                // Task 9: GlobalTab.
-                const SizedBox.shrink(),
+                const GlobalTab(),
               ],
             ),
           ),

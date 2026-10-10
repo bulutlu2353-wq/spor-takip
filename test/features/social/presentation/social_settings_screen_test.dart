@@ -60,4 +60,15 @@ void main() {
     expect(repo.me?.shareWorkouts, isTrue);
     expect(tester.widget<SwitchListTile>(find.byKey(const Key('share_weekly'))).value, isFalse);
   });
+
+  testWidgets('the compete switch saves right away', (tester) async {
+    final repo = await pump(tester);
+    final competeSwitch = find.byKey(const Key('compete_globally'));
+    await tester.ensureVisible(competeSwitch);
+    expect(tester.widget<SwitchListTile>(competeSwitch).value, isTrue);
+    await tester.tap(competeSwitch);
+    await tester.pumpAndSettle();
+    expect(repo.me?.competeGlobally, isFalse);
+    expect(tester.widget<SwitchListTile>(competeSwitch).value, isFalse);
+  });
 }
