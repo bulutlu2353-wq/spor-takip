@@ -38,8 +38,7 @@ final myCommunitiesProvider = FutureProvider.autoDispose<List<CommunityEntry>>((
   for (final community in communities) {
     final list = members[community.id] ?? const <CommunityMember>[];
     final memberStats = {
-      for (final m in list)
-        if (stats[m.userId] case final s?) m.userId: s,
+      for (final m in list) m.userId: ?stats[m.userId],
     };
     final mine = standings(memberStats, PeriodKind.week, key).where((s) => s.userId == me.userId).firstOrNull;
     entries.add(CommunityEntry(community: community, memberCount: list.length, myPosition: mine?.position));
