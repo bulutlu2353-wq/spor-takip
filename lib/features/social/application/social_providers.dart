@@ -9,6 +9,7 @@ import '../../workout/application/muscle_heat_providers.dart';
 import '../../workout/application/session_providers.dart';
 import '../data/social_repository.dart';
 import '../domain/friendship.dart';
+import '../domain/period_stats.dart';
 import '../domain/player_stats.dart';
 import '../domain/public_profile.dart';
 
@@ -110,7 +111,19 @@ class LastPublishedStats extends Notifier<PlayerStats?> {
 
 final lastPublishedStatsProvider = NotifierProvider<LastPublishedStats, PlayerStats?>(LastPublishedStats.new);
 
-/// Kendi `player_stats` satırımı yayınlar (S1 spec §5). `AppShell` izler; hata loglanır.
+/// Son yayınlanan dönem özeti (bellekte); aynıysa yeniden yazılmaz.
+class LastPublishedPeriodStats extends Notifier<PeriodStats?> {
+  @override
+  PeriodStats? build() => null;
+
+  void remember(PeriodStats stats) => state = stats;
+}
+
+final lastPublishedPeriodStatsProvider =
+    NotifierProvider<LastPublishedPeriodStats, PeriodStats?>(LastPublishedPeriodStats.new);
+
+/// Kendi `player_stats` (S1 spec §5) ve `period_stats` (S2 spec §5) satırlarımı
+/// yayınlar; her biri yalnız değişince yazılır. `AppShell` izler; hata loglanır.
 final statsSyncProvider = FutureProvider.autoDispose<void>((ref) async {
   final profile = await ref.watch(myPublicProfileProvider.future);
   if (profile == null) return;
@@ -121,21 +134,40 @@ final statsSyncProvider = FutureProvider.autoDispose<void>((ref) async {
     ref.watch(exercisesByIdProvider.future),
     ref.watch(activeTitleProvider.future),
   ).wait;
+  final now = ref.read(nowProvider)();
+  final repo = ref.read(socialRepositoryProvider);
   final stats = buildPlayerStats(
     summary: summary,
     sessions: sessions,
     mealTimes: mealTimes,
     exercisesById: exercisesById,
-    now: ref.read(nowProvider)(),
+    now: now,
     activeTitleId: activeTitleId,
     privacy: SharedPrivacy(weekly: profile.shareWeekly, workouts: profile.shareWorkouts, heat: profile.shareHeat),
   );
-  if (ref.read(lastPublishedStatsProvider) == stats) return;
-  try {
-    await ref.read(socialRepositoryProvider).upsertMyStats(stats);
-    ref.read(lastPublishedStatsProvider.notifier).remember(stats);
-  } catch (e, st) {
-    debugPrint('statsSync failed: $e\n$st');
+  if (ref.read(lastPublishedStatsProvider) != stats) {
+    try {
+      await repo.upsertMyStats(stats);
+      ref.read(lastPublishedStatsProvider.notifier).remember(stats);
+    } catch (e, st) {
+      debugPrint('statsSync failed: $e\n$st');
+    }
+  }
+  final period = buildPeriodStats(
+    summary: summary,
+    sessions: sessions,
+    mealTimes: mealTimes,
+    exercisesById: exercisesById,
+    now: now,
+    activeTitleId: activeTitleId,
+  );
+  if (ref.read(lastPublishedPeriodStatsProvider) != period) {
+    try {
+      await repo.upsertMyPeriodStats(period);
+      ref.read(lastPublishedPeriodStatsProvider.notifier).remember(period);
+    } catch (e, st) {
+      debugPrint('periodStatsSync failed: $e\n$st');
+    }
   }
 });
 
@@ -159,6 +191,7 @@ class SocialActions {
     bool? shareWeekly,
     bool? shareWorkouts,
     bool? shareHeat,
+    bool? competeGlobally,
   }) async {
     final profile = await _repo.updateProfile(
       username: username,
@@ -166,6 +199,7 @@ class SocialActions {
       shareWeekly: shareWeekly,
       shareWorkouts: shareWorkouts,
       shareHeat: shareHeat,
+      competeGlobally: competeGlobally,
     );
     _ref.invalidate(myPublicProfileProvider);
     return profile;

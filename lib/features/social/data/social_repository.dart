@@ -1,6 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/community.dart';
 import '../domain/friendship.dart';
+import '../domain/period_keys.dart';
+import '../domain/period_stats.dart';
 import '../domain/player_stats.dart';
 import '../domain/public_profile.dart';
 
@@ -16,6 +19,7 @@ abstract interface class SocialRepository {
     bool? shareWeekly,
     bool? shareWorkouts,
     bool? shareHeat,
+    bool? competeGlobally,
   });
   Future<bool> usernameAvailable(String username);
   Future<FoundUser?> findByUsername(String username);
@@ -29,6 +33,27 @@ abstract interface class SocialRepository {
   Future<List<PublicProfile>> fetchProfiles(List<String> userIds);
   Future<Map<String, PlayerStats>> fetchStats(List<String> userIds);
   Future<void> upsertMyStats(PlayerStats stats);
+  Future<List<String>> fetchMyCommunityIds();
+  Future<List<Community>> fetchCommunities(List<String> ids);
+
+  /// Topluluk → üyeler (katılma sırasıyla).
+  Future<Map<String, List<CommunityMember>>> fetchMembers(List<String> communityIds);
+  Future<List<CommunitySearchResult>> searchCommunities(String query);
+
+  /// Yeni topluluğun kimliği.
+  Future<String> createCommunity({required String name, required String description, required bool isPublic});
+  Future<void> joinCommunity(String id);
+
+  /// Katılınan topluluğun kimliği.
+  Future<String> joinCommunityByCode(String code);
+  Future<void> leaveCommunity(String id);
+  Future<void> updateCommunity(String id, {String? name, String? description, bool? isPublic});
+  Future<void> removeMember(String communityId, String userId, {required bool ban});
+  Future<String> regenerateCommunityCode(String id);
+  Future<Map<String, PeriodStats>> fetchPeriodStats(List<String> userIds);
+  Future<void> upsertMyPeriodStats(PeriodStats stats);
+  Future<List<GlobalTitle>> globalTitles(PeriodKind kind, String key);
+  Future<List<GlobalRow>> globalLeaderboard(PeriodKind kind, String key);
 }
 
 class SupabaseSocialRepository implements SocialRepository {
@@ -37,7 +62,8 @@ class SupabaseSocialRepository implements SocialRepository {
   final SupabaseClient _client;
 
   static const _profileColumns =
-      'user_id, username, display_name, invite_code, share_weekly, share_workouts, share_heat';
+      'user_id, username, display_name, invite_code, share_weekly, share_workouts, share_heat, compete_globally';
+  static const _communityColumns = 'id, name, description, is_public, invite_code, owner';
 
   String get _me => _client.auth.currentUser!.id;
 
@@ -75,6 +101,7 @@ class SupabaseSocialRepository implements SocialRepository {
     bool? shareWeekly,
     bool? shareWorkouts,
     bool? shareHeat,
+    bool? competeGlobally,
   }) async {
     try {
       final row = await _client
@@ -85,6 +112,7 @@ class SupabaseSocialRepository implements SocialRepository {
             'share_weekly': ?shareWeekly,
             'share_workouts': ?shareWorkouts,
             'share_heat': ?shareHeat,
+            'compete_globally': ?competeGlobally,
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('user_id', _me)
@@ -155,5 +183,119 @@ class SupabaseSocialRepository implements SocialRepository {
       'user_id': _me,
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     });
+  }
+
+  /// Topluluk fonksiyonunun `raise exception '<kod>'` hatasını [CommunityException]'a çevirir.
+  Future<T> _community<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on PostgrestException catch (e) {
+      if (communityErrorCodes.contains(e.message)) throw CommunityException(e.message);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<String>> fetchMyCommunityIds() async {
+    final rows = await _client.from('community_members').select('community_id').eq('user_id', _me);
+    return [for (final row in rows) row['community_id'] as String];
+  }
+
+  @override
+  Future<List<Community>> fetchCommunities(List<String> ids) async {
+    if (ids.isEmpty) return const [];
+    final rows = await _client.from('communities').select(_communityColumns).inFilter('id', ids);
+    return [for (final row in rows) Community.fromJson(row)];
+  }
+
+  @override
+  Future<Map<String, List<CommunityMember>>> fetchMembers(List<String> communityIds) async {
+    if (communityIds.isEmpty) return const {};
+    final rows = await _client
+        .from('community_members')
+        .select('community_id, user_id, role, joined_at')
+        .inFilter('community_id', communityIds)
+        .order('joined_at');
+    final result = <String, List<CommunityMember>>{};
+    for (final row in rows) {
+      final member = CommunityMember.fromJson(row);
+      (result[member.communityId] ??= []).add(member);
+    }
+    return result;
+  }
+
+  @override
+  Future<List<CommunitySearchResult>> searchCommunities(String query) async {
+    final rows = await _client.rpc('search_communities', params: {'p_query': query}) as List? ?? const [];
+    return [for (final row in rows) CommunitySearchResult.fromJson(row as Map<String, dynamic>)];
+  }
+
+  @override
+  Future<String> createCommunity({required String name, required String description, required bool isPublic}) =>
+      _community(() async => await _client.rpc('create_community', params: {
+            'p_name': name,
+            'p_description': description,
+            'p_is_public': isPublic,
+          }) as String);
+
+  @override
+  Future<void> joinCommunity(String id) => _community(() async {
+        await _client.rpc('join_community', params: {'p_id': id});
+      });
+
+  @override
+  Future<String> joinCommunityByCode(String code) =>
+      _community(() async => await _client.rpc('join_community_by_code', params: {'p_code': code}) as String);
+
+  @override
+  Future<void> leaveCommunity(String id) => _community(() async {
+        await _client.rpc('leave_community', params: {'p_id': id});
+      });
+
+  @override
+  Future<void> updateCommunity(String id, {String? name, String? description, bool? isPublic}) async {
+    await _client.from('communities').update({
+      'name': ?name?.trim(),
+      'description': ?description?.trim(),
+      'is_public': ?isPublic,
+    }).eq('id', id);
+  }
+
+  @override
+  Future<void> removeMember(String communityId, String userId, {required bool ban}) => _community(() async {
+        await _client.rpc('remove_member', params: {'p_id': communityId, 'p_user': userId, 'p_ban': ban});
+      });
+
+  @override
+  Future<String> regenerateCommunityCode(String id) =>
+      _community(() async => await _client.rpc('regenerate_community_code', params: {'p_id': id}) as String);
+
+  @override
+  Future<Map<String, PeriodStats>> fetchPeriodStats(List<String> userIds) async {
+    if (userIds.isEmpty) return const {};
+    final rows = await _client.from('period_stats').select().inFilter('user_id', userIds);
+    return {for (final row in rows) row['user_id'] as String: PeriodStats.fromJson(row)};
+  }
+
+  @override
+  Future<void> upsertMyPeriodStats(PeriodStats stats) async {
+    await _client.from('period_stats').upsert({
+      ...stats.toJson(),
+      'user_id': _me,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    });
+  }
+
+  @override
+  Future<List<GlobalTitle>> globalTitles(PeriodKind kind, String key) async {
+    final rows = await _client.rpc('global_titles', params: {'p_kind': kind.name, 'p_key': key}) as List? ?? const [];
+    return [for (final row in rows) GlobalTitle.fromJson(row as Map<String, dynamic>)];
+  }
+
+  @override
+  Future<List<GlobalRow>> globalLeaderboard(PeriodKind kind, String key) async {
+    final rows =
+        await _client.rpc('global_leaderboard', params: {'p_kind': kind.name, 'p_key': key}) as List? ?? const [];
+    return [for (final row in rows) GlobalRow.fromJson(row as Map<String, dynamic>)];
   }
 }

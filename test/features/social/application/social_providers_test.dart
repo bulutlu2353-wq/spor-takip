@@ -105,4 +105,23 @@ void main() {
     expect([for (final f in after.friends) f.profile.userId], ['can']);
     expect(repo.responses, [('can', true)]);
   });
+
+  test('period stats are published once per change', () async {
+    final repo = FakeSocialRepository(me: socialMe);
+    final container = _container(repo);
+    container.listen(statsSyncProvider, (_, _) {});
+
+    await container.read(statsSyncProvider.future);
+    expect(repo.periodUpserts, hasLength(1));
+    final period = repo.periodUpserts.single;
+    expect(period.week.key, '2026-W41');
+    expect(period.week.xp, 75);
+    expect(period.week.muscles, {'chest': 3.0, 'triceps': 1.5});
+    expect(period.prevMonth.key, '2026-09');
+
+    container.invalidate(statsSyncProvider);
+    await container.read(statsSyncProvider.future);
+    expect(repo.periodUpserts, hasLength(1));
+    expect(repo.upserts, hasLength(1));
+  });
 }

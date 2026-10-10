@@ -1,5 +1,6 @@
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/titles.dart';
+import 'package:spor_takip/features/social/domain/community.dart';
 import 'package:spor_takip/features/social/domain/friendship.dart';
 import 'package:spor_takip/features/social/domain/period_stats.dart';
 import 'package:spor_takip/features/social/domain/player_stats.dart';
@@ -68,3 +69,32 @@ PeriodStats socialPeriod({
       month: PeriodSlot(key: '2026-10', xp: month),
       prevMonth: PeriodSlot(key: '2026-09', xp: prevMonth),
     );
+
+const socialCommunity = Community(
+  id: 'c1',
+  name: 'Demir Kulübü',
+  description: 'Sabah 6 ekibi',
+  isPublic: true,
+  inviteCode: 'Q7M2K9TA',
+  owner: 'me',
+);
+const socialCommunity2 = Community(
+  id: 'c2',
+  name: 'Ayşe Takımı',
+  description: '',
+  isPublic: false,
+  inviteCode: 'AYSETKM2',
+  owner: 'ayse',
+);
+const socialCommunity3 = Community(
+  id: 'c3',
+  name: 'Akşamcılar',
+  description: '',
+  isPublic: true,
+  inviteCode: 'AKSAMC23',
+  owner: 'me',
+);
+
+/// [day]: Ekim 2026'da katılma günü (sıra için).
+CommunityMember socialMember(String communityId, String userId, {bool owner = false, int day = 1}) =>
+    CommunityMember(communityId: communityId, userId: userId, isOwner: owner, joinedAt: DateTime(2026, 10, day));

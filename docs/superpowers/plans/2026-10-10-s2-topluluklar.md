@@ -2178,11 +2178,11 @@ void main() {
     final repo = _repo();
     final container = _container(repo);
     container.listen(globalBoardProvider(PeriodKind.week), (_, _) {});
-    container.listen(globalBoardProvider(PeriodKind.month), (_, _) {});
-
     await container.read(globalBoardProvider(PeriodKind.week).future);
     expect(repo.globalQueries, [(PeriodKind.week, '2026-W40'), (PeriodKind.week, '2026-W41')]);
+
     repo.globalQueries.clear();
+    container.listen(globalBoardProvider(PeriodKind.month), (_, _) {});
     await container.read(globalBoardProvider(PeriodKind.month).future);
     expect(repo.globalQueries, [(PeriodKind.month, '2026-09'), (PeriodKind.month, '2026-10')]);
   });
