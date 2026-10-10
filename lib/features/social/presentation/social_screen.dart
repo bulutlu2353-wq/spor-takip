@@ -354,9 +354,7 @@ class _MeCard extends ConsumerWidget {
                     label: Text('social.copy'.tr()),
                     onPressed: () async {
                       final messenger = ScaffoldMessenger.of(context);
-                      await Clipboard.setData(
-                        ClipboardData(text: 'social.invite_text'.tr(namedArgs: {'code': me.inviteCode})),
-                      );
+                      await Clipboard.setData(ClipboardData(text: me.inviteCode));
                       messenger.showSnackBar(SnackBar(content: Text('social.copied'.tr())));
                     },
                   ),

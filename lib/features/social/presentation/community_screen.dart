@@ -235,10 +235,7 @@ class _CommunityHeader extends StatelessWidget {
                   label: Text('social.copy'.tr()),
                   onPressed: () async {
                     final messenger = ScaffoldMessenger.of(context);
-                    await Clipboard.setData(ClipboardData(
-                      text: 'social.community_invite_text'
-                          .tr(namedArgs: {'name': community.name, 'code': community.inviteCode}),
-                    ));
+                    await Clipboard.setData(ClipboardData(text: community.inviteCode));
                     messenger.showSnackBar(SnackBar(content: Text('social.copied'.tr())));
                   },
                 ),

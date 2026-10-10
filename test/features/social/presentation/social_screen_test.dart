@@ -90,7 +90,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('social_copy_invite')));
     await tester.pumpAndSettle();
-    expect(copied, 'social.invite_text');
+    expect(copied, 'K7Q2M9XA');
     expect(find.text('social.copied'), findsOneWidget);
   });
 

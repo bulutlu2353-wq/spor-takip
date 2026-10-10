@@ -83,7 +83,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('community_copy_code')));
     await tester.pumpAndSettle();
-    expect(copied, 'social.community_invite_text');
+    expect(copied, 'Q7M2K9TA');
   });
 
   testWidgets('the month view shows empty texts; muscle leaders list this period without XP', (tester) async {
