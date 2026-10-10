@@ -3139,12 +3139,19 @@ class _StandingRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            periodValueLabel('xp', line.xp.toDouble()),
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontFamily: AppFonts.heading,
-              fontWeight: FontWeight.w900,
-              color: line.isMe || first ? scheme.primary : scheme.onSurface,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 96),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                periodValueLabel('xp', line.xp.toDouble()),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontFamily: AppFonts.heading,
+                  fontWeight: FontWeight.w900,
+                  color: line.isMe || first ? scheme.primary : scheme.onSurface,
+                ),
+              ),
             ),
           ),
         ],
