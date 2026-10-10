@@ -142,4 +142,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('settings-stub'), findsOneWidget);
   });
+
+  testWidgets('the social tab has friends, communities and global sub-tabs', (tester) async {
+    await pump(tester, FakeSocialRepository(me: socialMe));
+    expect(find.byKey(const Key('social_tab_friends')), findsOneWidget);
+    expect(find.byKey(const Key('social_me_card')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('social_tab_communities')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('communities_tab')), findsOneWidget);
+    expect(find.byKey(const Key('communities_empty')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('social_tab_global')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('communities_tab')), findsNothing);
+  });
 }

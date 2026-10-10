@@ -15,6 +15,7 @@ import '../data/social_repository.dart';
 import '../domain/public_profile.dart';
 import '../domain/username.dart';
 import 'add_friend_sheet.dart';
+import 'communities_tab.dart';
 import 'widgets/social_avatar.dart';
 import 'widgets/username_field.dart';
 
@@ -51,7 +52,44 @@ class SocialScreen extends ConsumerWidget {
             child: Text('social.retry'.tr()),
           ),
         ),
-        data: (me) => me == null ? const _CreateProfile() : _Overview(me: me),
+        data: (me) => me == null ? const _CreateProfile() : _Tabs(me: me),
+      ),
+    );
+  }
+}
+
+/// Arkadaşlar / Topluluklar / Genel (S2 spec §6.1).
+class _Tabs extends StatelessWidget {
+  const _Tabs({required this.me});
+
+  final PublicProfile me;
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = context.locale.languageCode;
+    Tab tab(String key, String label) => Tab(key: Key(key), text: upperCaseFor(label.tr(), lang));
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: [
+              tab('social_tab_friends', 'social.tab_friends'),
+              tab('social_tab_communities', 'social.tab_communities'),
+              tab('social_tab_global', 'social.tab_global'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _Overview(me: me),
+                const CommunitiesTab(),
+                // Task 9: GlobalTab.
+                const SizedBox.shrink(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
