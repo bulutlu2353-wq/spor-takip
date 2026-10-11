@@ -86,15 +86,22 @@ class _CreateChallengeSheetState extends ConsumerState<CreateChallengeSheet> {
             communityId: widget.communityId,
             invitees: _community ? const [] : invitees,
           ));
+      // Başarıda düğme kapanış animasyonu boyunca kapalı kalır (çift oluşturma olmasın).
       if (navigator.canPop()) navigator.pop(id);
     } on ChallengeException catch (e) {
-      if (mounted) setState(() => _error = 'challenge.error.${e.code}'.tr());
+      _fail('challenge.error.${e.code}'.tr());
     } catch (e, st) {
       debugPrint('create challenge failed: $e\n$st');
-      if (mounted) setState(() => _error = 'social.action_error'.tr());
-    } finally {
-      if (mounted) setState(() => _saving = false);
+      _fail('social.action_error'.tr());
     }
+  }
+
+  void _fail(String message) {
+    if (!mounted) return;
+    setState(() {
+      _error = message;
+      _saving = false;
+    });
   }
 
   @override

@@ -22,7 +22,8 @@ class ChallengesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(myChallengesProvider);
-    final hasFriends = (ref.watch(socialOverviewProvider).value?.friends ?? const []).isNotEmpty;
+    final friends = ref.watch(socialOverviewProvider).value?.friends;
+    final hasFriends = friends?.isNotEmpty ?? false;
     final muted = TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant);
     final now = ref.read(nowProvider)();
     return Stack(
@@ -67,7 +68,7 @@ class ChallengesTab extends ConsumerWidget {
                   SectionHeader('challenge.finished'.tr()),
                   for (final entry in mine.finished) ChallengeCompactRow(entry: entry, now: now),
                 ],
-                if (!hasFriends)
+                if (friends != null && friends.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: Text('challenge.need_friends'.tr(), key: const Key('challenges_need_friends'), style: muted),
