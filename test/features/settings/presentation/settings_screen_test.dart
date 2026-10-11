@@ -28,7 +28,11 @@ void main() {
     await tester.pumpWidget(testApp(
       const SettingsScreen(),
       scaffold: false,
-      stubRoutes: {'/home/weight': 'weight-stub', '/home/settings/goals': 'goals-stub'},
+      stubRoutes: {
+        '/home/weight': 'weight-stub',
+        '/home/settings/goals': 'goals-stub',
+        '/home/settings/notifications': 'notifications-stub',
+      },
       overrides: [
         profileProvider.overrideWith((ref) async => testProfile),
         profileRepositoryProvider.overrideWithValue(repo),
@@ -59,6 +63,14 @@ void main() {
     await tester.tap(find.byKey(const Key('settings_row_weight')));
     await tester.pumpAndSettle();
     expect(find.text('weight-stub'), findsOneWidget);
+  });
+
+  testWidgets('the notifications row opens the reminders page', (tester) async {
+    await pump(tester);
+    await tester.ensureVisible(find.byKey(const Key('settings_notifications')));
+    await tester.tap(find.byKey(const Key('settings_notifications')));
+    await tester.pumpAndSettle();
+    expect(find.text('notifications-stub'), findsOneWidget);
   });
 
   testWidgets('the goal card opens my goals', (tester) async {

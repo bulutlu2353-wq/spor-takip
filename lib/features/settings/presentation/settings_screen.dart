@@ -13,7 +13,7 @@ import '../../progress/presentation/widgets/card_states.dart';
 import 'widgets/goal_summary_card.dart';
 import 'widgets/profile_field_sheets.dart';
 
-/// Profil ve ayarlar (G2 spec §4.1): hedef kartı, profil satırları, dil, hesap.
+/// Profil ve ayarlar (G2 spec §4.1): hedef kartı, profil satırları, dil, bildirimler (N1), hesap.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -115,6 +115,17 @@ class _SettingsList extends ConsumerWidget {
         ),
         SectionHeader('settings.section_language'.tr()),
         const _LanguageSelector(),
+        SectionHeader('settings.section_notifications'.tr()),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            key: const Key('settings_notifications'),
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text('settings.row_notifications'.tr()),
+            trailing: Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+            onTap: () => context.push('/home/settings/notifications'),
+          ),
+        ),
         SectionHeader('settings.section_account'.tr()),
         Card(
           clipBehavior: Clip.antiAlias,

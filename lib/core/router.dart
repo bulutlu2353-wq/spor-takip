@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/chat/presentation/coach_screen.dart';
 import '../features/gamification/presentation/level_screen.dart';
 import '../features/nutrition/presentation/meal_capture_screen.dart';
+import '../features/notifications/presentation/notifications_screen.dart';
 import '../features/nutrition/presentation/nutrition_screen.dart';
 import '../features/onboarding/application/auth_providers.dart';
 import '../features/onboarding/application/profile_providers.dart';
@@ -89,7 +90,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'settings',
                     builder: (context, state) => const SettingsScreen(),
-                    routes: [GoRoute(path: 'goals', builder: (context, state) => const GoalsScreen())],
+                    routes: [
+                      GoRoute(path: 'goals', builder: (context, state) => const GoalsScreen()),
+                      GoRoute(path: 'notifications', builder: (context, state) => const NotificationsScreen()),
+                    ],
                   ),
                 ],
               ),
