@@ -799,5 +799,110 @@
     "compete_title": "Competition",
     "compete_globally": "Take part in global standings",
     "compete_globally_note": "When off, your name doesn't appear in global standings or global champions; community standings are not affected."
+  },
+  "challenge": {
+    "tab": "Challenges",
+    "invites": "Invites",
+    "active": "Active",
+    "active_empty": "You have no active challenges.",
+    "upcoming": "Not started",
+    "finished": "Finished",
+    "need_friends": "Add a friend first to challenge them.",
+    "new": "New challenge",
+    "new_title": "New challenge",
+    "invited_by": "{name} challenged you",
+    "accept": "Accept",
+    "decline": "Decline",
+    "join": "Join",
+    "position_of": "/ {n}",
+    "leader": "Leader: {name} ({value})",
+    "goal_progress": "{value} / {target}",
+    "kind": {
+      "race": "Race",
+      "goal": "Goal"
+    },
+    "kind_note": {
+      "race": "Highest value at the end wins",
+      "goal": "Everyone who reaches the goal in time succeeds"
+    },
+    "metric_label": "Metric",
+    "metric": {
+      "workouts": "Workouts",
+      "sets": "Sets",
+      "xp": "XP",
+      "volume": "Volume (kg)"
+    },
+    "metric_noun": {
+      "workouts": "workouts",
+      "sets": "sets",
+      "xp": "XP",
+      "volume": "volume"
+    },
+    "value": {
+      "workouts": "{n} workouts",
+      "sets": "{n} sets",
+      "xp": "{n} XP",
+      "volume": "{n} kg"
+    },
+    "unit": {
+      "workouts": "workouts",
+      "sets": "sets",
+      "xp": "XP",
+      "volume": "kg"
+    },
+    "muscle_label": "Muscle",
+    "muscle_all": "All",
+    "target_label": "Goal",
+    "duration_label": "Duration",
+    "days": "{n} days",
+    "start_label": "Start",
+    "start": {
+      "now": "Now",
+      "tomorrow": "Tomorrow 00:00"
+    },
+    "name_label": "Name (optional)",
+    "invite_label": "Invite friends · {n}/{max}",
+    "start_button": "Start the challenge",
+    "auto_race": "Most {metric} in {days} days",
+    "auto_goal": "{value} in {days} days",
+    "auto_muscle": "{name} · {muscle}",
+    "starts_at": "Starts: {date}",
+    "finalizing": "Finalizing",
+    "ended": "Ended",
+    "result_won": "You won · +{xp} XP",
+    "result_goal": "Goal reached · +{xp} XP",
+    "result_position": "You finished #{n}",
+    "result_missed": "Goal missed",
+    "result_none": "No winner",
+    "title": "Challenge",
+    "gone": "This challenge no longer exists.",
+    "standings": "Standings",
+    "standings_empty": "Nobody has joined yet.",
+    "me": "You",
+    "pending": "Pending invite: {names}",
+    "participants_by": "{n} participants · by {name}",
+    "target": "Goal: {value}",
+    "reward_race": "Winner +{xp} XP",
+    "reward_goal": "+{xp} XP for everyone who reaches the goal",
+    "reward_title": "Counts toward the Challenge title",
+    "leave": "Leave",
+    "delete": "Delete",
+    "leave_confirm": "Leave this challenge? Your progress is removed.",
+    "delete_confirm": "The challenge will be deleted for everyone. Are you sure?",
+    "confirm": "Yes",
+    "community_title": "Challenges",
+    "community_empty": "No active challenges in this community.",
+    "community_new": "Start a challenge",
+    "challenge_friend": "Challenge",
+    "error": {
+      "challenge_limit": "You can be in at most 5 active challenges.",
+      "community_challenge_limit": "A community can have at most 3 challenges at a time.",
+      "not_friend": "You can only invite your friends.",
+      "not_member": "You are not a member of this community.",
+      "challenge_closed": "This challenge has ended.",
+      "invalid_challenge": "The challenge details are invalid.",
+      "not_allowed": "You are not allowed to do that.",
+      "no_profile": "Create your social profile first."
+    }
   }
 }

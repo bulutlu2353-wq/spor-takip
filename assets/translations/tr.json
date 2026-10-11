@@ -799,5 +799,110 @@
     "compete_title": "Yarış",
     "compete_globally": "Genel sıralamada yer al",
     "compete_globally_note": "Kapalıyken adın genel sıralamada ve genel şampiyonlarda görünmez; topluluk sıralamaları etkilenmez."
+  },
+  "challenge": {
+    "tab": "Meydan okumalar",
+    "invites": "Davetler",
+    "active": "Aktif",
+    "active_empty": "Aktif meydan okuman yok.",
+    "upcoming": "Başlamadı",
+    "finished": "Biten",
+    "need_friends": "Meydan okumak için önce arkadaş ekle.",
+    "new": "Yeni meydan okuma",
+    "new_title": "Yeni meydan okuma",
+    "invited_by": "{name} seni meydan okumaya davet etti",
+    "accept": "Kabul",
+    "decline": "Reddet",
+    "join": "Katıl",
+    "position_of": "/ {n}",
+    "leader": "Lider: {name} ({value})",
+    "goal_progress": "{value} / {target}",
+    "kind": {
+      "race": "Yarış",
+      "goal": "Hedef"
+    },
+    "kind_note": {
+      "race": "Süre sonunda en yüksek değer kazanır",
+      "goal": "Süre içinde hedefe ulaşan herkes başarır"
+    },
+    "metric_label": "Ölçü",
+    "metric": {
+      "workouts": "Antrenman",
+      "sets": "Set",
+      "xp": "XP",
+      "volume": "Hacim (kg)"
+    },
+    "metric_noun": {
+      "workouts": "antrenman",
+      "sets": "set",
+      "xp": "XP",
+      "volume": "hacim"
+    },
+    "value": {
+      "workouts": "{n} antrenman",
+      "sets": "{n} set",
+      "xp": "{n} XP",
+      "volume": "{n} kg"
+    },
+    "unit": {
+      "workouts": "antrenman",
+      "sets": "set",
+      "xp": "XP",
+      "volume": "kg"
+    },
+    "muscle_label": "Kas",
+    "muscle_all": "Tümü",
+    "target_label": "Hedef",
+    "duration_label": "Süre",
+    "days": "{n} gün",
+    "start_label": "Başlangıç",
+    "start": {
+      "now": "Hemen",
+      "tomorrow": "Yarın 00:00"
+    },
+    "name_label": "Ad (isteğe bağlı)",
+    "invite_label": "Arkadaşları davet et · {n}/{max}",
+    "start_button": "Meydan okumayı başlat",
+    "auto_race": "{days} günde en çok {metric}",
+    "auto_goal": "{days} günde {value}",
+    "auto_muscle": "{name} · {muscle}",
+    "starts_at": "Başlangıç: {date}",
+    "finalizing": "Kesinleşiyor",
+    "ended": "Bitti",
+    "result_won": "Kazandın · +{xp} XP",
+    "result_goal": "Başardın · +{xp} XP",
+    "result_position": "{n}. oldun",
+    "result_missed": "Hedefe ulaşamadın",
+    "result_none": "Kazanan yok",
+    "title": "Meydan okuma",
+    "gone": "Bu meydan okuma artık yok.",
+    "standings": "Sıralama",
+    "standings_empty": "Henüz katılan yok.",
+    "me": "Sen",
+    "pending": "Bekleyen davet: {names}",
+    "participants_by": "{n} katılımcı · açan {name}",
+    "target": "Hedef: {value}",
+    "reward_race": "Birinci +{xp} XP",
+    "reward_goal": "Hedefe ulaşan herkese +{xp} XP",
+    "reward_title": "Meydan Okuma unvanına sayılır",
+    "leave": "Ayrıl",
+    "delete": "Sil",
+    "leave_confirm": "Meydan okumadan ayrılmak istiyor musun? İlerlemen silinir.",
+    "delete_confirm": "Meydan okuma herkes için silinecek. Emin misin?",
+    "confirm": "Evet",
+    "community_title": "Meydan okumalar",
+    "community_empty": "Toplulukta aktif meydan okuma yok.",
+    "community_new": "Meydan okuma aç",
+    "challenge_friend": "Meydan oku",
+    "error": {
+      "challenge_limit": "En çok 5 aktif meydan okumada bulunabilirsin.",
+      "community_challenge_limit": "Toplulukta aynı anda en çok 3 meydan okuma olabilir.",
+      "not_friend": "Yalnız arkadaşlarını davet edebilirsin.",
+      "not_member": "Bu topluluğun üyesi değilsin.",
+      "challenge_closed": "Bu meydan okuma sona erdi.",
+      "invalid_challenge": "Meydan okuma bilgileri geçersiz.",
+      "not_allowed": "Bunu yapmaya yetkin yok.",
+      "no_profile": "Önce sosyal kimliğini oluştur."
+    }
   }
 }
