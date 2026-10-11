@@ -16,6 +16,7 @@ import '../features/progress/presentation/strength_screen.dart';
 import '../features/progress/presentation/weight_screen.dart';
 import '../features/settings/presentation/goals_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/social/presentation/challenge_screen.dart';
 import '../features/social/presentation/community_screen.dart';
 import '../features/social/presentation/friend_profile_screen.dart';
 import '../features/social/presentation/social_screen.dart';
@@ -166,6 +167,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'community/:id',
                     builder: (context, state) => CommunityScreen(communityId: state.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'challenge/:id',
+                    builder: (context, state) => ChallengeScreen(challengeId: state.pathParameters['id']!),
                   ),
                 ],
               ),
