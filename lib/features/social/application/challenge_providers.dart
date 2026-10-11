@@ -207,6 +207,9 @@ final challengeDetailProvider = FutureProvider.autoDispose.family<ChallengeDetai
 /// ya da okunamazsa boş: seviye meydan okumasız da hesaplanır.
 final challengeRewardsProvider = FutureProvider.autoDispose<List<XpEvent>>((ref) async {
   try {
+    // Başarısız profil okuması yeniden denenirken `.future` bekler; önce anlık duruma bak.
+    final profile = ref.watch(myPublicProfileProvider);
+    if (profile.hasError) return const [];
     final me = await ref.watch(myPublicProfileProvider.future);
     if (me == null) return const [];
     final repo = ref.watch(socialRepositoryProvider);

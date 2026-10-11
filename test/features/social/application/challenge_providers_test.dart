@@ -41,8 +41,8 @@ FakeSocialRepository _repo() => FakeSocialRepository(
       },
     );
 
-ProviderContainer _container(FakeSocialRepository repo) {
-  final container = ProviderContainer(retry: (_, _) => null, overrides: [
+ProviderContainer _container(FakeSocialRepository repo, {bool retry = false}) {
+  final container = ProviderContainer(retry: retry ? null : (_, _) => null, overrides: [
     isLoggedInProvider.overrideWithValue(true),
     socialRepositoryProvider.overrideWithValue(repo),
     nowProvider.overrideWithValue(() => DateTime(2026, 10, 9, 12)),
@@ -97,9 +97,10 @@ void main() {
   });
 
   test('rewards fall back to empty when the repository fails', () async {
-    final container = _container(_repo()..error = Exception('offline'));
+    // Varsayılan yeniden deneme açık: profil okuması denenirken bile boş dönmeli.
+    final container = _container(_repo()..error = Exception('offline'), retry: true);
     container.listen(challengeRewardsProvider, (_, _) {});
-    expect(await container.read(challengeRewardsProvider.future), isEmpty);
+    expect(await container.read(challengeRewardsProvider.future).timeout(const Duration(seconds: 5)), isEmpty);
   });
 
   test('community challenges list unfinished ones with server values', () async {
