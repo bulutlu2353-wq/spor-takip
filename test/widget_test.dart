@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:spor_takip/features/notifications/application/notification_providers.dart';
+import 'package:spor_takip/features/notifications/data/reminder_scheduler.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
 import 'package:spor_takip/main.dart';
 
@@ -24,6 +26,7 @@ void main() {
         fallbackLocale: const Locale('tr'),
         child: ProviderScope(
           overrides: [
+            reminderSchedulerProvider.overrideWithValue(const NoopReminderScheduler()),
             authStateProvider.overrideWith(
               (ref) => Stream.value(
                 const AuthState(AuthChangeEvent.signedOut, null),
