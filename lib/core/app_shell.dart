@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/social/application/challenge_providers.dart';
 import '../features/social/application/social_providers.dart';
 
 class AppShell extends ConsumerWidget {
@@ -12,9 +13,10 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Kabuk açıkken oyuncu özeti arkadaşlar için yayınlanır (S1 spec §6.1).
+    // Kabuk açıkken oyuncu özeti (S1 spec §6.1) ve meydan okuma değerlerim (S3) yayınlanır.
     ref.watch(statsSyncProvider);
-    final requests = ref.watch(incomingRequestCountProvider);
+    ref.watch(challengeSyncProvider);
+    final requests = ref.watch(incomingRequestCountProvider) + ref.watch(pendingChallengeInvitesProvider);
     Widget socialIcon(IconData icon) =>
         requests > 0 ? Badge(key: const Key('nav_social_badge'), label: Text('$requests'), child: Icon(icon)) : Icon(icon);
     return Scaffold(

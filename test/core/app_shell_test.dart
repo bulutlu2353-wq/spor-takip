@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/core/app_shell.dart';
+import 'package:spor_takip/features/social/application/challenge_providers.dart';
 import 'package:spor_takip/features/social/application/social_providers.dart';
 
 void main() {
@@ -46,6 +47,8 @@ void main() {
       child: ProviderScope(
         overrides: [
           statsSyncProvider.overrideWith((ref) async {}),
+          challengeSyncProvider.overrideWith((ref) async {}),
+          pendingChallengeInvitesProvider.overrideWithValue(0),
           incomingRequestCountProvider.overrideWithValue(requests),
         ],
         child: MaterialApp.router(routerConfig: router),

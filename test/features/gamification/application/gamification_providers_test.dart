@@ -6,6 +6,7 @@ import 'package:spor_takip/features/nutrition/domain/meal.dart';
 import 'package:spor_takip/features/nutrition/domain/meal_type.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
+import 'package:spor_takip/features/social/application/challenge_providers.dart';
 import 'package:spor_takip/features/workout/application/workout_providers.dart';
 
 import '../../progress/fakes.dart';
@@ -18,6 +19,7 @@ Meal _meal(String id, DateTime loggedAt) =>
 ProviderContainer _container() {
   final container = ProviderContainer(overrides: [
     isLoggedInProvider.overrideWithValue(true),
+    challengeRewardsProvider.overrideWith((ref) async => const []),
     progressDataRepositoryProvider.overrideWithValue(FakeProgressDataRepository(
       sessions: [gameSession('a', DateTime(2026, 10, 1, 18), gameSets('bench', 2))],
       meals: [_meal('m1', DateTime(2026, 10, 2, 8)), _meal('m2', DateTime(2026, 10, 2, 13))],

@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/challenge.dart';
 import '../domain/community.dart';
 import '../domain/friendship.dart';
 import '../domain/period_keys.dart';
@@ -54,6 +55,22 @@ abstract interface class SocialRepository {
   Future<void> upsertMyPeriodStats(PeriodStats stats);
   Future<List<GlobalTitle>> globalTitles(PeriodKind kind, String key);
   Future<List<GlobalRow>> globalLeaderboard(PeriodKind kind, String key);
+
+  /// Davetler dahil, reddettiklerim hariç.
+  Future<List<String>> fetchMyChallengeIds();
+  Future<List<String>> fetchCommunityChallengeIds(String communityId);
+  Future<List<Challenge>> fetchChallenges(List<String> ids);
+
+  /// Meydan okuma → katılımcılar.
+  Future<Map<String, List<ChallengeParticipant>>> fetchParticipants(List<String> challengeIds);
+
+  /// Yeni meydan okumanın kimliği.
+  Future<String> createChallenge(ChallengeDraft draft);
+  Future<void> respondChallenge(String id, {required bool accept});
+  Future<void> joinChallenge(String id);
+  Future<void> leaveChallenge(String id);
+  Future<void> deleteChallenge(String id);
+  Future<void> publishChallengeProgress(String id, double value);
 }
 
 class SupabaseSocialRepository implements SocialRepository {
@@ -64,6 +81,8 @@ class SupabaseSocialRepository implements SocialRepository {
   static const _profileColumns =
       'user_id, username, display_name, invite_code, share_weekly, share_workouts, share_heat, compete_globally';
   static const _communityColumns = 'id, name, description, is_public, invite_code, owner';
+
+  static const _challengeColumns = 'id, creator, community_id, name, kind, metric, muscle, target, starts_at, ends_at';
 
   String get _me => _client.auth.currentUser!.id;
 
@@ -298,4 +317,81 @@ class SupabaseSocialRepository implements SocialRepository {
         await _client.rpc('global_leaderboard', params: {'p_kind': kind.name, 'p_key': key}) as List? ?? const [];
     return [for (final row in rows) GlobalRow.fromJson(row as Map<String, dynamic>)];
   }
+
+  /// Meydan okuma fonksiyonunun `raise exception '<kod>'` hatasını [ChallengeException]'a çevirir.
+  Future<T> _challenge<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on PostgrestException catch (e) {
+      if (challengeErrorCodes.contains(e.message)) throw ChallengeException(e.message);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<String>> fetchMyChallengeIds() async {
+    final rows = await _client
+        .from('challenge_participants')
+        .select('challenge_id')
+        .eq('user_id', _me)
+        .neq('status', 'declined');
+    return [for (final row in rows) row['challenge_id'] as String];
+  }
+
+  @override
+  Future<List<String>> fetchCommunityChallengeIds(String communityId) async {
+    final rows = await _client.from('challenges').select('id').eq('community_id', communityId);
+    return [for (final row in rows) row['id'] as String];
+  }
+
+  @override
+  Future<List<Challenge>> fetchChallenges(List<String> ids) async {
+    if (ids.isEmpty) return const [];
+    final rows = await _client.from('challenges').select(_challengeColumns).inFilter('id', ids);
+    return [for (final row in rows) Challenge.fromJson(row)];
+  }
+
+  @override
+  Future<Map<String, List<ChallengeParticipant>>> fetchParticipants(List<String> challengeIds) async {
+    if (challengeIds.isEmpty) return const {};
+    final rows = await _client
+        .from('challenge_participants')
+        .select('challenge_id, user_id, status, progress')
+        .inFilter('challenge_id', challengeIds);
+    final result = <String, List<ChallengeParticipant>>{};
+    for (final row in rows) {
+      final participant = ChallengeParticipant.fromJson(row);
+      (result[participant.challengeId] ??= []).add(participant);
+    }
+    return result;
+  }
+
+  @override
+  Future<String> createChallenge(ChallengeDraft draft) =>
+      _challenge(() async => await _client.rpc('create_challenge', params: draft.toParams()) as String);
+
+  @override
+  Future<void> respondChallenge(String id, {required bool accept}) => _challenge(() async {
+        await _client.rpc('respond_challenge', params: {'p_id': id, 'p_accept': accept});
+      });
+
+  @override
+  Future<void> joinChallenge(String id) => _challenge(() async {
+        await _client.rpc('join_challenge', params: {'p_id': id});
+      });
+
+  @override
+  Future<void> leaveChallenge(String id) => _challenge(() async {
+        await _client.rpc('leave_challenge', params: {'p_id': id});
+      });
+
+  @override
+  Future<void> deleteChallenge(String id) => _challenge(() async {
+        await _client.rpc('delete_challenge', params: {'p_id': id});
+      });
+
+  @override
+  Future<void> publishChallengeProgress(String id, double value) => _challenge(() async {
+        await _client.rpc('publish_challenge_progress', params: {'p_id': id, 'p_value': value});
+      });
 }

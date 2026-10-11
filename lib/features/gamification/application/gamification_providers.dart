@@ -2,18 +2,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../progress/application/progress_providers.dart';
+import '../../social/application/challenge_providers.dart';
 import '../../workout/application/muscle_heat_providers.dart';
 import '../domain/player_summary.dart';
 
-/// Tüm geçmişten XP, seviye, rütbe ve unvanlar (O1 spec §7). Antrenman bitince
-/// `allSessionsProvider`, öğün kaydedilince `mealTimesProvider` geçersiz kılınır.
+/// Tüm geçmişten XP, seviye, rütbe ve unvanlar (O1 spec §7) + meydan okuma ödülleri
+/// (S3 spec §3.3). Antrenman bitince `allSessionsProvider`, öğün kaydedilince
+/// `mealTimesProvider` geçersiz kılınır.
 final playerSummaryProvider = FutureProvider.autoDispose<PlayerSummary>((ref) async {
-  final (sessions, mealTimes, exercisesById) = await (
+  final (sessions, mealTimes, exercisesById, rewards) = await (
     ref.watch(allSessionsProvider.future),
     ref.watch(mealTimesProvider.future),
     ref.watch(exercisesByIdProvider.future),
+    ref.watch(challengeRewardsProvider.future),
   ).wait;
-  return playerSummary(sessions, mealTimes, exercisesById);
+  return playerSummary(sessions, mealTimes, exercisesById, rewards: rewards);
 });
 
 const activeTitleKey = 'gamification.active_title';

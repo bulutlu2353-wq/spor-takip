@@ -1,4 +1,5 @@
 import 'package:spor_takip/features/social/data/social_repository.dart';
+import 'package:spor_takip/features/social/domain/challenge.dart';
 import 'package:spor_takip/features/social/domain/community.dart';
 import 'package:spor_takip/features/social/domain/friendship.dart';
 import 'package:spor_takip/features/social/domain/period_keys.dart';
@@ -16,13 +17,17 @@ class FakeSocialRepository implements SocialRepository {
     List<Community> communities = const [],
     Map<String, List<CommunityMember>> members = const {},
     Map<String, PeriodStats> periodStats = const {},
+    List<Challenge> challenges = const [],
+    Map<String, List<ChallengeParticipant>> participants = const {},
   })  : others = {for (final p in others) p.userId: p},
         friendships = [...friendships],
         stats = {...stats},
         taken = {...taken},
         communities = {for (final c in communities) c.id: c},
         members = {for (final MapEntry(key: id, value: list) in members.entries) id: [...list]},
-        periodStats = {...periodStats};
+        periodStats = {...periodStats},
+        challenges = {for (final c in challenges) c.id: c},
+        participants = {for (final MapEntry(key: id, value: list) in participants.entries) id: [...list]};
 
   PublicProfile? me;
   final Map<String, PublicProfile> others;
@@ -32,6 +37,17 @@ class FakeSocialRepository implements SocialRepository {
   final Map<String, Community> communities;
   final Map<String, List<CommunityMember>> members;
   final Map<String, PeriodStats> periodStats;
+  final Map<String, Challenge> challenges;
+  final Map<String, List<ChallengeParticipant>> participants;
+  final List<ChallengeDraft> createdChallenges = [];
+  final List<(String, bool)> challengeResponses = [];
+  final List<String> joinedChallenges = [];
+  final List<String> leftChallenges = [];
+  final List<String> deletedChallenges = [];
+  final List<(String, double)> publishedProgress = [];
+
+  /// Meydan okuma yazma işlemleri bunu fırlatır.
+  ChallengeException? challengeError;
   final List<PlayerStats> upserts = [];
   final List<PeriodStats> periodUpserts = [];
   final List<String> sent = [];
@@ -267,4 +283,96 @@ class FakeSocialRepository implements SocialRepository {
     globalQueries.add((kind, key));
     return [...globalRowsResult];
   }
+
+  void _throwChallengeError() {
+    if (challengeError case final e?) throw e;
+  }
+
+  void _setMyStatus(String id, ChallengeStatus status) {
+    final list = participants[id] ??= [];
+    list.removeWhere((p) => p.userId == _myId);
+    list.add(ChallengeParticipant(challengeId: id, userId: _myId, status: status));
+  }
+
+  @override
+  Future<List<String>> fetchMyChallengeIds() async {
+    _maybeThrow();
+    return [
+      for (final MapEntry(key: id, value: list) in participants.entries)
+        if (list.any((p) => p.userId == _myId && p.status != ChallengeStatus.declined)) id,
+    ];
+  }
+
+  @override
+  Future<List<String>> fetchCommunityChallengeIds(String communityId) async => [
+        for (final c in challenges.values)
+          if (c.communityId == communityId) c.id,
+      ];
+
+  @override
+  Future<List<Challenge>> fetchChallenges(List<String> ids) async => [
+        for (final id in ids)
+          ?challenges[id],
+      ];
+
+  @override
+  Future<Map<String, List<ChallengeParticipant>>> fetchParticipants(List<String> challengeIds) async => {
+        for (final id in challengeIds)
+          if (participants[id] case final list?) id: [...list],
+      };
+
+  @override
+  Future<String> createChallenge(ChallengeDraft draft) async {
+    _throwChallengeError();
+    createdChallenges.add(draft);
+    challenges['new'] = Challenge(
+      id: 'new',
+      creator: _myId,
+      communityId: draft.communityId,
+      name: draft.name,
+      kind: draft.kind,
+      metric: draft.metric,
+      muscle: draft.muscle,
+      target: draft.target,
+      startsAt: draft.startsAt,
+      endsAt: draft.endsAt,
+    );
+    participants['new'] = [
+      ChallengeParticipant(challengeId: 'new', userId: _myId, status: ChallengeStatus.joined),
+      for (final id in draft.invitees) ChallengeParticipant(challengeId: 'new', userId: id, status: ChallengeStatus.invited),
+    ];
+    return 'new';
+  }
+
+  @override
+  Future<void> respondChallenge(String id, {required bool accept}) async {
+    _throwChallengeError();
+    challengeResponses.add((id, accept));
+    _setMyStatus(id, accept ? ChallengeStatus.joined : ChallengeStatus.declined);
+  }
+
+  @override
+  Future<void> joinChallenge(String id) async {
+    _throwChallengeError();
+    joinedChallenges.add(id);
+    _setMyStatus(id, ChallengeStatus.joined);
+  }
+
+  @override
+  Future<void> leaveChallenge(String id) async {
+    _throwChallengeError();
+    leftChallenges.add(id);
+    participants[id]?.removeWhere((p) => p.userId == _myId);
+  }
+
+  @override
+  Future<void> deleteChallenge(String id) async {
+    _throwChallengeError();
+    deletedChallenges.add(id);
+    challenges.remove(id);
+    participants.remove(id);
+  }
+
+  @override
+  Future<void> publishChallengeProgress(String id, double value) async => publishedProgress.add((id, value));
 }
