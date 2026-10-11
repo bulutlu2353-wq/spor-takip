@@ -161,4 +161,31 @@ void main() {
     expect(find.byKey(const Key('community_not_member')), findsOneWidget);
     expect(find.byKey(const Key('community_menu')), findsNothing);
   });
+
+  testWidgets('the challenges card lists community challenges and lets me join', (tester) async {
+    final repo = repoWith()
+      ..challenges['cm'] = socialChallenge(id: 'cm', communityId: 'c1', name: 'Topluluk yarışı')
+      ..participants['cm'] = [socialParticipant('cm', 'ayse', progress: 5)];
+    await pump(tester, repo);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('community_challenge_join_cm')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('challenge_item_cm')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('community_challenge_join_cm')));
+    await tester.pumpAndSettle();
+    expect(repo.joinedChallenges, ['cm']);
+    expect(find.byKey(const Key('community_challenge_join_cm')), findsNothing);
+  });
+
+  testWidgets('the challenges card shows the empty text and the new button', (tester) async {
+    await pump(tester, repoWith());
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('community_challenge_new')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.byKey(const Key('community_challenges_empty')), findsOneWidget);
+  });
 }

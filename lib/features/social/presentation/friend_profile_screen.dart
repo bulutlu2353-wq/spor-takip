@@ -13,6 +13,7 @@ import '../../workout/application/session_providers.dart';
 import '../../workout/presentation/widgets/muscle_map.dart';
 import '../application/social_providers.dart';
 import '../domain/player_stats.dart';
+import 'create_challenge_sheet.dart';
 import 'social_screen.dart';
 import 'widgets/social_avatar.dart';
 
@@ -104,6 +105,19 @@ class _FriendBody extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
         _Header(entry: entry, now: ref.watch(nowProvider)()),
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: OutlinedButton.icon(
+            key: const Key('friend_challenge'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            icon: const Icon(Icons.flag_outlined),
+            label: Text('challenge.challenge_friend'.tr()),
+            onPressed: () async {
+              final id = await showCreateChallengeSheet(context, friendId: entry.profile.userId);
+              if (id != null && context.mounted) context.push('/social/challenge/$id');
+            },
+          ),
+        ),
         if (stats != null) ...[
           SectionHeader('social.friend_titles'.tr()),
           _Titles(stats: stats),

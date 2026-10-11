@@ -11,6 +11,7 @@ import '../../workout/application/session_providers.dart';
 import '../application/community_providers.dart';
 import '../domain/period_keys.dart';
 import '../domain/standings.dart';
+import 'community_challenges_card.dart';
 import 'community_form_sheet.dart';
 import 'manage_members_sheet.dart';
 import 'social_screen.dart';
@@ -152,6 +153,7 @@ class _CommunityBody extends ConsumerWidget {
             ],
           ),
         ),
+        CommunityChallengesCard(communityId: detail.community.id),
       ],
     );
   }

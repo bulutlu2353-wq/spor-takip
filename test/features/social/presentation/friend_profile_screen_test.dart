@@ -84,4 +84,12 @@ void main() {
     expect(repo.removed, ['ayse']);
     expect(find.byKey(const Key('friend_not_found')), findsOneWidget);
   });
+
+  testWidgets('"Challenge" opens the create sheet with the friend preselected', (tester) async {
+    await pump(tester);
+    await tester.tap(find.byKey(const Key('friend_challenge')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('challenge_form')), findsOneWidget);
+    expect(tester.widget<CheckboxListTile>(find.byKey(const Key('challenge_invite_ayse'))).value, isTrue);
+  });
 }
