@@ -103,4 +103,15 @@ void main() {
     await pump(tester, () async => throw Exception('offline'));
     expect(find.byKey(const Key('level_retry')), findsOneWidget);
   });
+
+  testWidgets('challenge rewards show in the breakdown, titles and recent gains', (tester) async {
+    final reward = XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 5), xp: 100, label: 'Yarış');
+    await pump(tester, () async => playerSummary(const [], const [], const {}, rewards: [reward]));
+    final breakdown = find.byKey(const Key('level_breakdown'));
+    expect(find.descendant(of: breakdown, matching: find.text('gamification.breakdown_challenges')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('level_titles')), matching: find.byIcon(Icons.flag_outlined)),
+        findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('level_recent')), matching: find.byIcon(Icons.flag)),
+        findsOneWidget);
+  });
 }

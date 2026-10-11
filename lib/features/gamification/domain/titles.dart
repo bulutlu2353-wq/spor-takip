@@ -6,10 +6,13 @@ import '../../workout/domain/workout_session.dart';
 /// Çırağı / Ustası / Şampiyonu (O1 spec §5).
 enum TitleTier { apprentice, master, champion }
 
-enum TitleKind { muscle, exercise }
+enum TitleKind { muscle, exercise, challenge }
 
 const muscleThresholds = {TitleTier.apprentice: 100.0, TitleTier.master: 500.0, TitleTier.champion: 1500.0};
 const exerciseThresholds = {TitleTier.apprentice: 10.0, TitleTier.master: 50.0, TitleTier.champion: 150.0};
+
+/// Kazanılan meydan okuma sayısı (S3 spec §3.3).
+const challengeThresholds = {TitleTier.apprentice: 1.0, TitleTier.master: 5.0, TitleTier.champion: 15.0};
 
 class TitleProgress {
   const TitleProgress({required this.kind, required this.subjectId, required this.value, this.exerciseName});
@@ -22,10 +25,14 @@ class TitleProgress {
   /// Yalnız hareket unvanında.
   final String? exerciseName;
 
-  /// Kas: ağırlıklı set; hareket: oturum sayısı.
+  /// Kas: ağırlıklı set; hareket: oturum sayısı; meydan okuma: kazanım sayısı.
   final double value;
 
-  Map<TitleTier, double> get _thresholds => kind == TitleKind.muscle ? muscleThresholds : exerciseThresholds;
+  Map<TitleTier, double> get _thresholds => switch (kind) {
+        TitleKind.muscle => muscleThresholds,
+        TitleKind.exercise => exerciseThresholds,
+        TitleKind.challenge => challengeThresholds,
+      };
 
   /// Ulaşılan en yüksek kademe; null = henüz yok.
   TitleTier? get tier {
@@ -54,7 +61,11 @@ class TitleProgress {
 }
 
 /// Tüm kaslar ve hareketler için ilerleme; değeri 0 olanlar yok.
-List<TitleProgress> titleProgress(List<WorkoutSession> sessions, Map<String, Exercise> exercisesById) {
+List<TitleProgress> titleProgress(
+  List<WorkoutSession> sessions,
+  Map<String, Exercise> exercisesById, {
+  int challengeWins = 0,
+}) {
   final muscles = <String, double>{};
   final exerciseSessions = <String, int>{};
   final setNames = <String, String>{};
@@ -86,6 +97,8 @@ List<TitleProgress> titleProgress(List<WorkoutSession> sessions, Map<String, Exe
         value: count.toDouble(),
         exerciseName: exercisesById[id]?.name ?? setNames[id],
       ),
+    if (challengeWins > 0)
+      TitleProgress(kind: TitleKind.challenge, subjectId: 'wins', value: challengeWins.toDouble()),
   ];
 }
 

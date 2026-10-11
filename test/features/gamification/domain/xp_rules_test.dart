@@ -85,4 +85,14 @@ void main() {
     expect(breakdown.mealDays, 10);
     expect(breakdown.total, 155);
   });
+
+  test('the breakdown counts challenge rewards separately', () {
+    final breakdown = xpBreakdown([
+      XpEvent(source: XpSource.workout, date: DateTime(2026, 10, 1), xp: 60, sets: 2),
+      XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 2), xp: 100, label: 'x'),
+      XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 3), xp: 50, label: 'y'),
+    ]);
+    expect(breakdown.challenges, 150);
+    expect(breakdown.total, 210);
+  });
 }

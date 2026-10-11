@@ -636,7 +636,12 @@
       "apprentice": "{name} Çırağı",
       "master": "{name} Ustası",
       "champion": "{name} Şampiyonu"
-    }
+    },
+    "breakdown_challenges": "Meydan okumalar",
+    "challenge_title_name": "Meydan Okuma",
+    "challenge_event": "Meydan okuma: {name}",
+    "criterion_wins": "{value} / {threshold} başarı",
+    "value_wins": "{value} başarı"
   },
   "social": {
     "title": "Sosyal",

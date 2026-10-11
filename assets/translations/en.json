@@ -636,7 +636,12 @@
       "apprentice": "{name} Apprentice",
       "master": "{name} Master",
       "champion": "{name} Champion"
-    }
+    },
+    "breakdown_challenges": "Challenges",
+    "challenge_title_name": "Challenge",
+    "challenge_event": "Challenge: {name}",
+    "criterion_wins": "{value} / {threshold} wins",
+    "value_wins": "{value} wins"
   },
   "social": {
     "title": "Social",

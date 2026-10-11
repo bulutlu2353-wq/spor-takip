@@ -109,20 +109,21 @@ int compareXpEvents(XpEvent a, XpEvent b) {
   return byDate != 0 ? byDate : a.source.index.compareTo(b.source.index);
 }
 
-/// Seviye ekranındaki döküm: antrenman tabanı, setler, rekorlar, öğün günleri.
+/// Seviye ekranındaki döküm: antrenman tabanı, setler, rekorlar, öğün günleri, meydan okumalar.
 class XpBreakdown {
-  const XpBreakdown({this.workouts = 0, this.sets = 0, this.records = 0, this.mealDays = 0});
+  const XpBreakdown({this.workouts = 0, this.sets = 0, this.records = 0, this.mealDays = 0, this.challenges = 0});
 
   final int workouts;
   final int sets;
   final int records;
   final int mealDays;
+  final int challenges;
 
-  int get total => workouts + sets + records + mealDays;
+  int get total => workouts + sets + records + mealDays + challenges;
 }
 
 XpBreakdown xpBreakdown(List<XpEvent> events) {
-  var workouts = 0, sets = 0, records = 0, mealDays = 0;
+  var workouts = 0, sets = 0, records = 0, mealDays = 0, challenges = 0;
   for (final e in events) {
     switch (e.source) {
       case XpSource.workout:
@@ -133,8 +134,8 @@ XpBreakdown xpBreakdown(List<XpEvent> events) {
       case XpSource.mealDay:
         mealDays += e.xp;
       case XpSource.challenge:
-        break;
+        challenges += e.xp;
     }
   }
-  return XpBreakdown(workouts: workouts, sets: sets, records: records, mealDays: mealDays);
+  return XpBreakdown(workouts: workouts, sets: sets, records: records, mealDays: mealDays, challenges: challenges);
 }

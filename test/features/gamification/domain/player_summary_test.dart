@@ -35,4 +35,13 @@ void main() {
     expect(summary.titleById('muscle:triceps'), isNull); // 60 < 100
     expect(summary.upcoming.first.id, 'muscle:triceps'); // 60 / 100
   });
+
+  test('challenge rewards add XP, a recent gain and count toward the challenge title', () {
+    final reward = XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 5), xp: 100, label: 'Yarış');
+    final summary = playerSummary(const [], const [], const {}, rewards: [reward]);
+    expect(summary.totalXp, 100);
+    expect(summary.breakdown.challenges, 100);
+    expect(summary.recent.single.source, XpSource.challenge);
+    expect(summary.titles.single.id, 'challenge:wins');
+  });
 }

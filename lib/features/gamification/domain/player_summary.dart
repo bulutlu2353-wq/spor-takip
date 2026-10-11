@@ -32,15 +32,17 @@ class PlayerSummary {
   TitleProgress? titleById(String? id) => id == null ? null : titles.where((t) => t.id == id).firstOrNull;
 }
 
+/// [rewards]: kesinleşmiş meydan okuma ödülleri (`XpSource.challenge`, S3 spec §3.3).
 PlayerSummary playerSummary(
   List<WorkoutSession> sessions,
   List<DateTime> mealTimes,
-  Map<String, Exercise> exercisesById,
-) {
-  final events = xpEvents(sessions, mealTimes);
+  Map<String, Exercise> exercisesById, {
+  List<XpEvent> rewards = const [],
+}) {
+  final events = [...xpEvents(sessions, mealTimes), ...rewards]..sort(compareXpEvents);
   final breakdown = xpBreakdown(events);
   final progress = levelFor(breakdown.total);
-  final all = titleProgress(sessions, exercisesById);
+  final all = titleProgress(sessions, exercisesById, challengeWins: rewards.length);
   return PlayerSummary(
     totalXp: breakdown.total,
     progress: progress,

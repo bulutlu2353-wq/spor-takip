@@ -173,6 +173,14 @@ class _Breakdown extends StatelessWidget {
             tile(Icons.restaurant, 'gamification.breakdown_meal_days'.tr(), breakdown.mealDays),
           ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            tile(Icons.flag_outlined, 'gamification.breakdown_challenges'.tr(), breakdown.challenges),
+            const SizedBox(width: 12),
+            const Expanded(child: SizedBox()),
+          ],
+        ),
       ],
     );
   }
@@ -261,7 +269,11 @@ class _Titles extends ConsumerWidget {
                 leading: CircleAvatar(
                   backgroundColor: scheme.surfaceContainerHighest,
                   child: Icon(
-                    title.kind == TitleKind.muscle ? Icons.accessibility_new : Icons.fitness_center,
+                    switch (title.kind) {
+                      TitleKind.muscle => Icons.accessibility_new,
+                      TitleKind.exercise => Icons.fitness_center,
+                      TitleKind.challenge => Icons.flag_outlined,
+                    },
                     color: scheme.primary,
                     size: 20,
                   ),

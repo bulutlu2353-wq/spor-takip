@@ -61,4 +61,14 @@ void main() {
     expect([for (final t in upcomingTitles(all)) t.id], ['muscle:chest', 'muscle:quadriceps', 'exercise:bench']);
     expect([for (final t in upcomingTitles(all, count: 2)) t.id], ['muscle:chest', 'muscle:quadriceps']);
   });
+
+  test('challenge wins earn the challenge title at 1 / 5 / 15', () {
+    TitleProgress? challengeTitle(int wins) =>
+        titleProgress(const [], const {}, challengeWins: wins).where((t) => t.kind == TitleKind.challenge).firstOrNull;
+    expect(challengeTitle(0), isNull);
+    expect((challengeTitle(1)!.id, challengeTitle(1)!.tier), ('challenge:wins', TitleTier.apprentice));
+    expect(challengeTitle(4)!.nextThreshold, 5);
+    expect(challengeTitle(5)!.tier, TitleTier.master);
+    expect(challengeTitle(15)!.tier, TitleTier.champion);
+  });
 }
