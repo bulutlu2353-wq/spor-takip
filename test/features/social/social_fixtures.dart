@@ -1,5 +1,6 @@
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/titles.dart';
+import 'package:spor_takip/features/social/domain/challenge.dart';
 import 'package:spor_takip/features/social/domain/community.dart';
 import 'package:spor_takip/features/social/domain/friendship.dart';
 import 'package:spor_takip/features/social/domain/period_stats.dart';
@@ -98,3 +99,37 @@ const socialCommunity3 = Community(
 /// [day]: Ekim 2026'da katılma günü (sıra için).
 CommunityMember socialMember(String communityId, String userId, {bool owner = false, int day = 1}) =>
     CommunityMember(communityId: communityId, userId: userId, isOwner: owner, joinedAt: DateTime(2026, 10, day));
+
+/// Varsayılan pencere 2026-10-07 00:00 – 2026-10-14 00:00: `now = 2026-10-09 12:00` için aktif.
+Challenge socialChallenge({
+  String id = 'ch1',
+  String name = '7 günde en çok set',
+  ChallengeKind kind = ChallengeKind.race,
+  ChallengeMetric metric = ChallengeMetric.sets,
+  String? muscle,
+  double? target,
+  String creator = 'ayse',
+  String? communityId,
+  DateTime? startsAt,
+  DateTime? endsAt,
+}) =>
+    Challenge(
+      id: id,
+      creator: creator,
+      communityId: communityId,
+      name: name,
+      kind: kind,
+      metric: metric,
+      muscle: muscle,
+      target: target,
+      startsAt: startsAt ?? DateTime(2026, 10, 7),
+      endsAt: endsAt ?? DateTime(2026, 10, 14),
+    );
+
+ChallengeParticipant socialParticipant(
+  String challengeId,
+  String userId, {
+  ChallengeStatus status = ChallengeStatus.joined,
+  double progress = 0,
+}) =>
+    ChallengeParticipant(challengeId: challengeId, userId: userId, status: status, progress: progress);

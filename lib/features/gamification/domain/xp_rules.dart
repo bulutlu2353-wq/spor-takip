@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import '../../progress/domain/strength.dart';
 import '../../workout/domain/workout_session.dart';
 
-/// XP olayının kaynağı (O1 spec §3).
-enum XpSource { workout, record, mealDay }
+/// XP olayının kaynağı (O1 spec §3; meydan okuma ödülü S3 spec §3.3).
+enum XpSource { workout, record, mealDay, challenge }
 
 class XpEvent {
   const XpEvent({
@@ -99,11 +99,14 @@ List<XpEvent> xpEvents(List<WorkoutSession> sessions, List<DateTime> mealTimes) 
     events.add(XpEvent(source: XpSource.mealDay, date: day, xp: xpPerMealDay));
   }
 
-  events.sort((a, b) {
-    final byDate = a.date.compareTo(b.date);
-    return byDate != 0 ? byDate : a.source.index.compareTo(b.source.index);
-  });
+  events.sort(compareXpEvents);
   return events;
+}
+
+/// Eskiden yeniye; aynı anda kaynak sırasıyla (antrenman → rekor → öğün → meydan okuma).
+int compareXpEvents(XpEvent a, XpEvent b) {
+  final byDate = a.date.compareTo(b.date);
+  return byDate != 0 ? byDate : a.source.index.compareTo(b.source.index);
 }
 
 /// Seviye ekranındaki döküm: antrenman tabanı, setler, rekorlar, öğün günleri.
@@ -129,6 +132,8 @@ XpBreakdown xpBreakdown(List<XpEvent> events) {
         records += e.xp;
       case XpSource.mealDay:
         mealDays += e.xp;
+      case XpSource.challenge:
+        break;
     }
   }
   return XpBreakdown(workouts: workouts, sets: sets, records: records, mealDays: mealDays);

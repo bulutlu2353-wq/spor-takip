@@ -509,12 +509,14 @@ class _Recent extends StatelessWidget {
         XpSource.workout => Icons.fitness_center,
         XpSource.record => Icons.bolt,
         XpSource.mealDay => Icons.restaurant,
+        XpSource.challenge => Icons.flag,
       };
 
   static String _title(XpEvent event) => switch (event.source) {
         XpSource.workout => event.label ?? '',
         XpSource.record => 'gamification.record'.tr(namedArgs: {'name': event.label ?? ''}),
         XpSource.mealDay => 'gamification.meal_day'.tr(),
+        XpSource.challenge => 'gamification.challenge_event'.tr(namedArgs: {'name': event.label ?? ''}),
       };
 
   static String? _detail(XpEvent event) => switch (event.source) {
@@ -524,6 +526,7 @@ class _Recent extends StatelessWidget {
             'reps': '${event.reps ?? 0}',
           }),
         XpSource.mealDay => null,
+        XpSource.challenge => null,
       };
 
   /// 140.0 → "140", 62.5 → "62.5".
