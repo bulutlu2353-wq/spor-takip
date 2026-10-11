@@ -153,8 +153,17 @@ void main() {
     expect(find.byKey(const Key('communities_tab')), findsOneWidget);
     expect(find.byKey(const Key('communities_empty')), findsOneWidget);
 
+    await tester.ensureVisible(find.byKey(const Key('social_tab_global')));
     await tester.tap(find.byKey(const Key('social_tab_global')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('global_tab')), findsOneWidget);
+  });
+
+  testWidgets('the challenges tab sits between communities and global', (tester) async {
+    await pump(tester, FakeSocialRepository(me: socialMe));
+    expect(find.byKey(const Key('social_tab_challenges')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('social_tab_challenges')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('challenges_tab')), findsOneWidget);
   });
 }

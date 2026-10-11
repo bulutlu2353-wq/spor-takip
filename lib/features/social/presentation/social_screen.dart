@@ -10,11 +10,13 @@ import '../../../shared/widgets/section_header.dart';
 import '../../gamification/application/gamification_providers.dart';
 import '../../gamification/presentation/title_names.dart';
 import '../../gamification/presentation/widgets/rank_badge.dart';
+import '../application/challenge_providers.dart';
 import '../application/social_providers.dart';
 import '../data/social_repository.dart';
 import '../domain/public_profile.dart';
 import '../domain/username.dart';
 import 'add_friend_sheet.dart';
+import 'challenges_tab.dart';
 import 'communities_tab.dart';
 import 'global_tab.dart';
 import 'widgets/social_avatar.dart';
@@ -59,24 +61,34 @@ class SocialScreen extends ConsumerWidget {
   }
 }
 
-/// Arkadaşlar / Topluluklar / Genel (S2 spec §6.1).
-class _Tabs extends StatelessWidget {
+/// Arkadaşlar / Topluluklar / Meydan okumalar / Genel (S2 spec §6.1, S3 spec §7.1).
+class _Tabs extends ConsumerWidget {
   const _Tabs({required this.me});
 
   final PublicProfile me;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final lang = context.locale.languageCode;
+    final invites = ref.watch(pendingChallengeInvitesProvider);
     Tab tab(String key, String label) => Tab(key: Key(key), text: upperCaseFor(label.tr(), lang));
+    final challengesLabel = Text(upperCaseFor('challenge.tab'.tr(), lang));
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Column(
         children: [
           TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               tab('social_tab_friends', 'social.tab_friends'),
               tab('social_tab_communities', 'social.tab_communities'),
+              Tab(
+                key: const Key('social_tab_challenges'),
+                child: invites > 0
+                    ? Badge(key: const Key('challenge_tab_badge'), label: Text('$invites'), child: challengesLabel)
+                    : challengesLabel,
+              ),
               tab('social_tab_global', 'social.tab_global'),
             ],
           ),
@@ -85,6 +97,7 @@ class _Tabs extends StatelessWidget {
               children: [
                 _Overview(me: me),
                 const CommunitiesTab(),
+                const ChallengesTab(),
                 const GlobalTab(),
               ],
             ),

@@ -160,7 +160,15 @@ class ChallengeActiveCard extends StatelessWidget {
                     const SizedBox(width: 6),
                   ],
                   Expanded(child: Text('challenge.kind.${challenge.kind.name}'.tr(), style: TextStyle(color: scheme.primary))),
-                  Text(challengeTimeLabel(challenge, now), key: Key('challenge_time_${challenge.id}'), style: muted),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      challengeTimeLabel(challenge, now),
+                      key: Key('challenge_time_${challenge.id}'),
+                      style: muted,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -176,11 +184,20 @@ class ChallengeActiveCard extends StatelessWidget {
                       style: theme.textTheme.headlineSmall?.copyWith(color: scheme.primary, fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(width: 4),
-                    Text('challenge.position_of'.tr(namedArgs: {'n': '${rows.length}'}), style: muted),
+                    Flexible(
+                      child: Text(
+                        'challenge.position_of'.tr(namedArgs: {'n': '${rows.length}'}),
+                        style: muted,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     const Spacer(),
-                    Text(
-                      challengeValueLabel(challenge.metric, myValue),
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    Flexible(
+                      child: Text(
+                        challengeValueLabel(challenge.metric, myValue),
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
