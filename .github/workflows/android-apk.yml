@@ -1,0 +1,46 @@
+name: Android APK
+
+# Builds a debug APK for manual testing on a phone. The local machine is too
+# low on memory for Gradle, so the APK is built here and downloaded from the
+# run's artifacts.
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [main, master]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.4"
+          channel: "stable"
+
+      - name: Create .env from repository secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "SUPABASE_URL and SUPABASE_ANON_KEY secrets must be set." >&2
+            exit 1
+          fi
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
+      - run: flutter pub get
+      - run: flutter build apk --debug --target-platform android-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spor-takip-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
