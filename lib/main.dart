@@ -7,6 +7,7 @@ import 'core/licenses.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme/app_theme.dart';
+import 'features/notifications/application/notification_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,8 @@ class SporTakipApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    // Mobilde bildirim eklentisi bir kez kurulur; çıkışta hatırlatıcılar iptal edilir.
+    ref.watch(notificationBootstrapProvider);
     return MaterialApp.router(
       title: 'Spor Takip',
       theme: AppTheme.dark(),

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/core/app_shell.dart';
+import 'package:spor_takip/features/notifications/application/notification_providers.dart';
 import 'package:spor_takip/features/social/application/challenge_providers.dart';
 import 'package:spor_takip/features/social/application/social_providers.dart';
 
@@ -48,6 +49,7 @@ void main() {
         overrides: [
           statsSyncProvider.overrideWith((ref) async {}),
           challengeSyncProvider.overrideWith((ref) async {}),
+          notificationSyncProvider.overrideWith((ref, languageCode) async {}),
           pendingChallengeInvitesProvider.overrideWithValue(0),
           incomingRequestCountProvider.overrideWithValue(requests),
         ],
@@ -112,5 +114,15 @@ void main() {
     await tester.tap(find.byIcon(Icons.group_outlined));
     await tester.pumpAndSettle();
     expect(find.text('SOCIAL_SCREEN'), findsOneWidget);
+  });
+
+  testWidgets('a tapped notification opens its route', (tester) async {
+    await tester.pumpWidget(buildTestRouter());
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+    container.read(pendingNotificationRouteProvider.notifier).open('/nutrition');
+    await tester.pumpAndSettle();
+    expect(find.text('NUTRITION_SCREEN'), findsOneWidget);
+    expect(container.read(pendingNotificationRouteProvider), isNull);
   });
 }

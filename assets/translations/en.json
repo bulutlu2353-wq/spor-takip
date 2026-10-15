@@ -500,7 +500,9 @@
     "adjustment_line_short": "Adapted: {kcal} kcal",
     "adjustment_reset": "Reset adaptation",
     "adjustment_reset_confirm": "Reset the adaptation? Your calorie target will be recalculated from the formula.",
-    "adjustment_reset_button": "Reset"
+    "adjustment_reset_button": "Reset",
+    "section_notifications": "Notifications",
+    "row_notifications": "Reminders"
   },
   "coach": {
     "card": {
@@ -904,5 +906,46 @@
       "not_allowed": "You are not allowed to do that.",
       "no_profile": "Create your social profile first."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "web_note": "Notifications only work in the mobile app.",
+    "permission_missing": "Notifications are not allowed. Allow them to get your reminders.",
+    "open_settings": "Open settings",
+    "time": "Time",
+    "workout": "Workout",
+    "workout_desc": "Reminds you on workout days; skipped once you finish a workout that day.",
+    "meals": "Meals",
+    "meals_desc": "Reminds you at meal time if you haven't logged it.",
+    "meal_breakfast": "Breakfast",
+    "meal_lunch": "Lunch",
+    "meal_dinner": "Dinner",
+    "nutrition": "Evening nutrition summary",
+    "nutrition_desc": "Tells you the protein or calories left at the end of the day.",
+    "weekly": "Weekly goal",
+    "weekly_desc": "Reminds you when you're behind your weekly workout goal.",
+    "weekly_day": "Day",
+    "day_1": "Mon",
+    "day_2": "Tue",
+    "day_3": "Wed",
+    "day_4": "Thu",
+    "day_5": "Fri",
+    "day_6": "Sat",
+    "day_7": "Sun",
+    "channel_name": "Reminders",
+    "channel_desc": "Workout and nutrition reminders",
+    "workout_title": "Time to train",
+    "workout_body_named": "Today is {name} day. Let's go!",
+    "workout_body": "Today is a workout day. Let's go!",
+    "meal_title_breakfast": "Breakfast time",
+    "meal_title_lunch": "Lunch time",
+    "meal_title_dinner": "Dinner time",
+    "meal_body": "Don't forget to log your meal.",
+    "nutrition_title": "Today's nutrition",
+    "nutrition_none": "You haven't logged a meal today.",
+    "nutrition_protein": "{g} g of protein left.",
+    "nutrition_kcal": "{kcal} kcal left to your target.",
+    "weekly_title": "Weekly goal",
+    "weekly_body": "{done}/{goal} workouts this week, {left} days left."
   }
 }

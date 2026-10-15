@@ -500,7 +500,9 @@
     "adjustment_line_short": "Uyarlandı: {kcal} kcal",
     "adjustment_reset": "Uyarlamayı sıfırla",
     "adjustment_reset_confirm": "Uyarlama sıfırlansın mı? Kalori hedefin yeniden formülle hesaplanır.",
-    "adjustment_reset_button": "Sıfırla"
+    "adjustment_reset_button": "Sıfırla",
+    "section_notifications": "Bildirimler",
+    "row_notifications": "Hatırlatıcılar"
   },
   "coach": {
     "card": {
@@ -904,5 +906,46 @@
       "not_allowed": "Bunu yapmaya yetkin yok.",
       "no_profile": "Önce sosyal kimliğini oluştur."
     }
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "web_note": "Bildirimler yalnız mobil uygulamada çalışır.",
+    "permission_missing": "Bildirim izni yok. Hatırlatıcıların gelmesi için izin ver.",
+    "open_settings": "Ayarları aç",
+    "time": "Saat",
+    "workout": "Antrenman",
+    "workout_desc": "Antrenman günlerinde hatırlatır; o gün antrenmanı bitirdiysen gelmez.",
+    "meals": "Öğünler",
+    "meals_desc": "Öğünü kaydetmediysen saatinde hatırlatır.",
+    "meal_breakfast": "Kahvaltı",
+    "meal_lunch": "Öğle",
+    "meal_dinner": "Akşam",
+    "nutrition": "Akşam beslenme özeti",
+    "nutrition_desc": "Günün sonunda kalan protein ya da kaloriyi söyler.",
+    "weekly": "Haftalık hedef",
+    "weekly_desc": "Haftalık antrenman hedefinin gerisindeysen hatırlatır.",
+    "weekly_day": "Gün",
+    "day_1": "Pzt",
+    "day_2": "Sal",
+    "day_3": "Çar",
+    "day_4": "Per",
+    "day_5": "Cum",
+    "day_6": "Cmt",
+    "day_7": "Paz",
+    "channel_name": "Hatırlatıcılar",
+    "channel_desc": "Antrenman ve beslenme hatırlatıcıları",
+    "workout_title": "Antrenman zamanı",
+    "workout_body_named": "Bugün {name} günü. Hadi başlayalım!",
+    "workout_body": "Bugün antrenman günü. Hadi başlayalım!",
+    "meal_title_breakfast": "Kahvaltı zamanı",
+    "meal_title_lunch": "Öğle yemeği zamanı",
+    "meal_title_dinner": "Akşam yemeği zamanı",
+    "meal_body": "Öğününü kaydetmeyi unutma.",
+    "nutrition_title": "Günün beslenmesi",
+    "nutrition_none": "Bugün öğün kaydetmedin.",
+    "nutrition_protein": "Proteinine {g} g kaldı.",
+    "nutrition_kcal": "Hedefine {kcal} kcal kaldı.",
+    "weekly_title": "Haftalık hedef",
+    "weekly_body": "Bu hafta {done}/{goal} antrenman, {left} gün kaldı."
   }
 }
