@@ -10,7 +10,8 @@ const gameBench = Exercise(
 const gameSquat = Exercise(id: 'squat', name: 'Barbell Squat', primaryMuscles: ['quadriceps']);
 final gameExercisesById = {gameBench.id: gameBench, gameSquat.id: gameSquat};
 
-SessionSet gameSet(String exerciseId, {double? kg, int? reps, bool done = true, int index = 0}) => SessionSet(
+SessionSet gameSet(String exerciseId, {double? kg, int? reps, bool done = true, int index = 0, DateTime? at}) =>
+    SessionSet(
       exercisePosition: 0,
       setIndex: index,
       exerciseId: exerciseId,
@@ -19,17 +20,23 @@ SessionSet gameSet(String exerciseId, {double? kg, int? reps, bool done = true, 
       targetRepsMax: 5,
       weightKg: kg,
       reps: reps,
-      completedAt: done ? DateTime(2026, 10, 1) : null,
+      completedAt: done ? (at ?? DateTime(2026, 10, 1)) : null,
     );
 
-/// [finishedAt] null → devam eden oturum. Tarihler yerel.
-WorkoutSession gameSession(String id, DateTime? finishedAt, List<SessionSet> sets, {String workoutName = 'Push A'}) =>
+/// [finishedAt] null → devam eden oturum. Tarihler yerel; [duration] bitişten geriye başlangıç.
+WorkoutSession gameSession(
+  String id,
+  DateTime? finishedAt,
+  List<SessionSet> sets, {
+  String workoutName = 'Push A',
+  Duration duration = const Duration(hours: 1),
+}) =>
     WorkoutSession(
       id: id,
       programName: 'P',
       workoutName: workoutName,
       workoutPosition: 0,
-      startedAt: (finishedAt ?? DateTime(2026, 10, 1)).subtract(const Duration(hours: 1)),
+      startedAt: (finishedAt ?? DateTime(2026, 10, 1)).subtract(duration),
       finishedAt: finishedAt,
       sets: sets,
     );
