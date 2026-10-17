@@ -643,7 +643,18 @@
     "challenge_title_name": "Meydan Okuma",
     "challenge_event": "Meydan okuma: {name}",
     "criterion_wins": "{value} / {threshold} başarı",
-    "value_wins": "{value} başarı"
+    "value_wins": "{value} başarı",
+    "skip_too_small": "En az 3 set ve 10 dakika gerekir",
+    "skip_daily_limit": "Günlük 2 antrenman sınırı",
+    "xp_none": "0 XP",
+    "rules_title": "XP kuralları",
+    "rules_workout": "Antrenman: 50 XP + sayılan her set için 5 XP.",
+    "rules_minimum": "Antrenmanın XP getirmesi için en az 3 set ve 10 dakika gerekir.",
+    "rules_daily": "Günde en çok 2 antrenman XP getirir.",
+    "rules_sets": "Her 2 dakikaya 1 set sayılır, en çok 30 set.",
+    "rules_records": "Rekor: 25 XP. En az %2,5 artış gerekir; aynı hareketten haftada 1, bir antrenmanda en çok 3 rekor.",
+    "rules_meals": "Öğün kaydettiğin her gün: 10 XP.",
+    "rules_challenges": "Kazandığın meydan okumalar ödül XP'si verir."
   },
   "social": {
     "title": "Sosyal",

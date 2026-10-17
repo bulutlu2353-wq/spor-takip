@@ -643,7 +643,18 @@
     "challenge_title_name": "Challenge",
     "challenge_event": "Challenge: {name}",
     "criterion_wins": "{value} / {threshold} wins",
-    "value_wins": "{value} wins"
+    "value_wins": "{value} wins",
+    "skip_too_small": "Needs at least 3 sets and 10 minutes",
+    "skip_daily_limit": "Daily limit of 2 workouts",
+    "xp_none": "0 XP",
+    "rules_title": "XP rules",
+    "rules_workout": "Workout: 50 XP + 5 XP for each counted set.",
+    "rules_minimum": "A workout needs at least 3 sets and 10 minutes to earn XP.",
+    "rules_daily": "Up to 2 workouts a day earn XP.",
+    "rules_sets": "One set counts per 2 minutes of workout, up to 30 sets.",
+    "rules_records": "Record: 25 XP. Needs at least a 2.5% gain; once a week per exercise, up to 3 per workout.",
+    "rules_meals": "Each day you log a meal: 10 XP.",
+    "rules_challenges": "Challenges you win give reward XP."
   },
   "social": {
     "title": "Social",

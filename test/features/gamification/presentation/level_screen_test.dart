@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/gamification/application/gamification_providers.dart';
+import 'package:spor_takip/features/gamification/domain/fair_play.dart';
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/player_summary.dart';
 import 'package:spor_takip/features/gamification/domain/titles.dart';
@@ -113,5 +115,33 @@ void main() {
         findsOneWidget);
     expect(find.descendant(of: find.byKey(const Key('level_recent')), matching: find.byIcon(Icons.flag)),
         findsOneWidget);
+  });
+
+  testWidgets('a workout without XP shows 0 XP and the reason', (tester) async {
+    final skipped = PlayerSummary(
+      totalXp: 0,
+      progress: levelFor(0),
+      rank: Rank.rookie,
+      breakdown: const XpBreakdown(),
+      recent: [
+        XpEvent(source: XpSource.workout, date: DateTime(2026, 10, 9, 18), xp: 0, label: 'Kısa', skip: SkipReason.tooSmall),
+        XpEvent(source: XpSource.workout, date: DateTime(2026, 10, 9, 12), xp: 0, label: 'Üçüncü', skip: SkipReason.dailyLimit),
+      ],
+      titles: const [],
+      upcoming: const [],
+    );
+    await pump(tester, () async => skipped);
+    final recent = find.byKey(const Key('level_recent'));
+    expect(find.descendant(of: recent, matching: find.text('gamification.skip_too_small'.tr())), findsOneWidget);
+    expect(find.descendant(of: recent, matching: find.text('gamification.skip_daily_limit'.tr())), findsOneWidget);
+    expect(find.descendant(of: recent, matching: find.text('gamification.xp_none'.tr())), findsNWidgets(2));
+  });
+
+  testWidgets('the info button opens the XP rules', (tester) async {
+    await pump(tester, () async => _summary);
+    await tester.tap(find.byKey(const Key('level_rules_button')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('level_rules_sheet')), findsOneWidget);
+    expect(find.text('gamification.rules_minimum'.tr()), findsOneWidget);
   });
 }

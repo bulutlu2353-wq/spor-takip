@@ -10,6 +10,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../progress/application/progress_providers.dart';
 import '../../workout/application/workout_providers.dart';
 import '../application/gamification_providers.dart';
+import '../domain/fair_play.dart';
 import '../domain/levels.dart';
 import '../domain/player_summary.dart';
 import '../domain/titles.dart';
@@ -50,7 +51,25 @@ class LevelScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
                 _Header(summary: summary, active: summary.titleById(activeId)),
-                SectionHeader('gamification.breakdown_title'.tr()),
+                Row(
+                  children: [
+                    Expanded(child: SectionHeader('gamification.breakdown_title'.tr())),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: IconButton(
+                        key: const Key('level_rules_button'),
+                        tooltip: 'gamification.rules_title'.tr(),
+                        icon: const Icon(Icons.info_outline),
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          showDragHandle: true,
+                          isScrollControlled: true,
+                          builder: (_) => const _RulesSheet(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 _Breakdown(breakdown: summary.breakdown),
                 SectionHeader(
                   'gamification.titles_title'.tr(),
@@ -491,18 +510,27 @@ class _Recent extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: scheme.primary.withValues(alpha: 0.12),
-                        borderRadius: const BorderRadius.all(Radius.circular(999)),
-                        border: Border.all(color: scheme.primary.withValues(alpha: 0.5)),
+                    if (event.xp == 0)
+                      Text(
+                        'gamification.xp_none'.tr(),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: scheme.primary.withValues(alpha: 0.12),
+                          borderRadius: const BorderRadius.all(Radius.circular(999)),
+                          border: Border.all(color: scheme.primary.withValues(alpha: 0.5)),
+                        ),
+                        child: Text(
+                          'gamification.xp_gain'.tr(namedArgs: {'n': '${event.xp}'}),
+                          style: theme.textTheme.labelMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
+                        ),
                       ),
-                      child: Text(
-                        'gamification.xp_gain'.tr(namedArgs: {'n': '${event.xp}'}),
-                        style: theme.textTheme.labelMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
-                      ),
-                    ),
                     const SizedBox(height: 4),
                     Text(
                       '${event.date.day} ${'home.month_${event.date.month}'.tr()}',
@@ -532,7 +560,11 @@ class _Recent extends StatelessWidget {
       };
 
   static String? _detail(XpEvent event) => switch (event.source) {
-        XpSource.workout => 'gamification.workout_sets'.tr(namedArgs: {'n': '${event.sets}'}),
+        XpSource.workout => switch (event.skip) {
+            SkipReason.tooSmall => 'gamification.skip_too_small'.tr(),
+            SkipReason.dailyLimit => 'gamification.skip_daily_limit'.tr(),
+            null => 'gamification.workout_sets'.tr(namedArgs: {'n': '${event.sets}'}),
+          },
         XpSource.record => 'gamification.record_detail'.tr(namedArgs: {
             'kg': formatKg(event.weightKg ?? 0),
             'reps': '${event.reps ?? 0}',
@@ -543,4 +575,48 @@ class _Recent extends StatelessWidget {
 
   /// 140.0 → "140", 62.5 → "62.5".
   static String formatKg(double kg) => kg == kg.roundToDouble() ? '${kg.toInt()}' : kg.toStringAsFixed(1);
+}
+
+/// XP kaynakları ve makullük kuralları (O3a spec §4).
+class _RulesSheet extends StatelessWidget {
+  const _RulesSheet();
+
+  static const _rules = [
+    'rules_workout',
+    'rules_minimum',
+    'rules_daily',
+    'rules_sets',
+    'rules_records',
+    'rules_meals',
+    'rules_challenges',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: SingleChildScrollView(
+        key: const Key('level_rules_sheet'),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('gamification.rules_title'.tr(), style: theme.textTheme.titleLarge),
+            const SizedBox(height: 12),
+            for (final rule in _rules)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('•  '),
+                    Expanded(child: Text('gamification.$rule'.tr())),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
