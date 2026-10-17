@@ -667,7 +667,19 @@
     "quest_full_days": "{n} gün hem antrenman hem öğün kaydı",
     "quest_event": "Görev: {name}",
     "quest_all": "Haftalık görevlerin hepsi",
-    "streak_detail": "seri +%{n}"
+    "streak_detail": "seri +%{n}",
+    "streak_title": "Seri",
+    "streak_days": "{n} gün",
+    "streak_bonus": "+%{n} antrenman XP'si",
+    "streak_bonus_soon": "7. günden itibaren antrenman XP'sine bonus",
+    "streak_rest_left": "Bu hafta {n} dinlenme hakkın kaldı",
+    "streak_broken": "Bugün antrenman yaparak yeni seri başlat",
+    "quests_title": "Haftalık görevler",
+    "quests_bonus": "Üçü bitince +60 XP",
+    "breakdown_streak": "Seri bonusu",
+    "breakdown_quests": "Haftalık görevler",
+    "rules_streak": "Seri: antrenman yaptığın ya da dinlenme hakkı kullandığın her gün seriyi uzatır; haftada 7 − hedef gün dinlenme hakkın var. Her 7 gün antrenman XP'sine %5 ekler, en çok %25.",
+    "rules_quests": "Her hafta 3 görev: her biri 40 XP, üçü bitince +60 XP."
   },
   "social": {
     "title": "Sosyal",

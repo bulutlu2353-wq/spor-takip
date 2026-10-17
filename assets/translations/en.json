@@ -667,7 +667,19 @@
     "quest_full_days": "{n} days with a workout and a meal",
     "quest_event": "Quest: {name}",
     "quest_all": "All weekly quests",
-    "streak_detail": "streak +{n}%"
+    "streak_detail": "streak +{n}%",
+    "streak_title": "Streak",
+    "streak_days": "{n} days",
+    "streak_bonus": "+{n}% workout XP",
+    "streak_bonus_soon": "Workout XP bonus from day 7",
+    "streak_rest_left": "{n} rest days left this week",
+    "streak_broken": "Work out today to start a new streak",
+    "quests_title": "Weekly quests",
+    "quests_bonus": "+60 XP when all three are done",
+    "breakdown_streak": "Streak bonus",
+    "breakdown_quests": "Weekly quests",
+    "rules_streak": "Streak: every day you work out or use a rest day extends it; you get 7 − goal rest days a week. Every 7 days adds 5% to workout XP, up to 25%.",
+    "rules_quests": "3 quests every week: 40 XP each, +60 XP when all three are done."
   },
   "social": {
     "title": "Social",

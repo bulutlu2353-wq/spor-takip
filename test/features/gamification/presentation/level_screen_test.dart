@@ -6,10 +6,13 @@ import 'package:spor_takip/features/gamification/application/gamification_provid
 import 'package:spor_takip/features/gamification/domain/fair_play.dart';
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/player_summary.dart';
+import 'package:spor_takip/features/gamification/domain/quests.dart';
+import 'package:spor_takip/features/gamification/domain/streak.dart';
 import 'package:spor_takip/features/gamification/domain/titles.dart';
 import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
 import 'package:spor_takip/features/gamification/presentation/level_screen.dart';
 import 'package:spor_takip/features/gamification/presentation/widgets/rank_badge.dart';
+import 'package:spor_takip/features/workout/application/session_providers.dart';
 
 import '../../progress/presentation/test_app.dart';
 
@@ -46,7 +49,10 @@ void main() {
     await tester.pumpWidget(testApp(
       const LevelScreen(),
       scaffold: false,
-      overrides: [playerSummaryProvider.overrideWith((ref) => load())],
+      overrides: [
+        playerSummaryProvider.overrideWith((ref) => load()),
+        nowProvider.overrideWithValue(() => DateTime(2026, 10, 9, 12)),
+      ],
     ));
     await tester.pumpAndSettle();
   }
@@ -143,5 +149,72 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('level_rules_sheet')), findsOneWidget);
     expect(find.text('gamification.rules_minimum'.tr()), findsOneWidget);
+    expect(find.text('gamification.rules_streak'.tr()), findsOneWidget);
+    expect(find.text('gamification.rules_quests'.tr()), findsOneWidget);
+  });
+
+  testWidgets('shows the streak and quest cards', (tester) async {
+    await pump(
+      tester,
+      () async => PlayerSummary(
+        totalXp: _summary.totalXp,
+        progress: _summary.progress,
+        rank: _summary.rank,
+        breakdown: const XpBreakdown(streak: 12, quests: 140),
+        recent: const [],
+        titles: const [],
+        upcoming: const [],
+        streak: const StreakStatus(length: 14, bonusPercent: 10, restLeft: 2, broken: false),
+        quests: WeekQuests(weekStart: DateTime(2026, 10, 5), quests: [
+          QuestProgress(kind: QuestKind.workouts, progress: 4, target: 4, doneAt: DateTime(2026, 10, 8)),
+          const QuestProgress(kind: QuestKind.muscle, muscle: 'chest', progress: 3, target: 8),
+          const QuestProgress(kind: QuestKind.mealDays, progress: 2, target: 5),
+        ]),
+      ),
+    );
+    final streak = find.byKey(const Key('level_streak_card'));
+    expect(find.descendant(of: streak, matching: find.textContaining('gamification.streak_days'.tr(namedArgs: {'n': '14'}))), findsOneWidget);
+    expect(find.descendant(of: streak, matching: find.text('gamification.streak_bonus'.tr(namedArgs: {'n': '10'}))), findsOneWidget);
+    expect(find.descendant(of: streak, matching: find.text('gamification.streak_rest_left'.tr(namedArgs: {'n': '2'}))), findsOneWidget);
+
+    final quests = find.byKey(const Key('level_quests_card'));
+    expect(find.descendant(of: quests, matching: find.text('gamification.quest_workouts'.tr(namedArgs: {'n': '4'}))), findsOneWidget);
+    expect(find.descendant(of: quests, matching: find.text('gamification.quest_meal_days'.tr(namedArgs: {'n': '5'}))), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('quest_0')), matching: find.byIcon(Icons.check_circle)), findsOneWidget);
+    expect(find.descendant(of: quests, matching: find.text('gamification.quests_bonus'.tr())), findsOneWidget);
+    // 9 Ekim 12:00 → pazartesiye 2,5 gün.
+    expect(find.descendant(of: quests, matching: find.text('social.period_remaining_days'.tr(namedArgs: {'n': '3'}))), findsOneWidget);
+
+    final breakdown = find.byKey(const Key('level_breakdown'));
+    expect(find.descendant(of: breakdown, matching: find.text('gamification.breakdown_streak'.tr())), findsOneWidget);
+    expect(find.descendant(of: breakdown, matching: find.text('140')), findsOneWidget);
+  });
+
+  testWidgets('a broken streak invites a new one; no quests card without quests', (tester) async {
+    await pump(tester, () async => playerSummary(const [], const [], const {}));
+    expect(find.text('gamification.streak_broken'.tr()), findsOneWidget);
+    expect(find.byKey(const Key('level_quests_card')), findsNothing);
+  });
+
+  testWidgets('recent quest and streak rows', (tester) async {
+    await pump(
+      tester,
+      () async => playerSummary(const [], const [], const {}, events: [
+        XpEvent(
+          source: XpSource.workout,
+          date: DateTime(2026, 10, 8, 18),
+          xp: 71,
+          label: 'Push A',
+          sets: 3,
+          streakBonus: 6,
+          streakPercent: 10,
+        ),
+        XpEvent(source: XpSource.quest, date: DateTime(2026, 10, 8, 19), xp: 40, label: 'mealDays', target: 5),
+        XpEvent(source: XpSource.quest, date: DateTime(2026, 10, 8, 20), xp: 60, label: 'all'),
+      ]),
+    );
+    expect(find.text('${'gamification.workout_sets'.tr(namedArgs: {'n': '3'})} · ${'gamification.streak_detail'.tr(namedArgs: {'n': '10'})}'), findsOneWidget);
+    expect(find.text('gamification.quest_event'.tr(namedArgs: {'name': 'gamification.quest_meal_days'.tr(namedArgs: {'n': '5'})})), findsOneWidget);
+    expect(find.text('gamification.quest_all'.tr()), findsOneWidget);
   });
 }

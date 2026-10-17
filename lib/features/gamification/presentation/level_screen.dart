@@ -8,6 +8,7 @@ import '../../../core/theme/app_fonts.dart';
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../progress/application/progress_providers.dart';
+import '../../workout/application/session_providers.dart';
 import '../../workout/application/workout_providers.dart';
 import '../application/gamification_providers.dart';
 import '../domain/fair_play.dart';
@@ -53,6 +54,8 @@ class LevelScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
                 _Header(summary: summary, active: summary.titleById(activeId)),
+                StreakCard(streak: summary.streak),
+                if (summary.quests case final quests?) QuestsCard(quests: quests, now: ref.read(nowProvider)()),
                 Row(
                   children: [
                     Expanded(child: SectionHeader('gamification.breakdown_title'.tr())),
@@ -198,6 +201,14 @@ class _Breakdown extends StatelessWidget {
         Row(
           children: [
             tile(Icons.flag_outlined, 'gamification.breakdown_challenges'.tr(), breakdown.challenges),
+            const SizedBox(width: 12),
+            tile(Icons.local_fire_department_outlined, 'gamification.breakdown_streak'.tr(), breakdown.streak),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            tile(Icons.task_alt, 'gamification.breakdown_quests'.tr(), breakdown.quests),
             const SizedBox(width: 12),
             const Expanded(child: SizedBox()),
           ],
@@ -591,7 +602,7 @@ class _Recent extends StatelessWidget {
   static String formatKg(double kg) => kg == kg.roundToDouble() ? '${kg.toInt()}' : kg.toStringAsFixed(1);
 }
 
-/// XP kaynakları ve makullük kuralları (O3a spec §4).
+/// XP kaynakları ve makullük kuralları (O3a spec §4), seri ve görevler (O4 spec §6).
 class _RulesSheet extends StatelessWidget {
   const _RulesSheet();
 
@@ -603,6 +614,8 @@ class _RulesSheet extends StatelessWidget {
     'rules_records',
     'rules_meals',
     'rules_challenges',
+    'rules_streak',
+    'rules_quests',
   ];
 
   @override
