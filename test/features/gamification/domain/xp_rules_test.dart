@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/gamification/domain/fair_play.dart';
+import 'package:spor_takip/features/gamification/domain/game_settings.dart';
+import 'package:spor_takip/features/gamification/domain/quests.dart';
 import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
 import 'package:spor_takip/features/workout/domain/workout_session.dart';
 
@@ -167,5 +169,75 @@ void main() {
       bench('s3', DateTime(2026, 10, 20, 18), 112), // 110'a göre +%1,8 → yok
     ], const []);
     expect(records(events), isEmpty);
+  });
+
+  group('O4 streak and quests', () {
+    // 14 gün art arda 3 setlik antrenman: 7. günden %5, 14. gün %10.
+    final daily = [
+      for (var d = 1; d <= 14; d++) gameSession('d$d', DateTime(2026, 9, d, 18), gameSets('bench', 3)),
+    ];
+
+    test('without settings nothing changes', () {
+      final workouts = xpEvents(daily, const []).where((e) => e.source == XpSource.workout);
+      expect(workouts.map((e) => e.xp).toSet(), {65});
+    });
+
+    test('the streak bonus is added to counted workout XP', () {
+      final events = xpEvents(daily, const [], settings: const GameSettings(weeklyGoal: 3));
+      final workouts = events.where((e) => e.source == XpSource.workout).toList();
+      // 65 × %5 = 3,25 → 3; 65 × %10 = 6,5 → 6.
+      expect(workouts.map((e) => e.xp), [...List.filled(6, 65), ...List.filled(7, 68), 71]);
+      expect((workouts[6].streakBonus, workouts[6].streakPercent), (3, 5));
+      expect(events.where((e) => e.source == XpSource.quest), isEmpty);
+    });
+
+    test('a session that does not count gets no bonus', () {
+      final events = xpEvents(
+        [...daily, gameSession('small', DateTime(2026, 9, 14, 20), gameSets('bench', 2))],
+        const [],
+        settings: const GameSettings(weeklyGoal: 3),
+      );
+      expect(events.where((e) => e.source == XpSource.workout).last.xp, 0);
+    });
+
+    test('quest events need a user id and match weekQuests', () {
+      final meals = [for (var d = 1; d <= 14; d++) DateTime(2026, 9, d, 8)];
+      final events = xpEvents(
+        daily,
+        meals,
+        exercisesById: gameExercisesById,
+        settings: const GameSettings(weeklyGoal: 3, userId: 'user-1'),
+      );
+      final quests = events.where((e) => e.source == XpSource.quest).toList();
+      expect(quests, isNotEmpty);
+      for (final e in quests) {
+        expect(e.xp, e.label == allQuestsLabel ? xpAllQuests : xpPerQuest);
+      }
+      final inputs = QuestInputs(
+        verdicts: judgeSessions(daily),
+        recordTimes: const [],
+        mealTimes: meals,
+        exercisesById: gameExercisesById,
+        weeklyGoal: 3,
+      );
+      final expected = [
+        for (final week in questWeeks(inputs))
+          for (final q in weekQuests(inputs, userId: 'user-1', weekStart: week).quests)
+            if (q.doneAt case final at?) (q.kind.name, at),
+      ];
+      expect([
+        for (final e in quests)
+          if (e.label != allQuestsLabel) (e.label, e.date),
+      ], unorderedEquals(expected));
+    });
+
+    test('breakdown splits the streak bonus and quests', () {
+      final breakdown = xpBreakdown([
+        XpEvent(source: XpSource.workout, date: DateTime(2026, 9, 7), xp: 68, sets: 3, streakBonus: 3, streakPercent: 5),
+        XpEvent(source: XpSource.quest, date: DateTime(2026, 9, 7), xp: 40, label: 'sets'),
+        XpEvent(source: XpSource.quest, date: DateTime(2026, 9, 7), xp: 60, label: allQuestsLabel),
+      ]);
+      expect((breakdown.workouts, breakdown.sets, breakdown.streak, breakdown.quests, breakdown.total), (50, 15, 3, 100, 168));
+    });
   });
 }

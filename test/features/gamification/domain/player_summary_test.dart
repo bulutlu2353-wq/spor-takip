@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/features/gamification/domain/game_settings.dart';
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/player_summary.dart';
 import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
@@ -43,5 +44,27 @@ void main() {
     expect(summary.breakdown.challenges, 100);
     expect(summary.recent.single.source, XpSource.challenge);
     expect(summary.titles.single.id, 'challenge:wins');
+  });
+
+  test('streak and quests need settings; quests need a user id', () {
+    final sessions = [gameSession('a', DateTime(2026, 10, 5, 18), gameSets('bench', 3))];
+    final plain = playerSummary(sessions, const [], gameExercisesById);
+    expect((plain.streak.length, plain.quests), (0, null));
+
+    final now = DateTime(2026, 10, 6, 9);
+    final noUser = playerSummary(sessions, const [], gameExercisesById,
+        settings: const GameSettings(weeklyGoal: 4), now: now);
+    expect((noUser.streak.length, noUser.streak.restLeft, noUser.quests), (1, 3, null));
+
+    final withUser = playerSummary(sessions, const [], gameExercisesById,
+        settings: const GameSettings(weeklyGoal: 4, userId: 'user-1'), now: now);
+    expect(withUser.quests!.weekStart, DateTime(2026, 10, 5));
+    expect(withUser.quests!.quests, hasLength(3));
+  });
+
+  test('precomputed events are used as given', () {
+    final event = XpEvent(source: XpSource.quest, date: DateTime(2026, 10, 5), xp: 40, label: 'sets');
+    final summary = playerSummary(const [], const [], const {}, events: [event]);
+    expect(summary.totalXp, 40);
   });
 }

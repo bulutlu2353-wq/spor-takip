@@ -13,10 +13,12 @@ import '../application/gamification_providers.dart';
 import '../domain/fair_play.dart';
 import '../domain/levels.dart';
 import '../domain/player_summary.dart';
+import '../domain/quests.dart';
 import '../domain/titles.dart';
 import '../domain/xp_rules.dart';
 import 'title_names.dart';
 import 'widgets/rank_badge.dart';
+import 'widgets/streak_quest_cards.dart';
 
 /// Seviye, rütbe, unvanlar ve son kazanımlar (O1 spec §6.3).
 class LevelScreen extends ConsumerWidget {
@@ -550,6 +552,7 @@ class _Recent extends StatelessWidget {
         XpSource.record => Icons.bolt,
         XpSource.mealDay => Icons.restaurant,
         XpSource.challenge => Icons.flag,
+        XpSource.quest => Icons.task_alt,
       };
 
   static String _title(XpEvent event) => switch (event.source) {
@@ -557,13 +560,23 @@ class _Recent extends StatelessWidget {
         XpSource.record => 'gamification.record'.tr(namedArgs: {'name': event.label ?? ''}),
         XpSource.mealDay => 'gamification.meal_day'.tr(),
         XpSource.challenge => 'gamification.challenge_event'.tr(namedArgs: {'name': event.label ?? ''}),
+        XpSource.quest => switch (QuestKind.values.asNameMap()[event.label]) {
+            final kind? => 'gamification.quest_event'.tr(namedArgs: {
+                'name': questText(kind, target: event.target ?? 0, muscle: event.muscle),
+              }),
+            null => 'gamification.quest_all'.tr(),
+          },
       };
 
   static String? _detail(XpEvent event) => switch (event.source) {
         XpSource.workout => switch (event.skip) {
             SkipReason.tooSmall => 'gamification.skip_too_small'.tr(),
             SkipReason.dailyLimit => 'gamification.skip_daily_limit'.tr(),
-            null => 'gamification.workout_sets'.tr(namedArgs: {'n': '${event.sets}'}),
+            null => [
+                'gamification.workout_sets'.tr(namedArgs: {'n': '${event.sets}'}),
+                if (event.streakPercent > 0)
+                  'gamification.streak_detail'.tr(namedArgs: {'n': '${event.streakPercent}'}),
+              ].join(' · '),
           },
         XpSource.record => 'gamification.record_detail'.tr(namedArgs: {
             'kg': formatKg(event.weightKg ?? 0),
@@ -571,6 +584,7 @@ class _Recent extends StatelessWidget {
           }),
         XpSource.mealDay => null,
         XpSource.challenge => null,
+        XpSource.quest => null,
       };
 
   /// 140.0 → "140", 62.5 → "62.5".

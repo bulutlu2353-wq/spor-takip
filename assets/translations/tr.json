@@ -654,7 +654,20 @@
     "rules_sets": "Her 2 dakikaya 1 set sayılır, en çok 30 set.",
     "rules_records": "Rekor: 25 XP. En az %2,5 artış gerekir; aynı hareketten haftada 1, bir antrenmanda en çok 3 rekor.",
     "rules_meals": "Öğün kaydettiğin her gün: 10 XP.",
-    "rules_challenges": "Kazandığın meydan okumalar ödül XP'si verir."
+    "rules_challenges": "Kazandığın meydan okumalar ödül XP'si verir.",
+    "quest_workouts": "{n} antrenman yap",
+    "quest_sets": "{n} set tamamla",
+    "quest_volume": "{n} kg hacim kaldır",
+    "quest_long": "45 dakikayı geçen {n} antrenman",
+    "quest_record": "Bir rekor kır",
+    "quest_muscle": "{muscle} için {n} set",
+    "quest_variety": "{n} kas grubunu en az 3 set çalıştır",
+    "quest_weekend": "Hafta sonu antrenman yap",
+    "quest_meal_days": "{n} gün öğün kaydet",
+    "quest_full_days": "{n} gün hem antrenman hem öğün kaydı",
+    "quest_event": "Görev: {name}",
+    "quest_all": "Haftalık görevlerin hepsi",
+    "streak_detail": "seri +%{n}"
   },
   "social": {
     "title": "Sosyal",

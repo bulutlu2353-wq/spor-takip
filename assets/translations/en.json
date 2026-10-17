@@ -654,7 +654,20 @@
     "rules_sets": "One set counts per 2 minutes of workout, up to 30 sets.",
     "rules_records": "Record: 25 XP. Needs at least a 2.5% gain; once a week per exercise, up to 3 per workout.",
     "rules_meals": "Each day you log a meal: 10 XP.",
-    "rules_challenges": "Challenges you win give reward XP."
+    "rules_challenges": "Challenges you win give reward XP.",
+    "quest_workouts": "Do {n} workouts",
+    "quest_sets": "Complete {n} sets",
+    "quest_volume": "Lift {n} kg of volume",
+    "quest_long": "{n} workouts over 45 minutes",
+    "quest_record": "Set a record",
+    "quest_muscle": "{n} sets for {muscle}",
+    "quest_variety": "Train {n} muscle groups for 3+ sets each",
+    "quest_weekend": "Work out on the weekend",
+    "quest_meal_days": "Log meals on {n} days",
+    "quest_full_days": "{n} days with a workout and a meal",
+    "quest_event": "Quest: {name}",
+    "quest_all": "All weekly quests",
+    "streak_detail": "streak +{n}%"
   },
   "social": {
     "title": "Social",
