@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../gamification/domain/fair_play.dart';
 import '../../gamification/domain/levels.dart';
 import '../../gamification/domain/player_summary.dart';
 import '../../gamification/domain/xp_rules.dart';
@@ -112,8 +113,8 @@ class PeriodStats {
 }
 
 /// Uygulamanın yayınlayacağı satır (S2 spec §4): `now`'a göre bu ve önceki hafta/ay.
-/// XP: tarihi dönemde olan XP olayları. Kas: bitişi dönemde olan oturumların
-/// tamamlanmış setleri × `muscleWeight` (yalnız `muscleGroups`).
+/// XP: tarihi dönemde olan XP olayları. Kas: bitişi dönemde olan sayılan oturumların
+/// sayılan setleri × `muscleWeight` (yalnız `muscleGroups`; O3a spec §3.4).
 PeriodStats buildPeriodStats({
   required PlayerSummary summary,
   required List<WorkoutSession> sessions,
@@ -123,6 +124,7 @@ PeriodStats buildPeriodStats({
   required String? activeTitleId,
 }) {
   final events = xpEvents(sessions, mealTimes);
+  final verdicts = judgeSessions(sessions);
 
   PeriodSlot slot(PeriodKind kind, {bool previous = false}) {
     final range = periodRange(kind, now, previous: previous);
@@ -132,11 +134,9 @@ PeriodStats buildPeriodStats({
       if (inRange(e.date)) xp += e.xp;
     }
     final muscles = <String, double>{};
-    for (final session in sessions) {
-      final finished = session.finishedAt?.toLocal();
-      if (finished == null || !inRange(finished)) continue;
-      for (final set in session.sets) {
-        if (!set.isCompleted) continue;
+    for (final verdict in verdicts) {
+      if (!verdict.counted || !inRange(verdict.finishedAt)) continue;
+      for (final set in verdict.countedSets) {
         final exercise = exercisesById[set.exerciseId];
         if (exercise == null) continue;
         for (final muscle in muscleGroups) {

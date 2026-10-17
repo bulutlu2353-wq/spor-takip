@@ -65,4 +65,15 @@ void main() {
     final reward = XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 8), xp: 100, label: 'x');
     expect(_value(ChallengeMetric.xp, extra: [reward]), 85);
   });
+
+  test('skipped sessions and sets over the time cap do not count', () {
+    final sessions = [
+      gameSession('small', DateTime(2026, 10, 8, 9), gameSets('bench', 2)),
+      gameSession('rushed', DateTime(2026, 10, 9, 9), gameSets('bench', 10), duration: const Duration(minutes: 12)),
+    ];
+    double value(ChallengeMetric metric) =>
+        challengeValue(socialChallenge(metric: metric), sessions, const [], gameExercisesById);
+    expect(value(ChallengeMetric.workouts), 1);
+    expect(value(ChallengeMetric.sets), 6);
+  });
 }

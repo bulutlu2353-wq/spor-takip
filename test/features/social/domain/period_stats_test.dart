@@ -13,9 +13,10 @@ final _now = DateTime(2026, 10, 9, 12);
 // W41 = 5–11 Ekim, W40 = 28 Eylül–4 Ekim.
 final _sessions = [
   gameSession('a', DateTime(2026, 10, 8, 18), gameSets('bench', 3)), // W41: 65 XP
-  gameSession('d', DateTime(2026, 10, 5), gameSets('squat', 1)), // W41 sınırı: 55 XP
-  gameSession('b', DateTime(2026, 10, 4, 23, 59), gameSets('squat', 2)), // W40: 60 XP
-  gameSession('c', DateTime(2026, 9, 20, 10), gameSets('bench', 1)), // Eylül: 55 XP
+  gameSession('d', DateTime(2026, 10, 5), gameSets('squat', 3)), // W41 sınırı: 65 XP
+  gameSession('small', DateTime(2026, 10, 7, 9), gameSets('bench', 2)), // W41 ama sayılmaz: 0 XP, kas yok
+  gameSession('b', DateTime(2026, 10, 4, 23, 59), gameSets('squat', 4)), // W40: 70 XP
+  gameSession('c', DateTime(2026, 9, 20, 10), gameSets('bench', 3)), // Eylül: 65 XP
   gameSession('open', null, gameSets('bench', 4)), // bitmemiş: sayılmaz
 ];
 final _meals = [DateTime(2026, 10, 9, 8)]; // W41: 10 XP
@@ -36,30 +37,30 @@ void main() {
     expect(stats.activeTitle, isNull);
 
     expect(stats.week.key, '2026-W41');
-    expect(stats.week.xp, 130);
-    expect(stats.week.muscles, {'chest': 3.0, 'triceps': 1.5, 'quadriceps': 1.0});
+    expect(stats.week.xp, 140);
+    expect(stats.week.muscles, {'chest': 3.0, 'triceps': 1.5, 'quadriceps': 3.0});
 
     expect(stats.prevWeek.key, '2026-W40');
-    expect(stats.prevWeek.xp, 60);
-    expect(stats.prevWeek.muscles, {'quadriceps': 2.0});
+    expect(stats.prevWeek.xp, 70);
+    expect(stats.prevWeek.muscles, {'quadriceps': 4.0});
 
     expect(stats.month.key, '2026-10');
-    expect(stats.month.xp, 190);
-    expect(stats.month.muscles, {'chest': 3.0, 'triceps': 1.5, 'quadriceps': 3.0});
+    expect(stats.month.xp, 210);
+    expect(stats.month.muscles, {'chest': 3.0, 'triceps': 1.5, 'quadriceps': 7.0});
 
     expect(stats.prevMonth.key, '2026-09');
-    expect(stats.prevMonth.xp, 55);
-    expect(stats.prevMonth.muscles, {'chest': 1.0, 'triceps': 0.5});
+    expect(stats.prevMonth.xp, 65);
+    expect(stats.prevMonth.muscles, {'chest': 3.0, 'triceps': 1.5});
   });
 
   test('slotFor matches either field of the kind and nothing else', () {
     final stats = _build();
-    expect(stats.slotFor(PeriodKind.week, '2026-W40')?.xp, 60);
-    expect(stats.slotFor(PeriodKind.week, '2026-W41')?.xp, 130);
+    expect(stats.slotFor(PeriodKind.week, '2026-W40')?.xp, 70);
+    expect(stats.slotFor(PeriodKind.week, '2026-W41')?.xp, 140);
     expect(stats.slotFor(PeriodKind.week, '2026-W39'), isNull);
     expect(stats.slotFor(PeriodKind.month, '2026-W41'), isNull);
-    expect(stats.valueFor(PeriodKind.month, '2026-10', 'quadriceps'), 3);
-    expect(stats.valueFor(PeriodKind.month, '2026-09', 'xp'), 55);
+    expect(stats.valueFor(PeriodKind.month, '2026-10', 'quadriceps'), 7);
+    expect(stats.valueFor(PeriodKind.month, '2026-09', 'xp'), 65);
     expect(stats.valueFor(PeriodKind.week, '2026-W39', 'xp'), 0);
     expect(stats.valueFor(PeriodKind.week, '2026-W41', 'lats'), 0);
   });
