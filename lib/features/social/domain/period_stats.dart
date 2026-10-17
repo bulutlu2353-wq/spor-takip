@@ -113,17 +113,16 @@ class PeriodStats {
 }
 
 /// Uygulamanın yayınlayacağı satır (S2 spec §4): `now`'a göre bu ve önceki hafta/ay.
-/// XP: tarihi dönemde olan XP olayları. Kas: bitişi dönemde olan sayılan oturumların
+/// XP: [events]'ten (`xpEventsProvider`) tarihi dönemde olanlar. Kas: bitişi dönemde olan sayılan oturumların
 /// sayılan setleri × `muscleWeight` (yalnız `muscleGroups`; O3a spec §3.4).
 PeriodStats buildPeriodStats({
   required PlayerSummary summary,
   required List<WorkoutSession> sessions,
-  required List<DateTime> mealTimes,
+  required List<XpEvent> events,
   required Map<String, Exercise> exercisesById,
   required DateTime now,
   required String? activeTitleId,
 }) {
-  final events = xpEvents(sessions, mealTimes);
   final verdicts = judgeSessions(sessions);
 
   PeriodSlot slot(PeriodKind kind, {bool previous = false}) {

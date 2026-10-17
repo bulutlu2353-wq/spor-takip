@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:spor_takip/features/gamification/application/xp_event_providers.dart';
+import 'package:spor_takip/features/gamification/domain/game_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/social/application/social_providers.dart';
@@ -53,6 +55,7 @@ void main() {
         allSessionsProvider.overrideWith((ref) async => _sessions),
         mealTimesProvider.overrideWith((ref) async => const []),
         exercisesByIdProvider.overrideWith((ref) async => gameExercisesById),
+        gameSettingsProvider.overrideWith((ref) async => const GameSettings(weeklyGoal: 3)),
       ],
     ));
     await tester.pumpAndSettle();

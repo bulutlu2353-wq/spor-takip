@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/supabase_client.dart';
 import '../../gamification/application/gamification_providers.dart';
+import '../../gamification/application/xp_event_providers.dart';
 import '../../onboarding/application/auth_providers.dart';
 import '../../progress/application/progress_providers.dart';
 import '../../workout/application/muscle_heat_providers.dart';
@@ -127,12 +128,13 @@ final lastPublishedPeriodStatsProvider =
 final statsSyncProvider = FutureProvider.autoDispose<void>((ref) async {
   final profile = await ref.watch(myPublicProfileProvider.future);
   if (profile == null) return;
-  final (summary, sessions, mealTimes, exercisesById, activeTitleId) = await (
+  final (summary, sessions, mealTimes, exercisesById, activeTitleId, events) = await (
     ref.watch(playerSummaryProvider.future),
     ref.watch(allSessionsProvider.future),
     ref.watch(mealTimesProvider.future),
     ref.watch(exercisesByIdProvider.future),
     ref.watch(activeTitleProvider.future),
+    ref.watch(xpEventsProvider.future),
   ).wait;
   final now = ref.read(nowProvider)();
   final repo = ref.read(socialRepositoryProvider);
@@ -156,7 +158,7 @@ final statsSyncProvider = FutureProvider.autoDispose<void>((ref) async {
   final period = buildPeriodStats(
     summary: summary,
     sessions: sessions,
-    mealTimes: mealTimes,
+    events: events,
     exercisesById: exercisesById,
     now: now,
     activeTitleId: activeTitleId,

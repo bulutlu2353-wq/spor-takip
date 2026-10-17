@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../gamification/application/xp_event_providers.dart';
 import '../../gamification/domain/xp_rules.dart';
 import '../../progress/application/progress_providers.dart';
 import '../../workout/application/muscle_heat_providers.dart';
@@ -13,14 +14,13 @@ import '../domain/community.dart';
 import '../domain/public_profile.dart';
 import 'social_providers.dart';
 
-/// Kendi geçmişimden meydan okuma değeri (S3 spec §3.2); XP olayları bir kez hesaplanır.
+/// Kendi geçmişimden meydan okuma değeri (S3 spec §3.2); XP olayları `xpEventsProvider`'dan.
 final myChallengeValueProvider = FutureProvider.autoDispose<double Function(Challenge)>((ref) async {
-  final (sessions, mealTimes, exercisesById) = await (
+  final (sessions, exercisesById, events) = await (
     ref.watch(allSessionsProvider.future),
-    ref.watch(mealTimesProvider.future),
     ref.watch(exercisesByIdProvider.future),
+    ref.watch(xpEventsProvider.future),
   ).wait;
-  final events = xpEvents(sessions, mealTimes);
   return (challenge) => challengeValue(challenge, sessions, events, exercisesById);
 });
 

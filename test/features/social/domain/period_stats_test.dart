@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/gamification/domain/levels.dart';
 import 'package:spor_takip/features/gamification/domain/player_summary.dart';
+import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
 import 'package:spor_takip/features/social/domain/period_keys.dart';
 import 'package:spor_takip/features/social/domain/period_stats.dart';
 
@@ -24,13 +25,29 @@ final _meals = [DateTime(2026, 10, 9, 8)]; // W41: 10 XP
 PeriodStats _build() => buildPeriodStats(
       summary: playerSummary(_sessions, _meals, gameExercisesById),
       sessions: _sessions,
-      mealTimes: _meals,
+      events: xpEvents(_sessions, _meals),
       exercisesById: gameExercisesById,
       now: _now,
       activeTitleId: null,
     );
 
 void main() {
+  test('quest XP in the given events counts toward the period', () {
+    final base = _build();
+    final stats = buildPeriodStats(
+      summary: playerSummary(_sessions, _meals, gameExercisesById),
+      sessions: _sessions,
+      events: [
+        ...xpEvents(_sessions, _meals),
+        XpEvent(source: XpSource.quest, date: DateTime(2026, 10, 9, 9), xp: 40, label: 'sets'),
+      ],
+      exercisesById: gameExercisesById,
+      now: _now,
+      activeTitleId: null,
+    );
+    expect(stats.week.xp, base.week.xp + 40);
+  });
+
   test('fills this and the previous week and month', () {
     final stats = _build();
     expect(stats.level, playerSummary(_sessions, _meals, gameExercisesById).progress.level);

@@ -15,6 +15,12 @@ final isLoggedInProvider = Provider<bool>((ref) {
   return session != null;
 });
 
+/// Giriş yapılmış kullanıcının id'si; yoksa null.
+final currentUserIdProvider = Provider<String?>((ref) {
+  if (!ref.watch(isLoggedInProvider)) return null;
+  return AppSupabase.client.auth.currentUser?.id;
+});
+
 class AuthRepository {
   AuthRepository(this._client);
 

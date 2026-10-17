@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
+import 'package:spor_takip/features/gamification/application/xp_event_providers.dart';
+import 'package:spor_takip/features/gamification/domain/game_settings.dart';
 import 'package:spor_takip/features/onboarding/application/auth_providers.dart';
 import 'package:spor_takip/features/progress/application/progress_providers.dart';
 import 'package:spor_takip/features/social/application/challenge_providers.dart';
@@ -49,6 +51,7 @@ ProviderContainer _container(FakeSocialRepository repo, {bool retry = false}) {
     allSessionsProvider.overrideWith((ref) async => _sessions),
     mealTimesProvider.overrideWith((ref) async => const []),
     exercisesByIdProvider.overrideWith((ref) async => gameExercisesById),
+    gameSettingsProvider.overrideWith((ref) async => const GameSettings(weeklyGoal: 3)),
   ]);
   addTearDown(container.dispose);
   return container;
