@@ -1,7 +1,6 @@
-import 'dart:math' as math;
-
 import '../../progress/domain/strength.dart';
 import '../../workout/domain/workout_session.dart';
+import 'fair_play.dart';
 
 /// XP olayının kaynağı (O1 spec §3; meydan okuma ödülü S3 spec §3.3).
 enum XpSource { workout, record, mealDay, challenge }
@@ -15,6 +14,7 @@ class XpEvent {
     this.sets = 0,
     this.weightKg,
     this.reps,
+    this.skip,
   });
 
   final XpSource source;
@@ -26,69 +26,38 @@ class XpEvent {
   /// Antrenman: antrenman adı; rekor: hareket adı; öğün: null.
   final String? label;
 
-  /// Yalnız antrenmanda: sayılan (≤ [maxCountedSets]) tamamlanmış set.
+  /// Yalnız antrenmanda: sayılan set (O3a süre tavanıyla).
   final int sets;
 
   /// Yalnız rekorda: en iyi setin kilosu ve tekrarı.
   final double? weightKg;
   final int? reps;
+
+  /// Yalnız antrenmanda: XP getirmediyse nedeni (O3a spec §3.3).
+  final SkipReason? skip;
 }
 
 const xpPerWorkout = 50;
 const xpPerSet = 5;
-const maxCountedSets = 30;
 const xpPerRecord = 25;
 const xpPerMealDay = 10;
 
-/// Eskiden yeniye; aynı anda antrenman → rekor → öğün.
+/// Eskiden yeniye; aynı anda antrenman → rekor → öğün. Kurallar: O3a spec §3.
 List<XpEvent> xpEvents(List<WorkoutSession> sessions, List<DateTime> mealTimes) {
   final events = <XpEvent>[];
-  final finished = [
-    for (final s in sessions)
-      if (s.finishedAt != null) s,
-  ]..sort((a, b) => a.finishedAt!.compareTo(b.finishedAt!));
-  final bestSoFar = <String, double>{};
-  for (final session in finished) {
-    final completed = [
-      for (final set in session.sets)
-        if (set.isCompleted) set,
-    ];
-    if (completed.isEmpty) continue;
-    final date = session.finishedAt!.toLocal();
-    final counted = math.min(completed.length, maxCountedSets);
+  final best = <String, double>{};
+  final lastRecord = <String, DateTime>{};
+  for (final verdict in judgeSessions(sessions)) {
+    final sets = verdict.countedSets.length;
     events.add(XpEvent(
       source: XpSource.workout,
-      date: date,
-      xp: xpPerWorkout + counted * xpPerSet,
-      label: session.workoutName,
-      sets: counted,
+      date: verdict.finishedAt,
+      xp: verdict.counted ? xpPerWorkout + sets * xpPerSet : 0,
+      label: verdict.session.workoutName,
+      sets: sets,
+      skip: verdict.skip,
     ));
-
-    final bestSet = <String, SessionSet>{};
-    final bestEstimate = <String, double>{};
-    for (final set in completed) {
-      final estimate = estimateOneRepMax(weightKg: set.weightKg, reps: set.reps);
-      if (estimate == null) continue;
-      if (estimate > (bestEstimate[set.exerciseId] ?? 0)) {
-        bestEstimate[set.exerciseId] = estimate;
-        bestSet[set.exerciseId] = set;
-      }
-    }
-    for (final MapEntry(key: exerciseId, value: estimate) in bestEstimate.entries) {
-      final previous = bestSoFar[exerciseId];
-      if (previous != null && estimate > previous) {
-        final set = bestSet[exerciseId]!;
-        events.add(XpEvent(
-          source: XpSource.record,
-          date: date,
-          xp: xpPerRecord,
-          label: set.exerciseName,
-          weightKg: set.weightKg,
-          reps: set.reps,
-        ));
-      }
-      if (previous == null || estimate > previous) bestSoFar[exerciseId] = estimate;
-    }
+    events.addAll(_records(verdict, best, lastRecord));
   }
 
   final days = <DateTime>{
@@ -100,6 +69,45 @@ List<XpEvent> xpEvents(List<WorkoutSession> sessions, List<DateTime> mealTimes) 
   }
 
   events.sort(compareXpEvents);
+  return events;
+}
+
+/// Oturumun rekor olayları; [best] (taban) ve [lastRecord] (son rekor XP'si) yerinde güncellenir.
+List<XpEvent> _records(SessionVerdict verdict, Map<String, double> best, Map<String, DateTime> lastRecord) {
+  final date = verdict.finishedAt;
+  final top = <String, (double, SessionSet)>{};
+  for (final set in verdict.plausibleSets) {
+    final estimate = estimateOneRepMax(weightKg: set.weightKg, reps: set.reps);
+    if (estimate == null) continue;
+    if (estimate > (top[set.exerciseId]?.$1 ?? 0)) top[set.exerciseId] = (estimate, set);
+  }
+  final candidates = <(double, SessionSet)>[];
+  for (final MapEntry(key: exerciseId, value: (estimate, set)) in top.entries) {
+    final previous = best[exerciseId];
+    if (previous == null || estimate > previous) best[exerciseId] = estimate;
+    if (previous == null || !verdict.counted) continue;
+    final gain = estimate / previous - 1;
+    if (gain < minRecordGain || gain > maxRecordJump) continue;
+    final last = lastRecord[exerciseId];
+    if (last != null && date.difference(last) < recordCooldown) continue;
+    candidates.add((gain, set));
+  }
+  candidates.sort((a, b) {
+    final byGain = b.$1.compareTo(a.$1);
+    return byGain != 0 ? byGain : a.$2.exerciseId.compareTo(b.$2.exerciseId);
+  });
+  final events = <XpEvent>[];
+  for (final (_, set) in candidates.take(maxRecordsPerSession)) {
+    lastRecord[set.exerciseId] = date;
+    events.add(XpEvent(
+      source: XpSource.record,
+      date: date,
+      xp: xpPerRecord,
+      label: set.exerciseName,
+      weightKg: set.weightKg,
+      reps: set.reps,
+    ));
+  }
   return events;
 }
 
@@ -127,7 +135,7 @@ XpBreakdown xpBreakdown(List<XpEvent> events) {
   for (final e in events) {
     switch (e.source) {
       case XpSource.workout:
-        workouts += xpPerWorkout;
+        if (e.xp > 0) workouts += xpPerWorkout;
         sets += e.sets * xpPerSet;
       case XpSource.record:
         records += e.xp;

@@ -21,7 +21,7 @@ ProviderContainer _container() {
     isLoggedInProvider.overrideWithValue(true),
     challengeRewardsProvider.overrideWith((ref) async => const []),
     progressDataRepositoryProvider.overrideWithValue(FakeProgressDataRepository(
-      sessions: [gameSession('a', DateTime(2026, 10, 1, 18), gameSets('bench', 2))],
+      sessions: [gameSession('a', DateTime(2026, 10, 1, 18), gameSets('bench', 3))],
       meals: [_meal('m1', DateTime(2026, 10, 2, 8)), _meal('m2', DateTime(2026, 10, 2, 13))],
     )),
     exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository([gameBench, gameSquat])),
@@ -43,8 +43,8 @@ void main() {
     final container = _container();
     container.listen(playerSummaryProvider, (_, _) {});
     final summary = await container.read(playerSummaryProvider.future);
-    // 50 + 2 × 5 + 10.
-    expect(summary.totalXp, 70);
+    // 50 + 3 × 5 + 10.
+    expect(summary.totalXp, 75);
     expect(summary.upcoming.map((t) => t.id), contains('muscle:chest'));
   });
 
