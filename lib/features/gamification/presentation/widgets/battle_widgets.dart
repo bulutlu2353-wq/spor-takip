@@ -5,11 +5,11 @@ import '../../../workout/domain/exercise_taxonomy.dart';
 import '../../domain/battle.dart';
 import '../../domain/monsters.dart';
 
-/// Aşama renkleri ve simgeleri; O2b'de görsellerle değişecek yer tutucu (O2a spec §7).
+/// Görseli olmayan canavarın yer tutucusu: aşama rengi ve simgesi (O2a spec §7).
 const _tierColors = [Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFE53935)];
 const _tierIcons = [Icons.pest_control, Icons.pets, Icons.bolt, Icons.local_fire_department];
 
-/// Aşama renginde daire, canavar simgesi ve adının baş harfi.
+/// Canavarın daire portresi; görsel yoksa aşama renginde simge ve adının baş harfi.
 class MonsterAvatar extends StatelessWidget {
   const MonsterAvatar({super.key, required this.index, this.size = 64});
 
@@ -31,19 +31,27 @@ class MonsterAvatar extends StatelessWidget {
         color: color.withValues(alpha: 0.18),
         border: Border.all(color: color, width: 2),
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Icon(_tierIcons[tier - 1], size: size * 0.5, color: color),
-          Positioned(
-            right: size * 0.12,
-            bottom: size * 0.08,
-            child: Text(
-              name.isEmpty ? '' : name.characters.first,
-              style: TextStyle(fontSize: size * 0.2, fontWeight: FontWeight.w900, color: color),
-            ),
+      child: ClipOval(
+        child: Image.asset(
+          monster.imageAsset,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(_tierIcons[tier - 1], size: size * 0.5, color: color),
+              Positioned(
+                right: size * 0.12,
+                bottom: size * 0.08,
+                child: Text(
+                  name.isEmpty ? '' : name.characters.first,
+                  style: TextStyle(fontSize: size * 0.2, fontWeight: FontWeight.w900, color: color),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

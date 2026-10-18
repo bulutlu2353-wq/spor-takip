@@ -73,6 +73,7 @@ flutter:
   assets:
     - .env
     - assets/translations/
+    - assets/monsters/
     - LICENSES/body-highlighter.txt
 
   fonts:

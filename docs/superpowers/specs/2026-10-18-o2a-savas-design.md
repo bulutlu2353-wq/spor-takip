@@ -116,6 +116,7 @@ Her olaydan önce ve sonda `today` için: `lastWorkoutDay` null değilse, `lastW
   6. AppBar bilgi düğmesi → mevcut XP kuralları sayfası; oraya savaş bölümü eklenir (can, hasar, kritik, mola, rütbe kapısı).
 - **Seviye ekranı**: rütbe merdiveninde seviye eşiği tutup bekçisi yenilmemiş rütbede "Bekçiyi yen" etiketi.
 - Ekran düzeni kodlamadan önce Stitch'te taslaklanıp kullanıcıya gösterilir.
+- **Canavar görselleri (2026-10-18 kararı, O2b'den öne alındı)**: foto-gerçekçi kare portreler `assets/monsters/<id>.png`; kullanıcı `2026-10-18-o2a-monster-prompts.md`'deki prompt'larla üretir. `MonsterAvatar` görseli daireye kırparak gösterir, dosya yoksa vektör yer tutucuya düşer.
 - Çeviriler `gamification.battle` altında, tr ve en.
 
 ## 8. Hata durumları
