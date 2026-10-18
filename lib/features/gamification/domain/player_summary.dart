@@ -1,6 +1,8 @@
 import '../../progress/domain/weekly_summary.dart';
 import '../../workout/domain/exercise.dart';
 import '../../workout/domain/workout_session.dart';
+import 'battle.dart';
+import 'battle_stats.dart';
 import 'fair_play.dart';
 import 'game_settings.dart';
 import 'levels.dart';
@@ -9,7 +11,7 @@ import 'streak.dart';
 import 'titles.dart';
 import 'xp_rules.dart';
 
-/// Seviye ekranı ve ana sayfa rozetinin tek kaynağı (O1 spec §7).
+/// Seviye ekranı ve ana sayfa rozetinin tek kaynağı (O1 spec §7); savaş (O2a spec §6).
 class PlayerSummary {
   const PlayerSummary({
     required this.totalXp,
@@ -21,6 +23,7 @@ class PlayerSummary {
     required this.upcoming,
     this.streak = StreakStatus.none,
     this.quests,
+    this.battle,
   });
 
   final int totalXp;
@@ -40,6 +43,9 @@ class PlayerSummary {
 
   /// Bu haftanın görevleri; kullanıcı id'si yoksa null.
   final WeekQuests? quests;
+
+  /// Savaş durumu (O2a spec §5); `settings` yoksa null.
+  final BattleState? battle;
 
   /// Kayıtlı aktif unvan hâlâ kazanılmışsa o; değilse null.
   TitleProgress? titleById(String? id) => id == null ? null : titles.where((t) => t.id == id).firstOrNull;
@@ -65,10 +71,19 @@ PlayerSummary playerSummary(
   final titles = titleProgress(sessions, exercisesById, challengeWins: rewards.length);
   final today = now ?? DateTime.now();
   final verdicts = settings == null ? const <SessionVerdict>[] : judgeSessions(sessions);
+  final fight = switch (settings) {
+    GameSettings(:final weeklyGoal, :final bodyWeightKg) => battle(
+        all,
+        StatInputs(verdicts: verdicts, weeklyGoal: weeklyGoal, bodyWeightKg: bodyWeightKg),
+        today: today,
+      ),
+    null => null,
+  };
   return PlayerSummary(
     totalXp: breakdown.total,
     progress: progress,
-    rank: rankFor(progress.level),
+    rank: gatedRank(progress.level, fight),
+    battle: fight,
     breakdown: breakdown,
     recent: all.reversed.take(10).toList(),
     titles: earnedTitles(titles),

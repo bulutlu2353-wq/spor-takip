@@ -7,6 +7,30 @@ import 'package:spor_takip/features/gamification/domain/xp_rules.dart';
 import '../game_fixtures.dart';
 
 void main() {
+  test('with settings the rank waits for the guardian', () {
+    const settings = GameSettings(weeklyGoal: 3);
+    final now = DateTime(2026, 10, 5, 12);
+    // 600 XP → seviye 5 (Acemi eşiği); 603 hasar < 660 → goblin ayakta.
+    final weak = playerSummary(const [], const [], const {},
+        rewards: [XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 5), xp: 600)],
+        settings: settings, now: now);
+    expect(weak.progress.level, 5);
+    expect(weak.rank, Rank.rookie);
+    expect(weak.battle!.hpLeft, 57);
+
+    // 800 XP → seviye 6; 804 hasar → goblin yenildi.
+    final strong = playerSummary(const [], const [], const {},
+        rewards: [XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 5), xp: 800)],
+        settings: settings, now: now);
+    expect((strong.rank, strong.battle!.guardiansBeaten), (Rank.novice, 1));
+  });
+
+  test('without settings there is no battle and the rank follows the level', () {
+    final summary = playerSummary(const [], const [], const {},
+        rewards: [XpEvent(source: XpSource.challenge, date: DateTime(2026, 10, 5), xp: 600)]);
+    expect((summary.battle, summary.rank), (null, Rank.novice));
+  });
+
   test('an empty history is a level 1 rookie', () {
     final summary = playerSummary(const [], const [], const {});
     expect(summary.totalXp, 0);
