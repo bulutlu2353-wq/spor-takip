@@ -240,4 +240,25 @@ void main() {
       expect((breakdown.workouts, breakdown.sets, breakdown.streak, breakdown.quests, breakdown.total), (50, 15, 3, 100, 168));
     });
   });
+
+  group('muscleSets', () {
+    test('counts counted sets by primary muscle and skips unknown exercises', () {
+      final events = xpEvents([
+        gameSession('a', DateTime(2026, 10, 5, 18), [
+          ...gameSets('bench', 3),
+          ...gameSets('squat', 2),
+          gameSet('curl', index: 9),
+        ]),
+      ], const [], exercisesById: gameExercisesById);
+      final workout = events.firstWhere((e) => e.source == XpSource.workout);
+      expect(workout.sets, 6);
+      expect(workout.muscleSets, {'chest': 3, 'quadriceps': 2});
+    });
+
+    test('is empty for a session that does not count', () {
+      final events = xpEvents([gameSession('a', DateTime(2026, 10, 5, 18), gameSets('bench', 2))], const [],
+          exercisesById: gameExercisesById);
+      expect(events.single.muscleSets, isEmpty);
+    });
+  });
 }

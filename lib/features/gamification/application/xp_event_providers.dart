@@ -25,6 +25,7 @@ final gameSettingsProvider = FutureProvider.autoDispose<GameSettings>((ref) asyn
       profileDays: profile?.exerciseDaysPerWeek,
     ),
     userId: userId,
+    bodyWeightKg: profile?.weightKg,
   );
 });
 

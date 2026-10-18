@@ -23,6 +23,7 @@ class XpEvent {
     this.streakPercent = 0,
     this.muscle,
     this.target,
+    this.muscleSets = const {},
   });
 
   final XpSource source;
@@ -51,6 +52,9 @@ class XpEvent {
   /// Yalnız görevde: kas görevinin kası ve görevin hedefi; `label` görev türü (`QuestKind.name` ya da 'all').
   final String? muscle;
   final double? target;
+
+  /// Yalnız sayılan antrenmanda: sayılan setlerin ana kasa göre sayısı (O2a spec §6).
+  final Map<String, int> muscleSets;
 }
 
 const xpPerWorkout = 50;
@@ -87,6 +91,7 @@ List<XpEvent> xpEvents(
       skip: verdict.skip,
       streakBonus: bonus,
       streakPercent: percent,
+      muscleSets: verdict.counted ? _muscleSets(verdict.countedSets, exercisesById) : const {},
     ));
     events.addAll(_records(verdict, best, lastRecord));
   }
@@ -178,6 +183,16 @@ List<XpEvent> _records(SessionVerdict verdict, Map<String, double> best, Map<Str
     ));
   }
   return events;
+}
+
+/// Sayılan setlerin ilk ana kasa göre sayısı; kas bilgisi olmayan hareket atlanır.
+Map<String, int> _muscleSets(List<SessionSet> sets, Map<String, Exercise> exercisesById) {
+  final counts = <String, int>{};
+  for (final set in sets) {
+    final muscle = exercisesById[set.exerciseId]?.primaryMuscles.firstOrNull;
+    if (muscle != null) counts[muscle] = (counts[muscle] ?? 0) + 1;
+  }
+  return counts;
 }
 
 /// Eskiden yeniye; aynı anda kaynak sırasıyla (antrenman → rekor → öğün → meydan okuma → görev).

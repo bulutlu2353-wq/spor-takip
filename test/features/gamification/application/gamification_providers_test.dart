@@ -62,6 +62,7 @@ void main() {
     final settings = await container.read(gameSettingsProvider.future);
     expect(settings.weeklyGoal, weeklyGoalFor(profileDays: testProfile.exerciseDaysPerWeek));
     expect(settings.userId, 'user-1');
+    expect(settings.bodyWeightKg, testProfile.weightKg);
   });
 
   test('game settings fall back to 3 when the profile fails', () async {
