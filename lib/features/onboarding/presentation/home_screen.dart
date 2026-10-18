@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/day_label.dart';
 import '../../../shared/text_case.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../gamification/presentation/widgets/home_battle_card.dart';
 import '../../gamification/presentation/widgets/home_level_badge.dart';
 import '../../gamification/presentation/widgets/home_streak_chip.dart';
 import '../../nutrition/presentation/widgets/today_nutrition_card.dart';
@@ -15,7 +16,7 @@ import '../../workout/presentation/widgets/today_workout_card.dart';
 import '../application/profile_providers.dart';
 import '../domain/home_greeting.dart';
 
-/// Ana sayfa (spec §5): başlık, beslenme halkası, bugünkü antrenman, 2×2 özet.
+/// Ana sayfa (spec §5): başlık, savaş kartı (O2a), beslenme halkası, bugünkü antrenman, 2×2 özet.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -51,6 +52,7 @@ class HomeScreen extends ConsumerWidget {
             children: [
               _HomeHeader(now: now),
               const SizedBox(height: 16),
+              const HomeBattleCard(),
               TodayNutritionCard(profile: profile),
               const SizedBox(height: 12),
               const TodayWorkoutCard(),
