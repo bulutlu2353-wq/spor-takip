@@ -65,12 +65,7 @@ class LevelScreen extends ConsumerWidget {
                         key: const Key('level_rules_button'),
                         tooltip: 'gamification.rules_title'.tr(),
                         icon: const Icon(Icons.info_outline),
-                        onPressed: () => showModalBottomSheet<void>(
-                          context: context,
-                          showDragHandle: true,
-                          isScrollControlled: true,
-                          builder: (_) => const _RulesSheet(),
-                        ),
+                        onPressed: () => showXpRules(context),
                       ),
                     ),
                   ],
@@ -602,9 +597,17 @@ class _Recent extends StatelessWidget {
   static String formatKg(double kg) => kg == kg.roundToDouble() ? '${kg.toInt()}' : kg.toStringAsFixed(1);
 }
 
-/// XP kaynakları ve makullük kuralları (O3a spec §4), seri ve görevler (O4 spec §6).
-class _RulesSheet extends StatelessWidget {
-  const _RulesSheet();
+/// XP kuralları sayfasını açar; seviye ve savaş ekranları paylaşır.
+void showXpRules(BuildContext context) => showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => const XpRulesSheet(),
+    );
+
+/// XP kaynakları ve makullük kuralları (O3a spec §4), seri ve görevler (O4 spec §6), savaş (O2a spec §7).
+class XpRulesSheet extends StatelessWidget {
+  const XpRulesSheet({super.key});
 
   static const _rules = [
     'rules_workout',
@@ -616,6 +619,9 @@ class _RulesSheet extends StatelessWidget {
     'rules_challenges',
     'rules_streak',
     'rules_quests',
+    'rules_battle',
+    'rules_battle_damage',
+    'rules_battle_heal',
   ];
 
   @override

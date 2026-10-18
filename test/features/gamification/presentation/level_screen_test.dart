@@ -151,6 +151,7 @@ void main() {
     expect(find.text('gamification.rules_minimum'.tr()), findsOneWidget);
     expect(find.text('gamification.rules_streak'.tr()), findsOneWidget);
     expect(find.text('gamification.rules_quests'.tr()), findsOneWidget);
+    expect(find.text('gamification.rules_battle'.tr()), findsOneWidget);
   });
 
   testWidgets('shows the streak and quest cards', (tester) async {
