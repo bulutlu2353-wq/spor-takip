@@ -218,4 +218,20 @@ void main() {
     expect(find.text('gamification.quest_event'.tr(namedArgs: {'name': 'gamification.quest_meal_days'.tr(namedArgs: {'n': '5'})})), findsOneWidget);
     expect(find.text('gamification.quest_all'.tr()), findsOneWidget);
   });
+
+  testWidgets('a rank whose level is reached but whose guardian stands says so', (tester) async {
+    // Seviye 8 ama goblin ayakta → rütbe Çaylak; Acemi "Bekçiyi yen" der, Amatör (seviye 10) kilitli.
+    final gated = PlayerSummary(
+      totalXp: _summary.totalXp,
+      progress: _summary.progress,
+      rank: Rank.rookie,
+      breakdown: _summary.breakdown,
+      recent: _summary.recent,
+      titles: _summary.titles,
+      upcoming: _summary.upcoming,
+    );
+    await pump(tester, () async => gated);
+    expect(find.byKey(const Key('ladder_guard_novice')), findsOneWidget);
+    expect(find.byKey(const Key('ladder_guard_amateur')), findsNothing);
+  });
 }

@@ -78,7 +78,7 @@ class LevelScreen extends ConsumerWidget {
                 ),
                 _Titles(summary: summary, activeId: activeId),
                 SectionHeader('gamification.ladder_title'.tr()),
-                _Ladder(current: summary.rank),
+                _Ladder(current: summary.rank, level: summary.progress.level),
                 SectionHeader('gamification.recent_title'.tr()),
                 _Recent(events: summary.recent),
               ],
@@ -373,9 +373,12 @@ class _Titles extends ConsumerWidget {
 }
 
 class _Ladder extends StatefulWidget {
-  const _Ladder({required this.current});
+  const _Ladder({required this.current, required this.level});
 
   final Rank current;
+
+  /// Oyuncunun seviyesi; eşiği tutup bekçisi yenilmemiş rütbeler etiketlenir.
+  final int level;
 
   @override
   State<_Ladder> createState() => _LadderState();
@@ -410,14 +413,21 @@ class _LadderState extends State<_Ladder> {
           final rank = Rank.values[index];
           final isCurrent = rank == widget.current;
           final passed = rank.index < widget.current.index;
+          // Seviye eşiği tuttu ama bekçi ayakta (O2a spec §7).
+          final guarded = rank.index > widget.current.index && rank.minLevel <= widget.level;
           final status = isCurrent
               ? _pill(context, 'gamification.ladder_current'.tr(), filled: true)
               : passed
                   ? _pill(context, 'gamification.ladder_passed'.tr(), filled: false)
-                  : Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant);
+                  : guarded
+                      ? KeyedSubtree(
+                          key: Key('ladder_guard_${rank.name}'),
+                          child: _pill(context, 'gamification.battle.guard_badge'.tr(), filled: false),
+                        )
+                      : Icon(Icons.lock_outline, size: 16, color: scheme.onSurfaceVariant);
           return Opacity(
             key: Key('ladder_${rank.name}'),
-            opacity: rank.index > widget.current.index ? 0.4 : 1,
+            opacity: rank.index > widget.current.index && !guarded ? 0.4 : 1,
             child: Container(
               width: _cardWidth,
               padding: const EdgeInsets.all(12),
