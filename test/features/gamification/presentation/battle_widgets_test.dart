@@ -21,8 +21,9 @@ void main() {
     ])));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('monster_avatar_mud_goblin')), findsOneWidget);
-    // Görsel yoksa (testte asset yok) aşama simgesine düşer.
-    expect(find.byIcon(Icons.pest_control), findsOneWidget);
+    final image = tester.widget<Image>(find.byType(Image));
+    expect((image.image as AssetImage).assetName, 'assets/monsters/mud_goblin.jpg');
+    expect(find.byIcon(Icons.pest_control), findsNothing);
     expect(find.text('560 / 660'), findsOneWidget);
     expect(find.text(muscleLabelKey('chest').tr()), findsOneWidget);
     expect(find.text(muscleLabelKey('quadriceps').tr()), findsOneWidget);
