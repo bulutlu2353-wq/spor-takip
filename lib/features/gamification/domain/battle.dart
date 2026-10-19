@@ -150,3 +150,35 @@ Rank gatedRank(int level, BattleState? battle) {
   if (battle == null) return byLevel;
   return Rank.values[math.min(byLevel.index, battle.guardiansBeaten)];
 }
+
+/// [seen]'den sonraki vuruşlar, eskiden yeniye (O2 cila spec §6.1). [seen] null → boş (ilk açılış).
+List<BattleHit> unseenHits(BattleState state, DateTime? seen) {
+  if (seen == null) return const [];
+  return [for (final hit in state.recent.reversed) if (hit.date.isAfter(seen)) hit];
+}
+
+/// Ana sayfa kartında oynatılacak vuruş özeti (O2 cila spec §6.2).
+class HitReplay {
+  const HitReplay({required this.damage, required this.crit, required this.fromHpLeft, this.defeated});
+
+  final int damage;
+  final bool crit;
+
+  /// Animasyon başında kalan can oranı (0–1); yenilme varsa yeni canavar tam canla başlar.
+  final double fromHpLeft;
+
+  /// Yenilen son canavar; yoksa null.
+  final int? defeated;
+}
+
+HitReplay hitReplay(BattleState state, List<BattleHit> hits) {
+  final damage = hits.fold(0, (sum, h) => sum + h.damage);
+  final defeated = hits.expand((h) => h.defeated).lastOrNull;
+  final before = defeated == null ? math.max(0, state.damage - damage) : 0;
+  return HitReplay(
+    damage: damage,
+    crit: hits.any((h) => h.critShare > 0),
+    fromHpLeft: (state.hp - before) / state.hp,
+    defeated: defeated,
+  );
+}

@@ -60,3 +60,21 @@ class ActiveTitle extends AsyncNotifier<String?> {
 }
 
 final activeTitleProvider = AsyncNotifierProvider<ActiveTitle, String?>(ActiveTitle.new);
+
+const battleSeenHitKey = 'gamification.battle_seen_hit';
+
+/// En son görülen vuruşun tarihi, cihazda (O2 cila spec §6.1); okunamazsa null.
+Future<DateTime?> readSeenHit() async {
+  try {
+    final raw = (await SharedPreferences.getInstance()).getString(battleSeenHitKey);
+    return raw == null ? null : DateTime.tryParse(raw);
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<void> writeSeenHit(DateTime date) async {
+  try {
+    await (await SharedPreferences.getInstance()).setString(battleSeenHitKey, date.toIso8601String());
+  } catch (_) {}
+}
