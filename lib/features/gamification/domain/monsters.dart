@@ -14,7 +14,7 @@ class Monster {
   String get nameKey => 'gamification.battle.monster.$id';
 
   /// Foto-gerçekçi portre; dosya yoksa arayüz yer tutucu çizer.
-  String get imageAsset => 'assets/monsters/$id.png';
+  String get imageAsset => 'assets/monsters/$id.jpg';
 }
 
 /// Index `i` (0…14) `Rank.values[i + 1]`'in bekçisi; 15 sonsuz boss.

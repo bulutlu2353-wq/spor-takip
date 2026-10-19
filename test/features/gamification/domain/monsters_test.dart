@@ -8,7 +8,7 @@ void main() {
     expect(monsters, hasLength(16));
     expect(monsters.map((m) => m.id).toSet(), hasLength(16));
     expect(monsters.first.nameKey, 'gamification.battle.monster.mud_goblin');
-    expect(monsters.first.imageAsset, 'assets/monsters/mud_goblin.png');
+    expect(monsters.first.imageAsset, 'assets/monsters/mud_goblin.jpg');
   });
 
   test('each muscle group except the neck is a weak spot exactly twice', () {
