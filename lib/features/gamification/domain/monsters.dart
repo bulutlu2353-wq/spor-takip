@@ -4,12 +4,17 @@ import 'levels.dart';
 
 /// Rütbe bekçileri ve sonsuz boss (O2a spec §3).
 class Monster {
-  const Monster(this.id, this.weakMuscles);
+  const Monster(this.id, this.weakMuscles, {this.zoom = 1.0, this.focus = (0.0, 0.0)});
 
   final String id;
 
   /// `muscleGroups` değerleri; ana kası bunlardan biri olan setler kritik vurur.
   final List<String> weakMuscles;
+
+  /// Daire portrede büyütme (≥ 1) ve büyütülen görselin görünen kısmı, `Alignment(x, y)`
+  /// anlamında (O2 cila spec §3).
+  final double zoom;
+  final (double, double) focus;
 
   String get nameKey => 'gamification.battle.monster.$id';
 
@@ -19,22 +24,22 @@ class Monster {
 
 /// Index `i` (0…14) `Rank.values[i + 1]`'in bekçisi; 15 sonsuz boss.
 const monsters = <Monster>[
-  Monster('mud_goblin', ['chest', 'quadriceps']),
-  Monster('rat_king', ['lats', 'hamstrings']),
-  Monster('skeleton_guard', ['shoulders', 'glutes']),
-  Monster('shadow_wolf', ['biceps', 'calves']),
-  Monster('orc_warrior', ['triceps', 'abdominals']),
-  Monster('stone_golem', ['middle back', 'adductors']),
-  Monster('bridge_troll', ['traps', 'abductors']),
-  Monster('minotaur', ['lower back', 'forearms']),
-  Monster('ash_wraith', ['chest', 'hamstrings']),
-  Monster('basilisk', ['quadriceps', 'lats']),
-  Monster('cyclops', ['shoulders', 'calves']),
+  Monster('mud_goblin', ['chest', 'quadriceps'], zoom: 1.25, focus: (0.0, -0.3)),
+  Monster('rat_king', ['lats', 'hamstrings'], zoom: 1.15, focus: (0.0, -0.1)),
+  Monster('skeleton_guard', ['shoulders', 'glutes'], zoom: 1.25, focus: (0.0, -0.3)),
+  Monster('shadow_wolf', ['biceps', 'calves'], zoom: 1.2, focus: (0.0, -0.3)),
+  Monster('orc_warrior', ['triceps', 'abdominals'], zoom: 1.3, focus: (0.0, -0.4)),
+  Monster('stone_golem', ['middle back', 'adductors'], zoom: 1.15, focus: (0.0, -0.5)),
+  Monster('bridge_troll', ['traps', 'abductors'], zoom: 1.25, focus: (0.2, -0.3)),
+  Monster('minotaur', ['lower back', 'forearms'], zoom: 1.1, focus: (0.0, -0.3)),
+  Monster('ash_wraith', ['chest', 'hamstrings'], zoom: 1.25, focus: (0.0, -0.4)),
+  Monster('basilisk', ['quadriceps', 'lats'], zoom: 1.15, focus: (0.0, -0.3)),
+  Monster('cyclops', ['shoulders', 'calves'], zoom: 1.3, focus: (0.0, -0.3)),
   Monster('hydra', ['glutes', 'biceps']),
-  Monster('lich', ['abdominals', 'middle back']),
+  Monster('lich', ['abdominals', 'middle back'], zoom: 1.25, focus: (0.0, -0.5)),
   Monster('behemoth', ['triceps', 'adductors']),
-  Monster('crimson_dragon', ['traps', 'lower back']),
-  Monster('ancient_titan', ['forearms', 'abductors']),
+  Monster('crimson_dragon', ['traps', 'lower back'], zoom: 1.1, focus: (0.0, -0.2)),
+  Monster('ancient_titan', ['forearms', 'abductors'], zoom: 1.3, focus: (0.0, -0.4)),
 ];
 
 const endlessIndex = 15;
