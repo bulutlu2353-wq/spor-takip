@@ -40,4 +40,14 @@ void main() {
     expect(monsterAt(99).id, 'ancient_titan');
     expect([monsterTier(0), monsterTier(3), monsterTier(4), monsterTier(14), monsterTier(15)], [1, 2, 2, 4, 4]);
   });
+
+  test('framing stays inside the image', () {
+    for (final m in monsters) {
+      expect(m.zoom, inInclusiveRange(1.0, 1.5), reason: m.id);
+      expect(m.focus.$1, inInclusiveRange(-1.0, 1.0), reason: m.id);
+      expect(m.focus.$2, inInclusiveRange(-1.0, 1.0), reason: m.id);
+    }
+    expect(monsterAt(0).zoom, greaterThan(1.0));
+    expect(monsterAt(11).zoom, 1.0); // hidra: geniş kompozisyon
+  });
 }

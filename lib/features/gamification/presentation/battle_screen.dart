@@ -73,7 +73,7 @@ class _MonsterHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        MonsterAvatar(index: battle.index, size: 160),
+        MonsterAvatar(index: battle.index, size: 160, look: activeLook(battle)),
         const SizedBox(height: 12),
         Text(
           battle.monster.nameKey.tr(),
@@ -254,9 +254,8 @@ class _Path extends StatelessWidget {
     return Column(
       children: [
         for (var i = 0; i < monsters.length; i++)
-          Opacity(
+          KeyedSubtree(
             key: Key('battle_path_${monsters[i].id}'),
-            opacity: i < active ? 0.5 : (i == active ? 1 : 0.4),
             child: ListTile(
               key: Key(i < active
                   ? 'battle_path_done_${monsters[i].id}'
@@ -264,9 +263,17 @@ class _Path extends StatelessWidget {
                       ? 'battle_path_active_${monsters[i].id}'
                       : 'battle_path_locked_${monsters[i].id}'),
               contentPadding: EdgeInsets.zero,
-              leading: MonsterAvatar(index: i, size: 44),
+              leading: MonsterAvatar(
+                index: i,
+                size: 44,
+                look: i < active
+                    ? MonsterLook.defeated
+                    : i == active
+                        ? activeLook(battle)
+                        : MonsterLook.fogged,
+              ),
               title: Text(
-                monsters[i].nameKey.tr(),
+                pathNameVisible(i, active) ? monsters[i].nameKey.tr() : 'gamification.battle.unknown'.tr(),
                 style: i == active ? theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800) : null,
               ),
               subtitle: Text(switch (guardedRank(i)) {

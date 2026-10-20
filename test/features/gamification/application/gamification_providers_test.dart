@@ -99,4 +99,13 @@ void main() {
     final third = _container();
     expect(await third.read(activeTitleProvider.future), isNull);
   });
+
+  test('seen hit round-trips through the device store', () async {
+    SharedPreferences.setMockInitialValues({});
+    expect(await readSeenHit(), isNull);
+    await writeSeenHit(DateTime(2026, 10, 5, 18));
+    expect(await readSeenHit(), DateTime(2026, 10, 5, 18));
+    SharedPreferences.setMockInitialValues({battleSeenHitKey: 'not a date'});
+    expect(await readSeenHit(), isNull);
+  });
 }

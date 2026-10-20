@@ -31,6 +31,9 @@ void main() {
   setUpAll(initTestLocalization);
 
   Future<void> pump(WidgetTester tester, PlayerSummary summary) async {
+    // Canı az canavarın nabzı sonsuz döner; pumpAndSettle takılmasın.
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -53,6 +56,7 @@ void main() {
     expect(find.text('gamification.battle.damage_bonus'.tr(namedArgs: {'n': '24'})), findsOneWidget);
     expect(find.text('44'), findsOneWidget);
     expect(find.text('gamification.battle.hits_empty'.tr()), findsOneWidget);
+    expect(find.byKey(const Key('monster_pulse')), findsNWidgets(2)); // başlık + yoldaki aktif satır
   });
 
   testWidgets('guardian beaten ahead of the level: waits for the level', (tester) async {
@@ -86,6 +90,23 @@ void main() {
     await tester.scrollUntilVisible(find.byKey(const Key('battle_path_ancient_titan')), 300);
     expect(find.byKey(const Key('battle_path_done_mud_goblin')), findsOneWidget);
     expect(find.byKey(const Key('battle_path_active_rat_king')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('battle_path_done_mud_goblin')),
+        matching: find.byKey(const Key('monster_stamp')),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('battle_path_locked_skeleton_guard')),
+        matching: find.byKey(const Key('monster_fog')),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('gamification.battle.monster.skeleton_guard'.tr()), findsOneWidget);
+    expect(find.text('gamification.battle.monster.shadow_wolf'.tr()), findsNothing);
+    expect(find.text('gamification.battle.unknown'.tr()), findsNWidgets(13)); // 3…15
   });
 
   testWidgets('the info button opens the rules', (tester) async {
